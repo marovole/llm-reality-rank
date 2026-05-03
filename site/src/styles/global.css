@@ -28,13 +28,15 @@ code { font-family: var(--mono); font-size: 0.92em; }
 .nav-shell { max-width: 1180px; margin: 0 auto; padding: 1rem; display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
 .brand { font-family: var(--mono); font-weight: 800; text-decoration: none; letter-spacing: -0.04em; }
 .nav-links { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; }
-.nav-links a, .scenario-nav a, .button-link { border: 1.5px solid var(--line); padding: 0.55rem 0.75rem; text-decoration: none; background: var(--paper-soft); box-shadow: 3px 3px 0 var(--line); font-weight: 700; }
+.nav-links a, .scenario-nav a, .button-link { border: 1.5px solid var(--line); padding: 0.55rem 0.75rem; text-decoration: none; background: var(--paper-soft); box-shadow: 3px 3px 0 var(--line); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
 .nav-links a:hover, .scenario-nav a:hover, .button-link:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--line); }
+.button-link.primary { background: var(--accent); color: var(--paper-soft); }
 
 main { max-width: 1180px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem) 1rem; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr); gap: clamp(1rem, 4vw, 3rem); align-items: stretch; }
 .hero h1 { font-size: clamp(3rem, 9vw, 7.5rem); line-height: 0.86; letter-spacing: -0.08em; margin: 0; max-width: 9ch; }
 .hero p { font-size: clamp(1.1rem, 2vw, 1.35rem); line-height: 1.65; color: var(--muted); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
 .hero-card, .panel, .notice { border: 2px solid var(--line); background: var(--paper-soft); box-shadow: 8px 8px 0 var(--line); padding: clamp(1rem, 2.5vw, 2rem); }
 .hero-card { display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, var(--sage), var(--paper-soft)); }
 .eyebrow { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; font-size: 0.85rem; }
@@ -63,10 +65,15 @@ td small { display: block; color: var(--muted); margin-top: 0.25rem; }
 .scenario-nav { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1rem 0 1.5rem; }
 .card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
 .source-list article, .snapshot-list article, .model-card { border: 1.5px solid var(--line); background: var(--paper-soft); padding: 1rem; }
+.nav-card-list { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.nav-card { color: inherit; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease; }
+.nav-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--line); }
+.nav-card p { color: var(--muted); line-height: 1.55; }
 .evidence-list { display: grid; gap: 1rem; }
 .evidence-list article { border-left: 5px solid var(--accent); background: var(--paper); padding: 1rem; }
 .weights { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0; list-style: none; }
 .weights li { border: 1px solid var(--line); background: white; padding: 0.35rem 0.55rem; font-family: var(--mono); }
+.scenario-link-list a { text-decoration: none; font-weight: 800; }
 
 .site-footer { max-width: 1180px; margin: 2rem auto 0; padding: 2rem 1rem; border-top: 2px solid var(--line); color: var(--muted); }
 

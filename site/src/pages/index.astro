@@ -2,25 +2,92 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LeaderboardTable from '../components/LeaderboardTable.astro';
 import SnapshotNotice from '../components/SnapshotNotice.astro';
-import { currentSnapshot, pageTitle, rankedScores } from '../lib/data';
+import { currentSnapshot, pageTitle, rankedScores, scenarios, sources } from '../lib/data';
 ---
 <BaseLayout title={pageTitle('真实使用价值榜静态站点')} description="LLM Reality Rank 静态站点首页，提供中文产品定位、reviewed alpha 综合榜预览、置信度和快照限制说明。" canonicalPath="/">
   <section class="hero">
     <div>
       <p class="eyebrow">不是只看考试分，而是看真实使用价值</p>
       <h1>LLM 真实使用价值榜</h1>
-      <p>面向中文高阶 AI 用户、开发者和创作者的静态数据产品。当前站点基线读取 reviewed alpha snapshot 和静态 JSON API，优先展示可追溯来源、置信度和缺失维度，而不是包装成绝对结论。</p>
-      <p><a class="button-link" href="/leaderboard/">查看榜单</a> <a class="button-link" href="/api/v1/manifest.json">打开 API Manifest</a></p>
+      <p>面向中文高阶 AI 用户、开发者和创作者的模型选型入口。我们把主流榜单、专项 benchmark、价格速度和可用性信号放到同一张可追溯的表里，回答“今天实际该用哪个模型”，而不是只复述单项考试分。</p>
+      <p>当前公开站点只展示 <strong>reviewed alpha</strong> 快照：数据量仍小、部分维度缺失，所有排行榜都必须连同置信度、来源覆盖和限制一起阅读，不能当作最终官方结论。</p>
+      <p class="hero-actions">
+        <a class="button-link primary" href="/leaderboard/">查看综合榜</a>
+        <a class="button-link" href="/leaderboard/Coding/">看场景榜</a>
+        <a class="button-link" href="/selector/">打开选择器</a>
+      </p>
     </div>
     <aside class="hero-card" aria-label="当前快照摘要">
       <div>
         <p class="eyebrow">Snapshot</p>
         <h2>{currentSnapshot?.snapshot_id ?? 'unavailable'}</h2>
-        <p>{currentSnapshot?.date ?? 'unknown date'} · {currentSnapshot?.review_status ?? 'unknown review status'}</p>
+        <p>{currentSnapshot?.date ?? 'unknown date'} · {currentSnapshot?.review_status ?? 'unknown review status'} · {currentSnapshot?.publication_status ?? 'unknown publication status'}</p>
       </div>
-      <p>Alpha 数据量较小，榜单默认保留低置信度和 ineligible/provisional 标记，避免把 sparse data 误读为官方排名。</p>
+      <p>Alpha 数据量较小，榜单默认保留低置信度、缺失维度和 ineligible/provisional 标记，避免把 sparse data 误读为<strong>非最终官方排名</strong>之外的正式结论。</p>
+      <a class="button-link" href="/snapshots/">查看 latest snapshot</a>
     </aside>
   </section>
   <SnapshotNotice />
-  <LeaderboardTable scores={rankedScores.slice(0, 5)} title="综合榜预览" />
+  <section class="panel" aria-labelledby="start-paths-title">
+    <div class="section-heading">
+      <p class="eyebrow">First visit paths</p>
+      <h2 id="start-paths-title">第一次访问，从这里开始</h2>
+    </div>
+    <div class="card-list nav-card-list">
+      <a class="model-card nav-card" href="/leaderboard/">
+        <span class="eyebrow">01</span>
+        <h3>综合排行榜</h3>
+        <p>先看 reviewed alpha 综合分、Rank、置信度、来源覆盖和资格状态。</p>
+      </a>
+      <a class="model-card nav-card" href="/leaderboard/Coding/">
+        <span class="eyebrow">02</span>
+        <h3>场景排行榜</h3>
+        <p>按编程、中文、Agent、多模态、成本/速度等场景查看模型表现。</p>
+      </a>
+      <a class="model-card nav-card" href="/selector/">
+        <span class="eyebrow">03</span>
+        <h3>模型选择器</h3>
+        <p>查看当前 selector preset 和未来客户端权重重算的数据入口。</p>
+      </a>
+      <a class="model-card nav-card" href="/methodology/">
+        <span class="eyebrow">04</span>
+        <h3>方法论</h3>
+        <p>理解 Reality Value Index、场景维度、eligibility、confidence 和 caveats。</p>
+      </a>
+      <a class="model-card nav-card" href="/sources/">
+        <span class="eyebrow">05</span>
+        <h3>来源登记表</h3>
+        <p>检查每个来源的 URL、观察日期、说明和 reviewed alpha 使用范围。</p>
+      </a>
+      <a class="model-card nav-card" href="/api/v1/manifest.json">
+        <span class="eyebrow">06</span>
+        <h3>静态 API Manifest</h3>
+        <p>给开发者直接读取 models、scores、sources、scenarios、snapshots 和 selector data。</p>
+      </a>
+    </div>
+  </section>
+  <section class="grid two">
+    <article class="panel">
+      <p class="eyebrow">Scenario entry</p>
+      <h2>场景入口</h2>
+      <p>综合榜不是唯一答案。不同工作流会用不同权重看模型：AI 编程看 Coding + Reasoning，中文内容看 Chinese + General，预算/API 选型还要看 Practicality。</p>
+      <ul class="weights scenario-link-list">
+        {scenarios.map((scenario) => (
+          <li><a href={`/leaderboard/${scenario.id}/`}>{scenario.label_zh}</a></li>
+        ))}
+      </ul>
+    </article>
+    <article class="panel">
+      <p class="eyebrow">Confidence first</p>
+      <h2>先看置信度，再看名次</h2>
+      <p>每条公开排名都显示 confidence、source coverage、missing dimensions 和 eligibility。低覆盖模型可以进入预览，但不会被包装成确定、完整、官方的结论。</p>
+      <p>当前快照覆盖 {sources.length} 个 reviewed alpha source，Top {Math.min(rankedScores.length, 5)} 预览只是帮助导航；详细证据请进入模型详情和来源页面。</p>
+      <p><a class="button-link" href="/sources/">核对来源</a> <a class="button-link" href="/methodology/">阅读置信度规则</a></p>
+    </article>
+  </section>
+  <LeaderboardTable scores={rankedScores.slice(0, 5)} title="Reviewed alpha 综合榜预览" />
+  <section class="notice" aria-label="首页限制和 caveats">
+    <strong>阅读限制：这不是最终官方排名。</strong>
+    <p>首页不会使用 TODO、smoke-test 或 unreviewed 数据制造结论；如果某个场景缺少 reviewed alpha 数据，会显示空状态或低置信度提示，而不是补一个看起来完整的榜。</p>
+  </section>
 </BaseLayout>
