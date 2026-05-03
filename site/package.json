@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "node scripts/copy-api-assets.mjs",
     "build": "astro build",
-    "test": "node scripts/check-homepage-content.mjs && node scripts/check-leaderboard-content.mjs && node scripts/check-evidence-pages-content.mjs && node scripts/check-responsive-accessibility.mjs",
+    "test": "node scripts/check-homepage-content.mjs && node scripts/check-leaderboard-content.mjs && node scripts/check-evidence-pages-content.mjs && node scripts/check-responsive-accessibility.mjs && node scripts/check-selector-behavior.mjs",
     "dev": "astro dev --host 127.0.0.1 --port 3101",
     "preview": "astro preview --host 127.0.0.1 --port 3101",
     "check": "astro check"

@@ -42,7 +42,10 @@ const requiredSnippets = [
   ['external evidence link label', 'aria-label={`打开外部来源：${evidenceUrl}`}'],
   ['source external link label', 'aria-label={`打开外部来源：${source.source_url}`}'],
   ['semantic source article label', 'aria-labelledby={`source-${source.source_id}`}'],
-  ['selector card labelled articles', 'aria-labelledby={`preset-${preset.id}`}'],
+  ['selector preset accessible buttons', 'aria-label="选择 ${escapeHtml(preset.display_name)} preset"'],
+  ['selector provider filter label', 'aria-label="筛选模型厂商"'],
+  ['selector model type filter label', 'aria-label="筛选模型开放权重状态"'],
+  ['selector copy link accessible label', 'aria-label="复制当前选择器分享链接"'],
   ['methodology section labelled', 'aria-labelledby="score-construction-title"'],
 ];
 

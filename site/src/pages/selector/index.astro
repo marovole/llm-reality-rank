@@ -1,30 +1,274 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SnapshotNotice from '../../components/SnapshotNotice.astro';
-import { pageTitle, presets, rankedScores, scenarioLabel, selectorData } from '../../lib/data';
+import { pageTitle } from '../../lib/data';
 ---
-<BaseLayout title={pageTitle('模型选择器')} description="LLM Reality Rank 模型选择器静态基础页，列出 selector-data.json、场景 preset 和 reviewed alpha 推荐输入。" canonicalPath="/selector/">
-  <p class="eyebrow">Selector foundation</p>
+<BaseLayout title={pageTitle('模型选择器')} description="LLM Reality Rank 客户端模型选择器，支持场景 preset、自定义权重、筛选、置信度和可分享 URL 状态。" canonicalPath="/selector/">
+  <p class="eyebrow">Client-side model selector</p>
   <h1>模型选择器</h1>
-  <p>本阶段提供静态选择器路线和数据合同入口。后续交互会在浏览器端基于 <code>/api/v1/selector-data.json</code> 重算权重；当前页面不暴露分享或对比控件，避免承诺尚未实现的状态回放。</p>
+  <p>在浏览器端读取 <code>/api/v1/selector-data.json</code>，按你的场景权重即时重排模型。Alpha 数据仍然稀疏：推荐结果会显示置信度、缺失维度和可比性折减，不能当作最终官方结论。</p>
   <SnapshotNotice />
-  <section class="panel">
-    <h2>Preset 输入</h2>
-    <div class="card-list">
-      {presets.map((preset) => (
-        <article class="model-card" aria-labelledby={`preset-${preset.id}`}>
-          <h3 id={`preset-${preset.id}`}>{preset.display_name}</h3>
-          <p>{preset.description}</p>
-          <ul class="weights">
-            {Object.entries(preset.weights).map(([dimension, weight]) => <li>{scenarioLabel(dimension)} {weight}</li>)}
-          </ul>
-        </article>
-      ))}
+
+  <section class="panel selector-app" data-selector-app aria-labelledby="selector-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="selector-title">选择使用场景</h2>
+        <p>Preset 会填充默认权重；你也可以直接编辑非负权重。排序规则固定为：加权分、置信度、canonical ID。</p>
+      </div>
+      <button class="selector-copy-link" type="button" data-copy-url aria-label="复制当前选择器分享链接">复制当前链接</button>
+    </div>
+
+    <p class="leaderboard-status" data-selector-status>正在加载 selector-data.json…</p>
+    <div class="selector-validation" data-validation role="status" aria-live="polite"></div>
+
+    <div class="selector-layout">
+      <form class="selector-controls" data-selector-controls>
+        <fieldset>
+          <legend>Preset recommendations</legend>
+          <div class="preset-grid" data-preset-buttons aria-label="选择推荐 preset"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Active weights / 当前权重</legend>
+          <div class="weight-grid" data-weight-inputs></div>
+          <div class="control-actions">
+            <button type="button" data-reset-defaults aria-label="重置为当前 preset 默认权重">重置默认权重</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Filters / 筛选</legend>
+          <label>
+            <span>Provider</span>
+            <select name="provider" data-provider-filter aria-label="筛选模型厂商"></select>
+          </label>
+          <label>
+            <span>Model type</span>
+            <select name="model_type" data-model-type-filter aria-label="筛选模型开放权重状态"></select>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="open_only" data-open-only-filter aria-label="只显示开放权重或本地可部署模型" />
+            <span>只看开放权重 / local-ready</span>
+          </label>
+        </fieldset>
+      </form>
+
+      <section class="selector-results" aria-labelledby="selector-results-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="selector-results-title">推荐结果</h2>
+            <p data-active-summary>等待加载数据。</p>
+          </div>
+        </div>
+        <div data-results class="selector-result-list" aria-live="polite"></div>
+      </section>
     </div>
   </section>
-  <section class="panel">
-    <h2>当前可选模型</h2>
-    <p>selector-data snapshot: {(selectorData as any).snapshot_id}</p>
-    <p>模型输入记录：{rankedScores.length}。全部建议必须显示置信度和缺失维度。</p>
-  </section>
 </BaseLayout>
+
+<script>
+  // @ts-nocheck
+  import {
+    decodeSelectorState,
+    encodeSelectorState,
+    rankModels,
+    SELECTOR_DIMENSION_IDS,
+  } from '../../lib/selector.mjs';
+
+  const app = document.querySelector('[data-selector-app]');
+  const statusEl = app?.querySelector('[data-selector-status]');
+  const validationEl = app?.querySelector('[data-validation]');
+  const presetButtonsEl = app?.querySelector('[data-preset-buttons]');
+  const weightInputsEl = app?.querySelector('[data-weight-inputs]');
+  const providerFilter = app?.querySelector('[data-provider-filter]');
+  const modelTypeFilter = app?.querySelector('[data-model-type-filter]');
+  const openOnlyFilter = app?.querySelector('[data-open-only-filter]');
+  const resetButton = app?.querySelector('[data-reset-defaults]');
+  const copyButton = app?.querySelector('[data-copy-url]');
+  const resultsEl = app?.querySelector('[data-results]');
+  const activeSummaryEl = app?.querySelector('[data-active-summary]');
+
+  let selectorData = null;
+  let dimensions = SELECTOR_DIMENSION_IDS;
+  let state = { presetId: 'coding', weights: {}, provider: 'all', modelType: 'all', openOnly: false };
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+  function dimensionLabel(id) {
+    const dimension = selectorData?.dimensions.find((item) => item.id === id);
+    return dimension ? `${dimension.label_zh} · ${dimension.display_name}` : id;
+  }
+
+  function currentPreset() {
+    return selectorData.presets.find((preset) => preset.id === state.presetId) ?? selectorData.presets[0];
+  }
+
+  function populateSelect(selectEl, values, allLabel) {
+    if (!selectEl) return;
+    selectEl.innerHTML = [
+      `<option value="all">${escapeHtml(allLabel)}</option>`,
+      ...values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`),
+    ].join('');
+  }
+
+  function renderControls() {
+    const presets = selectorData.presets;
+    presetButtonsEl.innerHTML = presets.map((preset) => `
+      <button
+        type="button"
+        class="preset-button"
+        data-preset-id="${escapeHtml(preset.id)}"
+        aria-pressed="${preset.id === state.presetId ? 'true' : 'false'}"
+        aria-label="选择 ${escapeHtml(preset.display_name)} preset"
+      >
+        <strong>${escapeHtml(preset.display_name)}</strong>
+        <span>${escapeHtml(preset.description)}</span>
+      </button>
+    `).join('');
+
+    weightInputsEl.innerHTML = dimensions.map((dimension) => `
+      <label>
+        <span>${escapeHtml(dimensionLabel(dimension))}</span>
+        <input
+          type="number"
+          min="0"
+          step="0.05"
+          inputmode="decimal"
+          name="weight_${escapeHtml(dimension)}"
+          data-weight-input="${escapeHtml(dimension)}"
+          value="${Number(state.weights[dimension] ?? 0)}"
+          aria-label="设置 ${escapeHtml(dimensionLabel(dimension))} 权重"
+        />
+      </label>
+    `).join('');
+
+    const providers = Array.from(new Set(selectorData.models.map((model) => model.provider).filter(Boolean))).sort();
+    const modelTypes = Array.from(new Set(selectorData.models.map((model) => model.model_type).filter(Boolean))).sort();
+    populateSelect(providerFilter, providers, '全部厂商');
+    populateSelect(modelTypeFilter, modelTypes, '全部类型');
+    providerFilter.value = state.provider;
+    modelTypeFilter.value = state.modelType;
+    openOnlyFilter.checked = state.openOnly;
+  }
+
+  function syncUrl() {
+    const query = encodeSelectorState(state);
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    window.history.replaceState(null, '', nextUrl);
+  }
+
+  function readWeightsFromInputs() {
+    const weights = {};
+    app.querySelectorAll('[data-weight-input]').forEach((input) => {
+      weights[input.dataset.weightInput] = Number(input.value);
+    });
+    state.weights = weights;
+  }
+
+  function renderResults() {
+    readWeightsFromInputs();
+    state.provider = providerFilter.value;
+    state.modelType = modelTypeFilter.value;
+    state.openOnly = openOnlyFilter.checked;
+    const filters = {
+      provider: state.provider,
+      model_type: state.modelType,
+      openOnly: state.openOnly,
+    };
+    const result = rankModels(selectorData.models, state.weights, filters, dimensions);
+    const preset = currentPreset();
+
+    syncUrl();
+    activeSummaryEl.textContent = `当前 preset：${preset.display_name}。模型输入 ${selectorData.models.length} 条；筛选后 ${result.ranked.length} 条。URL 会保存 preset、权重和筛选状态。`;
+    validationEl.innerHTML = result.validationMessages.length
+      ? `<ul>${result.validationMessages.map((message) => `<li>${escapeHtml(message)}</li>`).join('')}</ul>`
+      : '<p>权重有效。仍需结合置信度、缺失维度和来源覆盖阅读。</p>';
+
+    if (result.ranked.length === 0) {
+      resultsEl.innerHTML = '<div class="empty-state">没有符合当前权重和筛选条件的推荐结果；页面不会用占位模型补齐。</div>';
+      return;
+    }
+
+    resultsEl.innerHTML = result.ranked.slice(0, 12).map((model, index) => {
+      const missing = model.selector.missingWeightedDimensions;
+      const matched = model.selector.matchedDimensions;
+      const reasons = model.selector.reasons.join('；');
+      return `
+        <article class="selector-result-card" aria-labelledby="selector-result-${index}">
+          <div class="selector-rank">#${index + 1}</div>
+          <div>
+            <h3 id="selector-result-${index}">${escapeHtml(model.display_name)}</h3>
+            <p><code>${escapeHtml(model.canonical_id)}</code></p>
+            <p>${escapeHtml(model.provider)} · ${escapeHtml(model.model_type ?? 'unknown')} · ${escapeHtml(model.access_type ?? 'unknown')}</p>
+            <p><strong>Selector score:</strong> ${model.selector.weightedScore.toFixed(2)} / 100 · 可比权重 ${(model.selector.comparableWeight * 100).toFixed(0)}%</p>
+            <p><span class="badge" aria-label="置信度：${escapeHtml(model.confidence?.label ?? 'Unknown')}，分数 ${Number(model.confidence?.score ?? 0).toFixed(1)}">Confidence ${escapeHtml(model.confidence?.label ?? 'Unknown')} ${Number(model.confidence?.score ?? 0).toFixed(1)}</span></p>
+            <p><strong>推荐理由：</strong>${escapeHtml(reasons)}</p>
+            <ul class="weights">
+              ${matched.map((item) => `<li>${escapeHtml(dimensionLabel(item.dimension))}: ${item.score.toFixed(1)} × ${item.weight.toFixed(2)}</li>`).join('')}
+            </ul>
+            ${missing.length > 0 ? `<p class="warning-text">缺失加权维度：${escapeHtml(missing.join(', '))}。这会降低推荐可比性。</p>` : ''}
+            ${model.missing_dimensions?.length ? `<p><small>API missing_dimensions: ${escapeHtml(model.missing_dimensions.join(', '))}</small></p>` : ''}
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function applyPreset(presetId) {
+    const preset = selectorData.presets.find((item) => item.id === presetId) ?? selectorData.presets[0];
+    state.presetId = preset.id;
+    state.weights = { ...preset.weights };
+    state.modelType = 'all';
+    state.openOnly = preset.id === 'open_weight';
+    renderControls();
+    renderResults();
+  }
+
+  async function initSelector() {
+    try {
+      const response = await fetch('/api/v1/selector-data.json', { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      selectorData = await response.json();
+      dimensions = selectorData.dimensions.map((dimension) => dimension.id);
+      state = decodeSelectorState(window.location.search, selectorData.presets, dimensions);
+      statusEl.textContent = `已加载 selector-data snapshot: ${selectorData.snapshot_id}。所有排序在本地完成，无需后端。`;
+      renderControls();
+      renderResults();
+    } catch (error) {
+      statusEl.textContent = 'selector-data.json 加载失败，选择器暂不可用。';
+      validationEl.innerHTML = `<div class="empty-state error-state">静态 API 不可用：${escapeHtml(error.message)}。不会回退到过期或占位推荐。</div>`;
+    }
+  }
+
+  presetButtonsEl?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-preset-id]');
+    if (!button) return;
+    applyPreset(button.dataset.presetId);
+  });
+
+  app?.addEventListener('input', (event) => {
+    if (event.target.matches('[data-weight-input], [data-open-only-filter]')) renderResults();
+  });
+  app?.addEventListener('change', (event) => {
+    if (event.target.matches('[data-provider-filter], [data-model-type-filter]')) renderResults();
+  });
+  resetButton?.addEventListener('click', () => applyPreset(state.presetId));
+  copyButton?.addEventListener('click', async () => {
+    syncUrl();
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      copyButton.textContent = '已复制链接';
+    } catch {
+      copyButton.textContent = 'URL 已在地址栏更新';
+    }
+    setTimeout(() => { copyButton.textContent = '复制当前链接'; }, 1800);
+  });
+
+  initSelector();
+</script>
