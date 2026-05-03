@@ -1,0 +1,458 @@
+{
+  "dimensions": [
+    {
+      "display_name": "General capability",
+      "id": "General",
+      "label_zh": "通用能力"
+    },
+    {
+      "display_name": "Reasoning and math",
+      "id": "Reasoning_Math",
+      "label_zh": "推理/数学"
+    },
+    {
+      "display_name": "Coding",
+      "id": "Coding",
+      "label_zh": "编程能力"
+    },
+    {
+      "display_name": "Chinese capability",
+      "id": "Chinese",
+      "label_zh": "中文能力"
+    },
+    {
+      "display_name": "Multimodal and document understanding",
+      "id": "Multimodal_Doc",
+      "label_zh": "多模态/文档理解"
+    },
+    {
+      "display_name": "Agent and tool use",
+      "id": "Agent_ToolUse",
+      "label_zh": "Agent/工具调用"
+    },
+    {
+      "display_name": "Practicality",
+      "id": "Practicality",
+      "label_zh": "成本/速度/上下文"
+    },
+    {
+      "display_name": "Ecosystem",
+      "id": "Ecosystem",
+      "label_zh": "生态/可用性"
+    }
+  ],
+  "models": [
+    {
+      "access_type": "api",
+      "canonical_id": "google/gemini-3.1-pro-preview@unknown",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 41.375
+      },
+      "display_name": "Gemini 3.1 Pro Preview",
+      "missing_dimensions": [
+        "Reasoning_Math",
+        "Coding",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Practicality",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "Google",
+      "scores": {
+        "dimensions": {
+          "General": 80.706957
+        },
+        "overall_score": 80.706957
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "livebench"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "general",
+          "evidence_id": "ev_cec4fc67b71088d4",
+          "metric_name": "global_average",
+          "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "livebench",
+          "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "openai/gpt-5.5-high@unknown",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 41.375
+      },
+      "display_name": "GPT-5.5 (high)",
+      "missing_dimensions": [
+        "Reasoning_Math",
+        "Coding",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Practicality",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "OpenAI",
+      "scores": {
+        "dimensions": {
+          "General": 77.072739
+        },
+        "overall_score": 77.072739
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "livebench"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "general",
+          "evidence_id": "ev_02e4d92c0fdb4cf5",
+          "metric_name": "global_average",
+          "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "livebench",
+          "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "anthropic/claude-opus-4.7@unknown",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 41.375
+      },
+      "display_name": "Claude Opus 4.7",
+      "missing_dimensions": [
+        "Reasoning_Math",
+        "Coding",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Practicality",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "Anthropic",
+      "scores": {
+        "dimensions": {
+          "General": 74.655304
+        },
+        "overall_score": 74.655304
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "livebench"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "general",
+          "evidence_id": "ev_008e28ad94003432",
+          "metric_name": "global_average",
+          "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "livebench",
+          "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "google/gemini-2.5-pro@unknown",
+      "confidence": {
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 45.7
+      },
+      "display_name": "Gemini 2.5 Pro",
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "Google",
+      "scores": {
+        "dimensions": {
+          "Coding": 83.1,
+          "Practicality": 35.0
+        },
+        "overall_score": 63.86
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "aider_leaderboards",
+        "artificial_analysis_llm"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "coding",
+          "evidence_id": "ev_97b06fe3b660a434",
+          "metric_name": "polyglot_score",
+          "notes": "Reviewed alpha seed parsed from public Aider leaderboard HTML on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "aider_leaderboards",
+          "url": "https://aider.chat/docs/leaderboards/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "practical",
+          "evidence_id": "ev_ef12058aed6956c7",
+          "metric_name": "intelligence_index",
+          "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "artificial_analysis_llm",
+          "url": "https://artificialanalysis.ai/models/gemini-2-5-pro"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "openai/o3@unknown",
+      "confidence": {
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 52.55
+      },
+      "display_name": "o3",
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "OpenAI",
+      "scores": {
+        "dimensions": {
+          "Coding": 69.963366,
+          "Practicality": 38.0
+        },
+        "overall_score": 57.17802
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "aider_leaderboards",
+        "artificial_analysis_llm",
+        "swe_bench_verified"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "coding",
+          "evidence_id": "ev_325313d3fcfb61f7",
+          "metric_name": "polyglot_score",
+          "notes": "Reviewed alpha seed parsed from public Aider leaderboard HTML on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "aider_leaderboards",
+          "url": "https://aider.chat/docs/leaderboards/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "coding",
+          "evidence_id": "ev_cf291e36a8a00bc1",
+          "metric_name": "resolved_rate",
+          "notes": "Reviewed alpha seed parsed from SWE-bench public embedded leaderboard JSON, Verified board, on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "swe_bench_verified",
+          "url": "https://www.swebench.com/index.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "practical",
+          "evidence_id": "ev_996de48925dacdd4",
+          "metric_name": "intelligence_index",
+          "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "artificial_analysis_llm",
+          "url": "https://artificialanalysis.ai/models/o3"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "anthropic/claude-3.5-sonnet@2024-10-22",
+      "confidence": {
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 45.475
+      },
+      "display_name": "Claude 3.5 Sonnet (2024-10-22)",
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "Anthropic",
+      "scores": {
+        "dimensions": {
+          "Coding": 49.0,
+          "Practicality": 16.0
+        },
+        "overall_score": 35.8
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "artificial_analysis_llm",
+        "swe_bench_verified"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "coding",
+          "evidence_id": "ev_470333a4be93a865",
+          "metric_name": "resolved_rate",
+          "notes": "Reviewed alpha seed parsed from SWE-bench public embedded leaderboard JSON, Verified board, on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "swe_bench_verified",
+          "url": "https://www.swebench.com/index.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "practical",
+          "evidence_id": "ev_93a312b952d7e636",
+          "metric_name": "intelligence_index",
+          "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "artificial_analysis_llm",
+          "url": "https://artificialanalysis.ai/models/claude-35-sonnet"
+        }
+      ]
+    },
+    {
+      "access_type": "api",
+      "canonical_id": "openai/gpt-4o@2024-08-06",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 34.325
+      },
+      "display_name": "GPT-4o (2024-08-06)",
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Coding",
+        "Chinese",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Ecosystem"
+      ],
+      "model_type": "closed",
+      "provider": "OpenAI",
+      "scores": {
+        "dimensions": {
+          "Practicality": 17.0
+        },
+        "overall_score": 17.0
+      },
+      "snapshot_id": "2026-05-alpha",
+      "source_ids": [
+        "artificial_analysis_llm"
+      ],
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "practical",
+          "evidence_id": "ev_2e0ae782d596c89c",
+          "metric_name": "intelligence_index",
+          "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "artificial_analysis_llm",
+          "url": "https://artificialanalysis.ai/models/gpt-4o"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "description": "Prioritizes coding benchmarks, reasoning, and practical API usability.",
+      "display_name": "Coding / AI 编程",
+      "id": "coding",
+      "weights": {
+        "Coding": 0.5,
+        "General": 0.1,
+        "Practicality": 0.2,
+        "Reasoning_Math": 0.2
+      }
+    },
+    {
+      "description": "Prioritizes Chinese capability, general quality, and ecosystem availability.",
+      "display_name": "Chinese writing / 中文写作",
+      "id": "chinese_writing",
+      "weights": {
+        "Chinese": 0.5,
+        "Ecosystem": 0.15,
+        "General": 0.25,
+        "Practicality": 0.1
+      }
+    },
+    {
+      "description": "Prioritizes tool use, coding, reasoning, and long-task practicality.",
+      "display_name": "Agent workflows / Agent 工作流",
+      "id": "agent_workflows",
+      "weights": {
+        "Agent_ToolUse": 0.4,
+        "Coding": 0.2,
+        "Practicality": 0.2,
+        "Reasoning_Math": 0.2
+      }
+    },
+    {
+      "description": "Prioritizes cost, latency, context, ecosystem, and adequate general capability.",
+      "display_name": "Budget/API value / 预算 API 选型",
+      "id": "budget_api",
+      "weights": {
+        "Coding": 0.15,
+        "Ecosystem": 0.2,
+        "General": 0.2,
+        "Practicality": 0.45
+      }
+    },
+    {
+      "description": "Prioritizes multimodal/document performance plus general and reasoning ability.",
+      "display_name": "Multimodal / 多模态",
+      "id": "multimodal",
+      "weights": {
+        "General": 0.2,
+        "Multimodal_Doc": 0.5,
+        "Practicality": 0.15,
+        "Reasoning_Math": 0.15
+      }
+    },
+    {
+      "description": "Prioritizes deployable/open-weight models with coding, Chinese, and practical strength.",
+      "display_name": "Open-weight usage / 开放权重",
+      "filters": {
+        "model_type": [
+          "open_weight",
+          "open_source",
+          "hosted_open_weight",
+          "local_only"
+        ]
+      },
+      "id": "open_weight",
+      "weights": {
+        "Chinese": 0.15,
+        "Coding": 0.2,
+        "Ecosystem": 0.25,
+        "General": 0.15,
+        "Practicality": 0.25
+      }
+    }
+  ],
+  "snapshot_id": "2026-05-alpha"
+}

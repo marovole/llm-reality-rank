@@ -1,0 +1,125 @@
+{
+  "artifacts": {
+    "leaderboard": "leaderboard.json",
+    "manifest": "manifest.json",
+    "models": "models.json",
+    "scenarios": "scenarios.json",
+    "scores": "scores.json",
+    "selector_data": "selector-data.json",
+    "snapshots": "snapshots.json",
+    "source_evidence": "source-evidence.json",
+    "sources": "sources.json"
+  },
+  "freshness": {
+    "date_observed_max": "2026-05-03",
+    "date_observed_min": "2026-05-03",
+    "observed_dates": [
+      "2026-05-03"
+    ]
+  },
+  "generated_at": "2026-05-03T12:56:54Z",
+  "included_sources": [
+    {
+      "categories": [
+        "coding",
+        "code_editing",
+        "cost"
+      ],
+      "metric_types": [
+        "pass_rate",
+        "cost",
+        "code_editing_benchmark"
+      ],
+      "name": "Aider LLM Leaderboards",
+      "notes": "与 AI Coding 真实使用高度相关。",
+      "priority": "P0",
+      "source_id": "aider_leaderboards",
+      "source_url": "https://aider.chat/docs/leaderboards/",
+      "urls": {
+        "primary": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "cost_speed",
+        "api",
+        "practical"
+      ],
+      "metric_types": [
+        "intelligence_index",
+        "price",
+        "latency",
+        "speed",
+        "context"
+      ],
+      "name": "Artificial Analysis LLM Leaderboard / Intelligence Index",
+      "notes": "Reality Value Index 的 Practicality Multiplier 核心来源。",
+      "priority": "P0",
+      "source_id": "artificial_analysis_llm",
+      "source_url": "https://artificialanalysis.ai/leaderboards/models",
+      "urls": {
+        "primary": "https://artificialanalysis.ai/leaderboards/models"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "reasoning",
+        "math",
+        "coding",
+        "anti_contamination"
+      ],
+      "metric_types": [
+        "benchmark_score",
+        "task_accuracy"
+      ],
+      "name": "LiveBench",
+      "notes": "动态更新有助于降低 benchmark contamination。",
+      "priority": "P0",
+      "source_id": "livebench",
+      "source_url": "https://livebench.ai/",
+      "urls": {
+        "primary": "https://livebench.ai/"
+      }
+    },
+    {
+      "categories": [
+        "coding",
+        "agentic_coding",
+        "software_engineering"
+      ],
+      "metric_types": [
+        "resolved_issue_rate",
+        "pass_rate"
+      ],
+      "name": "SWE-bench Verified",
+      "notes": "优先使用 Verified，不要和普通 SWE-bench 混合计分。",
+      "priority": "P0",
+      "source_id": "swe_bench_verified",
+      "source_url": "https://www.swebench.com/",
+      "urls": {
+        "primary": "https://www.swebench.com/"
+      }
+    }
+  ],
+  "limitations": [
+    "Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.",
+    "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
+    "Sparse or missing dimensions are exposed explicitly rather than imputed."
+  ],
+  "methodology_version": "docs/llm-reality-rank-scoring-methodology.md",
+  "official_status": "reviewed_snapshot_not_absolute_truth",
+  "publication_status": "published",
+  "release_stage": "alpha",
+  "review_status": "reviewed",
+  "reviewed_at": "2026-05-03T12:56:54Z",
+  "row_counts": {
+    "model_scores": 7,
+    "models": 26,
+    "normalized_scores": 11,
+    "raw_rankings": 11,
+    "sources": 40
+  },
+  "snapshot_id": "2026-05-alpha"
+}

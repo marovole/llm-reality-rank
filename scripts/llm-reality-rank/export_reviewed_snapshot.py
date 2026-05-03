@@ -273,6 +273,7 @@ def build_snapshot_manifest(
         "snapshot_id": snapshot_id,
         "generated_at": generated_at,
         "reviewed_at": generated_at,
+        "release_stage": "alpha" if "alpha" in snapshot_id.lower() else "snapshot",
         "review_status": "reviewed",
         "publication_status": "published",
         "official_status": "reviewed_snapshot_not_absolute_truth",
@@ -280,6 +281,7 @@ def build_snapshot_manifest(
             "methodology_doc", "docs/llm-reality-rank-scoring-methodology.md"
         ),
         "limitations": [
+            "Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.",
             "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
             "Sparse or missing dimensions are exposed explicitly rather than imputed.",
         ],
@@ -314,6 +316,8 @@ def build_models_api(models: list[dict[str, Any]], scored_model_ids: set[str]) -
     records = []
     for model in models:
         canonical_id = model.get("canonical_id", "")
+        if canonical_id not in scored_model_ids:
+            continue
         records.append(
             {
                 "canonical_id": canonical_id,
@@ -333,7 +337,7 @@ def build_models_api(models: list[dict[str, Any]], scored_model_ids: set[str]) -
                 "aliases": model.get("aliases", []),
                 "source_names": model.get("aliases", []),
                 "notes": model.get("notes", ""),
-                "status": "active" if canonical_id in scored_model_ids else "inactive_draft",
+                "status": "active",
             }
         )
     records.sort(key=lambda record: record["canonical_id"])
@@ -351,6 +355,8 @@ def build_sources_api(sources: list[dict[str, Any]], used_source_ids: set[str], 
     records = []
     for source in sources:
         source_id = source.get("source_id", "")
+        if source_id not in used_source_ids:
+            continue
         records.append(
             {
                 "source_id": source_id,
@@ -367,7 +373,7 @@ def build_sources_api(sources: list[dict[str, Any]], used_source_ids: set[str], 
                 "evaluation_independence": source.get("evaluation_independence", ""),
                 "last_observed": last_observed.get(source_id, ""),
                 "notes": source.get("notes", ""),
-                "status": "active" if source_id in used_source_ids else "inactive_draft",
+                "status": "active",
             }
         )
     records.sort(key=lambda record: record["source_id"])

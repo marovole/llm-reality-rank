@@ -34,6 +34,7 @@ def test_snapshot_manifest_contains_required_review_metadata(tmp_path):
     manifest = read_json(result["snapshot_dir"] / "manifest.json")
 
     assert manifest["snapshot_id"] == "2026-05-alpha"
+    assert manifest["release_stage"] == "alpha"
     assert manifest["review_status"] == "reviewed"
     assert manifest["publication_status"] == "published"
     assert manifest["generated_at"] == "2026-05-03T00:00:00Z"
@@ -42,8 +43,8 @@ def test_snapshot_manifest_contains_required_review_metadata(tmp_path):
         "raw_rankings": 4,
         "normalized_scores": 4,
         "model_scores": 2,
-        "models": 2,
-        "sources": 4,
+        "models": 3,
+        "sources": 5,
     }
     assert {source["source_id"] for source in manifest["included_sources"]} == {
         "aider_leaderboards",
@@ -53,6 +54,7 @@ def test_snapshot_manifest_contains_required_review_metadata(tmp_path):
     }
     assert all(source["urls"] for source in manifest["included_sources"])
     assert manifest["artifacts"]["source_evidence"] == "source-evidence.json"
+    assert any("alpha" in limitation.lower() for limitation in manifest["limitations"])
 
 
 def test_promotion_fails_for_todo_smoke_unresolved_or_unsupported_data(tmp_path):
@@ -120,6 +122,8 @@ def test_static_api_json_has_valid_schemas_and_cross_references(tmp_path):
     assert manifest["endpoints"]["models"] == "/api/v1/models.json"
     assert "not official truth" in manifest["disclaimer"]
     assert len(model_ids) == len(models)
+    assert "alpha/unused@2026-05" not in model_ids
+    assert "unused_source" not in source_ids
 
     for score in scores:
         assert score["snapshot_id"] in snapshot_ids
@@ -234,6 +238,16 @@ sources:
     contamination_risk: low_medium
     evaluation_independence: platform_or_community
     notes: Reviewed fixture source.
+  - source_id: unused_source
+    priority: P2
+    name: Unused Draft Source
+    urls: {primary: "TBD"}
+    categories: [general]
+    metric_types: [accuracy]
+    source_trust: medium
+    contamination_risk: medium
+    evaluation_independence: unknown
+    notes: Draft placeholder source that must not enter public API.
 """,
         encoding="utf-8",
     )
@@ -263,6 +277,17 @@ models:
     access_type: api_and_local
     aliases: [Alpha B]
     notes: Reviewed alpha fixture.
+  - canonical_id: alpha/unused@2026-05
+    display_name: Unused Draft Model
+    provider: Alpha
+    provider_slug: alpha
+    model_family: alpha
+    model_variant: unused
+    version: "2026-05"
+    model_type: closed
+    access_type: api
+    aliases: [Alpha Unused]
+    notes: Draft placeholder model that must not enter public API.
 """,
         encoding="utf-8",
     )
