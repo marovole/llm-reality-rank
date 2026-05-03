@@ -28,6 +28,15 @@ OUTPUT_FIELDS = [
     "provider",
     "overall_score",
     "confidence_proxy",
+    "confidence_score",
+    "confidence_label",
+    "eligibility_status",
+    "eligibility_reason",
+    "publication_status",
+    "review_status",
+    "official_status",
+    "uncertainty_flags",
+    "missing_dimensions",
     "General",
     "Reasoning_Math",
     "Coding",
@@ -36,6 +45,7 @@ OUTPUT_FIELDS = [
     "Agent_ToolUse",
     "Practicality",
     "Ecosystem",
+    "scenario_count",
     "source_count",
 ]
 
@@ -112,6 +122,112 @@ def confidence_proxy(source_count: int, scenario_count: int) -> str:
     return "Low"
 
 
+def contains_uncertain_note(rows: list[dict[str, str]], markers: set[str]) -> bool:
+    for row in rows:
+        note = row.get("notes", "").lower()
+        if any(marker in note for marker in markers):
+            return True
+    return False
+
+
+def average_source_quality(rows: list[dict[str, str]]) -> float:
+    weights = [parse_float(row.get("source_effective_weight")) for row in rows]
+    valid_weights = [weight for weight in weights if weight is not None and weight > 0]
+    if not valid_weights:
+        return 0.5
+    return min(1.0, sum(valid_weights) / len(valid_weights))
+
+
+def confidence_score(
+    source_count: int,
+    scenario_count: int,
+    source_quality: float,
+    *,
+    has_unresolved_canonicalization: bool = False,
+    has_placeholder_data: bool = False,
+) -> float:
+    source_component = min(source_count / 5, 1.0) * 35
+    scenario_component = min(scenario_count / len(SCENARIO_WEIGHTS), 1.0) * 35
+    quality_component = max(0.0, min(source_quality, 1.0)) * 30
+    penalty = 0.0
+    if has_unresolved_canonicalization:
+        penalty += 20.0
+    if has_placeholder_data:
+        penalty += 20.0
+    return round(max(0.0, min(100.0, source_component + scenario_component + quality_component - penalty)), 6)
+
+
+def confidence_label(score: float) -> str:
+    if score >= 75:
+        return "High"
+    if score >= 45:
+        return "Medium"
+    return "Low"
+
+
+def eligibility_status(
+    source_count: int,
+    scenario_count: int,
+    *,
+    has_unresolved_canonicalization: bool = False,
+    has_placeholder_data: bool = False,
+) -> str:
+    if has_unresolved_canonicalization or has_placeholder_data:
+        return "ineligible"
+    if source_count >= 5 and scenario_count >= 4:
+        return "eligible"
+    if source_count >= 2 and scenario_count >= 2:
+        return "provisional"
+    return "ineligible"
+
+
+def eligibility_reason(
+    status: str,
+    source_count: int,
+    scenario_count: int,
+    *,
+    has_unresolved_canonicalization: bool = False,
+    has_placeholder_data: bool = False,
+) -> str:
+    reasons: list[str] = []
+    if status == "eligible":
+        return "meets_source_and_scenario_thresholds_for_review"
+    if source_count < 5:
+        reasons.append("insufficient_sources_for_review")
+    if scenario_count < 4:
+        reasons.append("insufficient_scenarios_for_review")
+    if has_unresolved_canonicalization:
+        reasons.append("unresolved_canonicalization")
+    if has_placeholder_data:
+        reasons.append("placeholder_or_todo_data")
+    return ";".join(reasons)
+
+
+def uncertainty_flags(
+    source_count: int,
+    scenario_count: int,
+    missing_dimensions: list[str],
+    source_quality: float,
+    *,
+    has_unresolved_canonicalization: bool = False,
+    has_placeholder_data: bool = False,
+) -> list[str]:
+    flags = ["draft_unreviewed", "not_official"]
+    if source_count < 5:
+        flags.append("insufficient_sources")
+    if scenario_count < 4:
+        flags.append("insufficient_scenarios")
+    if missing_dimensions:
+        flags.append("missing_dimensions")
+    if source_quality < 0.6:
+        flags.append("low_source_quality")
+    if has_unresolved_canonicalization:
+        flags.append("unresolved_canonicalization")
+    if has_placeholder_data:
+        flags.append("placeholder_or_todo_data")
+    return flags
+
+
 def load_rows(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
@@ -123,6 +239,7 @@ def aggregate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     by_model_scenario: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
     providers: dict[str, str] = {}
     source_ids: dict[str, set[str]] = defaultdict(set)
+    rows_by_model: dict[str, list[dict[str, str]]] = defaultdict(list)
 
     for row in rows:
         canonical_id = row.get("canonical_id", "")
@@ -132,6 +249,7 @@ def aggregate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
         by_model_scenario[(canonical_id, scenario)].append(row)
         providers[canonical_id] = row.get("provider", "")
         source_ids[canonical_id].add(row.get("source_id", ""))
+        rows_by_model[canonical_id].append(row)
 
     scenario_scores_by_model: dict[str, dict[str, float]] = defaultdict(dict)
     for (canonical_id, scenario), scenario_rows in by_model_scenario.items():
@@ -146,12 +264,57 @@ def aggregate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
             continue
         source_count = len({sid for sid in source_ids[canonical_id] if sid})
         scenario_count = len(scenario_scores)
+        model_rows = rows_by_model[canonical_id]
+        missing_dimensions = [scenario for scenario in SCENARIO_WEIGHTS if scenario not in scenario_scores]
+        source_quality = average_source_quality(model_rows)
+        has_unresolved_canonicalization = contains_uncertain_note(
+            model_rows, {"unresolved", "canonicalization_status=unresolved"}
+        )
+        has_placeholder_data = contains_uncertain_note(model_rows, {"todo", "placeholder", "smoke-test"})
+        score = confidence_score(
+            source_count,
+            scenario_count,
+            source_quality,
+            has_unresolved_canonicalization=has_unresolved_canonicalization,
+            has_placeholder_data=has_placeholder_data,
+        )
+        label = confidence_label(score)
+        eligibility = eligibility_status(
+            source_count,
+            scenario_count,
+            has_unresolved_canonicalization=has_unresolved_canonicalization,
+            has_placeholder_data=has_placeholder_data,
+        )
+        flags = uncertainty_flags(
+            source_count,
+            scenario_count,
+            missing_dimensions,
+            source_quality,
+            has_unresolved_canonicalization=has_unresolved_canonicalization,
+            has_placeholder_data=has_placeholder_data,
+        )
         row = {
             "rank": "",
             "canonical_id": canonical_id,
             "provider": providers.get(canonical_id, ""),
             "overall_score": f"{overall:.6f}",
-            "confidence_proxy": confidence_proxy(source_count, scenario_count),
+            "confidence_proxy": label,
+            "confidence_score": f"{score:.6f}",
+            "confidence_label": label,
+            "eligibility_status": eligibility,
+            "eligibility_reason": eligibility_reason(
+                eligibility,
+                source_count,
+                scenario_count,
+                has_unresolved_canonicalization=has_unresolved_canonicalization,
+                has_placeholder_data=has_placeholder_data,
+            ),
+            "publication_status": "unpublished",
+            "review_status": "draft_unreviewed",
+            "official_status": "not_official",
+            "uncertainty_flags": ";".join(flags),
+            "missing_dimensions": ";".join(missing_dimensions),
+            "scenario_count": str(scenario_count),
             "source_count": str(source_count),
         }
         for scenario in SCENARIO_WEIGHTS:
@@ -179,14 +342,15 @@ def write_markdown(path: Path, rows: list[dict[str, str]], title: str = "LLM Rea
         "",
         f"Generated: {date.today().isoformat()}",
         "",
-        "> Draft output. Scores are only as complete as the currently ingested raw ranking rows.",
+        "> Draft/unreviewed generated output: this is not an official ranking. Generated rows remain unpublished and not official until promoted to a reviewed snapshot.",
         "",
-        "| Rank | Model | Provider | Overall | Confidence | Sources |",
-        "|---:|---|---|---:|---|---:|",
+        "| Rank | Model | Provider | Overall | Confidence | Eligibility | Status | Sources |",
+        "|---:|---|---|---:|---|---|---|---:|",
     ]
     for row in rows:
+        status = f"{row['review_status']} / {row['publication_status']} / {row['official_status']}"
         lines.append(
-            f"| {row['rank']} | `{row['canonical_id']}` | {row['provider']} | {float(row['overall_score']):.2f} | {row['confidence_proxy']} | {row['source_count']} |"
+            f"| {row['rank']} | `{row['canonical_id']}` | {row['provider']} | {float(row['overall_score']):.2f} | {row['confidence_label']} ({float(row['confidence_score']):.1f}) | {row['eligibility_status']} | {status} | {row['source_count']} |"
         )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

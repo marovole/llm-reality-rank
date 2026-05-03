@@ -87,6 +87,85 @@ def test_aggregate_leaves_missing_scenario_dimensions_empty():
     assert aggregated["Ecosystem"] == ""
 
 
+def test_sparse_models_are_not_silently_official():
+    module = load_module()
+    rows = [normalized_row("sparse-model", "coding", "91")]
+
+    [aggregated] = module.aggregate(rows)
+
+    assert aggregated["eligibility_status"] == "ineligible"
+    assert aggregated["publication_status"] == "unpublished"
+    assert aggregated["review_status"] == "draft_unreviewed"
+    assert aggregated["official_status"] == "not_official"
+    assert "insufficient_sources" in aggregated["uncertainty_flags"]
+    assert "insufficient_scenarios" in aggregated["uncertainty_flags"]
+
+
+def test_high_coverage_has_higher_confidence_than_sparse_coverage():
+    module = load_module()
+    sparse_rows = [normalized_row("sparse-model", "coding", "71", source_id="sparse_source")]
+    high_coverage_rows = [
+        normalized_row("covered-model", "general", "80", source_id="source_general"),
+        normalized_row("covered-model", "math", "82", source_id="source_math"),
+        normalized_row("covered-model", "coding", "84", source_id="source_coding"),
+        normalized_row("covered-model", "chinese", "86", source_id="source_chinese"),
+        normalized_row("covered-model", "function_calling", "88", source_id="source_agent"),
+    ]
+
+    rows_by_model = {row["canonical_id"]: row for row in module.aggregate(sparse_rows + high_coverage_rows)}
+
+    assert rows_by_model["covered-model"]["eligibility_status"] == "eligible"
+    assert rows_by_model["covered-model"]["confidence_label"] == "High"
+    assert float(rows_by_model["covered-model"]["confidence_score"]) > float(
+        rows_by_model["sparse-model"]["confidence_score"]
+    )
+
+
+def test_missing_dimensions_are_exposed_without_fabricating_scores():
+    module = load_module()
+    rows = [
+        normalized_row("sparse-model", "coding", "91"),
+        normalized_row("sparse-model", "chinese", "82"),
+    ]
+
+    [aggregated] = module.aggregate(rows)
+
+    assert aggregated["General"] == ""
+    assert aggregated["missing_dimensions"] == (
+        "General;Reasoning_Math;Multimodal_Doc;Agent_ToolUse;Practicality;Ecosystem"
+    )
+    assert "missing_dimensions" in aggregated["uncertainty_flags"]
+
+
+def test_markdown_output_declares_draft_unreviewed_not_official(tmp_path):
+    module = load_module()
+    row = {
+        "rank": "1",
+        "canonical_id": "model-a",
+        "provider": "Provider",
+        "overall_score": "90.000000",
+        "confidence_score": "92.000000",
+        "confidence_label": "High",
+        "confidence_proxy": "High",
+        "source_count": "5",
+        "eligibility_status": "eligible",
+        "publication_status": "unpublished",
+        "review_status": "draft_unreviewed",
+        "official_status": "not_official",
+        "missing_dimensions": "",
+        "uncertainty_flags": "",
+    }
+
+    out = tmp_path / "scores.md"
+    module.write_markdown(out, [row])
+
+    text = out.read_text(encoding="utf-8")
+    assert "Draft/unreviewed generated output" in text
+    assert "not an official ranking" in text
+    assert "| Rank | Model | Provider | Overall | Confidence | Eligibility | Status | Sources |" in text
+    assert "draft_unreviewed / unpublished / not_official" in text
+
+
 def normalized_row(
     canonical_id: str,
     category: str,
