@@ -1,0 +1,674 @@
+metadata:
+  project: LLM Reality Rank
+  display_name: 大模型真实使用价值榜
+  updated_at: '2026-05-03'
+  description: Machine-readable registry of leaderboard and benchmark sources for LLM Reality Rank.
+  methodology_doc: docs/llm-reality-rank-scoring-methodology.md
+  source_registry_doc: docs/llm-reality-rank-source-registry.md
+
+sources:
+  - source_id: lmarena_chatbot_arena
+    priority: P0
+    name: LMArena / Chatbot Arena Leaderboard
+    urls:
+      primary: https://lmarena.ai/leaderboard/
+      backup: https://huggingface.co/spaces/lmarena-ai/arena-leaderboard
+    organization: LMSYS / LMArena
+    categories: [general, preference, conversation]
+    metric_types: [elo, human_preference, win_rate]
+    source_trust: high
+    contamination_risk: low_medium
+    recommended_weight: high_for_general_medium_for_overall
+    update_frequency: frequent
+    best_for: 通用对话、人类偏好、回答体验
+    use_in: [overall, general_chat, writing_user_experience]
+    ingestion_method: manual_or_scrape
+    notes: 影响力极高，适合衡量真实用户偏好；偏主观，容易受回答风格影响。
+
+  - source_id: artificial_analysis_llm
+    priority: P0
+    name: Artificial Analysis LLM Leaderboard / Intelligence Index
+    urls:
+      primary: https://artificialanalysis.ai/leaderboards/models
+    organization: Artificial Analysis
+    categories: [general, cost_speed, api, practical]
+    metric_types: [intelligence_index, price, latency, speed, context]
+    source_trust: high
+    contamination_risk: low_medium
+    recommended_weight: high_for_practicality_medium_high_for_overall
+    update_frequency: frequent
+    best_for: API 选型、价格、速度、上下文、综合实用指标
+    use_in: [overall, value_for_money, api_models, speed, cost_efficiency]
+    ingestion_method: manual_or_scrape
+    notes: Reality Value Index 的 Practicality Multiplier 核心来源。
+
+  - source_id: livebench
+    priority: P0
+    name: LiveBench
+    urls:
+      primary: https://livebench.ai/
+    organization: LiveBench team
+    categories: [general, reasoning, math, coding, anti_contamination]
+    metric_types: [benchmark_score, task_accuracy]
+    source_trust: high
+    contamination_risk: low
+    recommended_weight: high
+    update_frequency: frequent
+    best_for: 动态、抗污染的综合能力评估
+    use_in: [overall_capability, reasoning, math, coding_reference]
+    ingestion_method: manual_or_scrape
+    notes: 动态更新有助于降低 benchmark contamination。
+
+  - source_id: opencompass_llm
+    priority: P0
+    name: OpenCompass LLM Leaderboard
+    urls:
+      primary: https://rank.opencompass.org.cn/leaderboard-llm-v2
+      backup: https://opencompass.org.cn/leaderboard-llm
+    organization: OpenCompass / Shanghai AI Lab ecosystem
+    categories: [general, chinese, reasoning, coding, open_models]
+    metric_types: [benchmark_aggregate, task_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_chinese_general_medium_high_for_overall
+    update_frequency: frequent
+    best_for: 中英综合能力、中国模型覆盖、开源模型评测
+    use_in: [overall, chinese, open_weight, china_models]
+    ingestion_method: manual_or_scrape
+    notes: 对中文和中国模型覆盖优于许多英文榜单。
+
+  - source_id: hf_open_llm_leaderboard
+    priority: P0
+    name: Hugging Face Open LLM Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard
+    organization: Hugging Face
+    categories: [open_models, general]
+    metric_types: [benchmark_aggregate]
+    source_trust: high
+    contamination_risk: medium_high
+    recommended_weight: medium_for_open_models_low_medium_for_overall
+    update_frequency: frequent
+    best_for: 开放权重模型横向比较
+    use_in: [open_weight, local_deployment, small_models]
+    ingestion_method: hf_space_or_manual
+    notes: 适合作为开源模型来源之一，不应单独决定总分。
+
+  - source_id: stanford_helm
+    priority: P0
+    name: Stanford HELM / HELM Lite
+    urls:
+      primary: https://crfm.stanford.edu/helm/
+      lite: https://crfm.stanford.edu/helm/lite/latest/
+    organization: Stanford CRFM
+    categories: [general, safety, robustness, fairness, academic]
+    metric_types: [holistic_benchmark_metrics]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_methodology_medium_for_overall
+    update_frequency: periodic
+    best_for: 学术公信力、鲁棒性、安全、公平、校准等维度
+    use_in: [overall_capability, safety_robustness, methodology]
+    ingestion_method: manual_or_scrape
+    notes: 更新速度未必最快，但学术权威性强。
+
+  - source_id: swe_bench_verified
+    priority: P0
+    name: SWE-bench Verified
+    urls:
+      primary: https://www.swebench.com/
+    organization: SWE-bench
+    categories: [coding, agentic_coding, software_engineering]
+    metric_types: [resolved_issue_rate, pass_rate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: very_high_for_coding_medium_for_overall
+    update_frequency: frequent
+    best_for: 真实 GitHub issue 修复能力
+    use_in: [ai_coding, agent_coding, software_engineering]
+    ingestion_method: manual_or_scrape
+    notes: 优先使用 Verified，不要和普通 SWE-bench 混合计分。
+
+  - source_id: aider_leaderboards
+    priority: P0
+    name: Aider LLM Leaderboards
+    urls:
+      primary: https://aider.chat/docs/leaderboards/
+    organization: Aider
+    categories: [coding, code_editing, cost]
+    metric_types: [pass_rate, cost, code_editing_benchmark]
+    source_trust: high
+    contamination_risk: low_medium
+    recommended_weight: very_high_for_ai_coding_medium_for_overall
+    update_frequency: frequent
+    best_for: 真实代码编辑、多语言改代码、coding cost
+    use_in: [ai_coding, code_editing, coding_value_for_money]
+    ingestion_method: manual_or_scrape
+    notes: 与 AI Coding 真实使用高度相关。
+
+  - source_id: livecodebench
+    priority: P0
+    name: LiveCodeBench
+    urls:
+      primary: https://livecodebench.github.io/leaderboard.html
+    organization: LiveCodeBench
+    categories: [coding, algorithms, anti_contamination]
+    metric_types: [pass_rate, benchmark_score]
+    source_trust: high
+    contamination_risk: low_medium
+    recommended_weight: high_for_coding_medium_for_overall
+    update_frequency: frequent
+    best_for: 动态编程能力、算法题、代码推理
+    use_in: [coding, algorithmic_coding, reasoning_plus_code]
+    ingestion_method: manual_or_scrape
+    notes: 比 HumanEval/MBPP 更新、更难、更抗污染。
+
+  - source_id: superclue
+    priority: P0
+    name: SuperCLUE
+    urls:
+      primary: https://superclueai.com/
+      github: https://github.com/CLUEbenchmark/SuperCLUE
+    organization: CLUEbenchmark / SuperCLUE
+    categories: [chinese, general, reasoning]
+    metric_types: [benchmark_aggregate, task_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_chinese_medium_for_overall
+    update_frequency: periodic
+    best_for: 中文通用大模型综合评测
+    use_in: [chinese, china_models, overall_chinese_dimension]
+    ingestion_method: manual_or_scrape
+    notes: 中文榜单核心来源之一。
+
+  - source_id: ceval
+    priority: P0
+    name: C-Eval
+    urls:
+      primary: https://cevalbenchmark.com/static/leaderboard.html
+    organization: C-Eval team
+    categories: [chinese, exams, knowledge]
+    metric_types: [accuracy, exam_benchmark_score]
+    source_trust: high
+    contamination_risk: medium_high
+    recommended_weight: medium_high_for_chinese_low_medium_for_overall
+    update_frequency: periodic
+    best_for: 中文考试、知识理解
+    use_in: [chinese_knowledge, chinese]
+    ingestion_method: manual_or_ssl_bypass_scrape
+    notes: 当前站点可能有证书问题，抓取时可能需要使用镜像/GitHub/忽略 SSL。
+
+  - source_id: cmmlu
+    priority: P0
+    name: CMMLU
+    urls:
+      primary: https://github.com/haonan-li/CMMLU
+    organization: CMMLU authors
+    categories: [chinese, knowledge, mmlu_style]
+    metric_types: [accuracy]
+    source_trust: high
+    contamination_risk: medium_high
+    recommended_weight: medium_high_for_chinese_low_medium_for_overall
+    update_frequency: periodic
+    best_for: 中文多任务语言理解
+    use_in: [chinese, chinese_knowledge]
+    ingestion_method: github_or_manual
+    notes: 需区分官方自报和第三方复现。
+
+  - source_id: mmmu
+    priority: P0
+    name: MMMU
+    urls:
+      primary: https://mmmu-benchmark.github.io/
+    organization: MMMU authors
+    categories: [multimodal, vision, reasoning]
+    metric_types: [accuracy]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_multimodal_low_medium_for_overall
+    update_frequency: periodic
+    best_for: 多学科多模态理解与视觉推理
+    use_in: [multimodal, image_text_understanding, visual_reasoning]
+    ingestion_method: manual_or_scrape
+    notes: 多模态理解重要 benchmark。
+
+  - source_id: mathvista
+    priority: P0
+    name: MathVista
+    urls:
+      primary: https://mathvista.github.io/
+    organization: MathVista authors
+    categories: [multimodal, math, visual_reasoning]
+    metric_types: [accuracy]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_multimodal_reasoning_low_for_overall
+    update_frequency: periodic
+    best_for: 视觉数学推理
+    use_in: [multimodal_reasoning, visual_math]
+    ingestion_method: manual_or_scrape
+    notes: 适合作为多模态子维度。
+
+  - source_id: gaia
+    priority: P0
+    name: GAIA Benchmark Leaderboard
+    urls:
+      primary: https://gaia-benchmark-leaderboard.hf.space/
+      backup: https://huggingface.co/spaces/gaia-benchmark/leaderboard
+    organization: GAIA benchmark authors
+    categories: [agent, tool_use, research_assistant]
+    metric_types: [task_success_rate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_agent_low_medium_for_overall
+    update_frequency: periodic
+    best_for: 多步推理、搜索、工具使用、研究助手能力
+    use_in: [agent, research_assistant, tool_use]
+    ingestion_method: hf_space_or_manual
+    notes: 衡量 LLM 作为助手/Agent 的真实任务能力。
+
+  - source_id: berkeley_function_calling
+    priority: P0
+    name: Berkeley Function Calling Leaderboard / Gorilla
+    urls:
+      primary: https://gorilla.cs.berkeley.edu/leaderboard.html
+      blog: https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html
+    organization: UC Berkeley Gorilla
+    categories: [agent, function_calling, tool_use]
+    metric_types: [accuracy, ast_eval, subtree_eval, executable_eval]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_agent_low_medium_for_overall
+    update_frequency: periodic
+    best_for: 函数调用、API 调用、工具使用
+    use_in: [agent_tool_use, function_calling]
+    ingestion_method: manual_or_scrape
+    notes: 对工具型 Agent 选型很关键。
+
+  - source_id: openrouter_rankings
+    priority: P0
+    name: OpenRouter Rankings
+    urls:
+      primary: https://openrouter.ai/rankings
+    organization: OpenRouter
+    categories: [adoption, api, ecosystem, usage]
+    metric_types: [usage_ranking, traffic_signal, popularity_signal]
+    source_trust: medium_high
+    contamination_risk: low_for_usage_not_applicable_for_ability
+    recommended_weight: medium_for_ecosystem_low_for_ability
+    update_frequency: frequent
+    best_for: 真实市场选择、API 使用热度、生态采用
+    use_in: [usage_heat, api_ecosystem, practicality_multiplier]
+    ingestion_method: manual_or_scrape
+    notes: 不是能力榜，不能当能力分。
+
+  - source_id: vellum_llm_leaderboard
+    priority: P1
+    name: Vellum LLM Leaderboard
+    urls:
+      primary: https://www.vellum.ai/llm-leaderboard
+    organization: Vellum
+    categories: [general, application_development]
+    metric_types: [model_comparison, benchmark_aggregate]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: low_medium
+    update_frequency: periodic
+    use_in: [application_developer, overall_auxiliary]
+    ingestion_method: manual_or_scrape
+    notes: 应用层选型参考，不宜高权重。
+
+  - source_id: scale_swe_bench
+    priority: P1
+    name: Scale AI SWE-bench Leaderboard
+    urls:
+      primary: https://scale.com/leaderboard/swe-bench
+    organization: Scale AI
+    categories: [coding, agentic_coding]
+    metric_types: [swe_bench_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_coding
+    update_frequency: frequent
+    use_in: [ai_coding, agent_coding]
+    ingestion_method: scrape_with_redirect_handling_or_manual
+    notes: 抓取时需要处理 308 redirect。
+
+  - source_id: bigcodebench
+    priority: P1
+    name: BigCodeBench
+    urls:
+      primary: https://bigcode-bench.github.io/
+    organization: BigCodeBench authors
+    categories: [coding]
+    metric_types: [pass_rate, benchmark_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_coding
+    update_frequency: periodic
+    use_in: [coding, open_model_coding]
+    ingestion_method: manual_or_scrape
+    notes: 比 HumanEval 更现代，覆盖更复杂任务。
+
+  - source_id: evalplus
+    priority: P1
+    name: EvalPlus Leaderboard
+    urls:
+      primary: https://evalplus.github.io/leaderboard.html
+    organization: EvalPlus authors
+    categories: [coding]
+    metric_types: [humaneval_plus_pass_rate, mbpp_plus_pass_rate]
+    source_trust: high
+    contamination_risk: medium_high
+    recommended_weight: medium_for_coding_basics
+    update_frequency: periodic
+    use_in: [coding_basics]
+    ingestion_method: manual_or_scrape
+    notes: 传统代码 benchmark 改进版，但 HumanEval 系列仍偏旧。
+
+  - source_id: humanitys_last_exam
+    priority: P1
+    name: Humanity's Last Exam
+    urls:
+      primary: https://scale.com/research/humanitys-last-exam
+    organization: Scale AI / CAIS and collaborators
+    categories: [reasoning, expert_knowledge, hard_benchmark]
+    metric_types: [accuracy]
+    source_trust: high
+    contamination_risk: low_medium
+    recommended_weight: medium_for_reasoning_low_medium_for_overall
+    update_frequency: periodic
+    use_in: [hard_reasoning, expert_tasks]
+    ingestion_method: scrape_with_redirect_handling_or_manual
+    notes: 高传播性、高难度，但不等于日常使用价值。
+
+  - source_id: arc_agi
+    priority: P1
+    name: ARC-AGI / ARC Prize Leaderboard
+    urls:
+      primary: https://arcprize.org/leaderboard
+      related: https://agi.safe.ai/
+    organization: ARC Prize / related AGI eval community
+    categories: [reasoning, abstraction, agi_signal]
+    metric_types: [task_success, accuracy]
+    source_trust: high
+    contamination_risk: low
+    recommended_weight: medium_for_reasoning_low_for_overall
+    update_frequency: periodic
+    use_in: [reasoning, agi_signal]
+    ingestion_method: manual_or_scrape
+    notes: 不适合作为普通使用价值主权重。
+
+  - source_id: baai_open_cn_llm
+    priority: P1
+    name: BAAI Open Chinese LLM Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/BAAI/open_cn_llm_leaderboard
+    organization: BAAI
+    categories: [chinese, open_models]
+    metric_types: [benchmark_aggregate]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_chinese_open_models
+    update_frequency: periodic
+    use_in: [chinese_open_models, china_models]
+    ingestion_method: hf_space_or_manual
+    notes: 适合补充中文开放权重模型表现。
+
+  - source_id: open_multilingual_llm
+    priority: P1
+    name: Open Multilingual LLM Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/PetruZetta/open_multilingual_llm_leaderboard
+      alternate: https://huggingface.co/spaces/uonlp/open_multilingual_llm_leaderboard
+    organization: community / UONLP variants
+    categories: [multilingual]
+    metric_types: [multilingual_benchmark_aggregate]
+    source_trust: medium
+    contamination_risk: medium
+    recommended_weight: medium_for_multilingual
+    update_frequency: periodic
+    use_in: [multilingual, global_usage]
+    ingestion_method: hf_space_or_manual
+    notes: 中文榜优先使用 SuperCLUE / C-Eval / CMMLU / OpenCompass。
+
+  - source_id: opencompass_open_vlm
+    priority: P1
+    name: OpenCompass Open VLM Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/opencompass/open_vlm_leaderboard
+    organization: OpenCompass
+    categories: [multimodal, open_vlm]
+    metric_types: [vlm_benchmark_aggregate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_high_for_multimodal_open_models
+    update_frequency: periodic
+    use_in: [multimodal, open_vlm]
+    ingestion_method: hf_space_or_manual
+    notes: OpenCompass 体系的多模态补充。
+
+  - source_id: ocrbench_multimodalocr
+    priority: P1
+    name: OCRBench / MultimodalOCR
+    urls:
+      primary: https://github.com/Yuliang-Liu/MultimodalOCR
+    organization: MultimodalOCR authors
+    categories: [multimodal, ocr, document_understanding]
+    metric_types: [ocr_score, document_benchmark_score]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: high_for_document_understanding_medium_for_multimodal
+    update_frequency: periodic
+    use_in: [document_understanding, multimodal, office_practical]
+    ingestion_method: github_or_manual
+    notes: 贴近日常真实使用，适合增强 Reality Rank 差异化。
+
+  - source_id: webarena
+    priority: P1
+    name: WebArena
+    urls:
+      primary: https://webarena.dev/
+    organization: WebArena authors
+    categories: [agent, web_agent]
+    metric_types: [task_success_rate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_web_agent_low_for_overall
+    update_frequency: periodic
+    use_in: [agent, web_agent]
+    ingestion_method: manual_or_scrape
+    notes: 衡量网页环境任务完成能力。
+
+  - source_id: osworld
+    priority: P1
+    name: OSWorld
+    urls:
+      primary: https://os-world.github.io/
+    organization: OSWorld authors
+    categories: [agent, computer_use, multimodal_agent]
+    metric_types: [task_success_rate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_computer_use_low_for_overall
+    update_frequency: periodic
+    use_in: [agent, computer_use, multimodal_agent]
+    ingestion_method: manual_or_scrape
+    notes: 衡量真实计算机环境中的 open-ended task 能力。
+
+  - source_id: mteb
+    priority: P1
+    name: MTEB Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/mteb/leaderboard
+      standalone: https://mteb-leaderboard.hf.space/
+    organization: MTEB / Hugging Face community
+    categories: [embedding, retrieval, rag]
+    metric_types: [embedding_benchmark_aggregate]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: high_for_embedding_not_in_llm_generation_overall
+    update_frequency: frequent
+    use_in: [embedding, rag_components, agent_infrastructure]
+    ingestion_method: hf_space_or_manual
+    notes: 不是生成式 LLM 主榜来源，但对 RAG/Agent 系统选型重要。
+
+  - source_id: terminal_bench
+    priority: P2
+    name: Terminal-Bench
+    urls:
+      primary: https://terminal-bench.com/
+    organization: Terminal-Bench authors
+    categories: [agent, terminal, coding_agent]
+    metric_types: [task_success_rate]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: high_for_cli_agent_when_stable
+    update_frequency: periodic
+    use_in: [cli_agent, terminal_agent]
+    ingestion_method: manual_or_browser_due_tls
+    notes: 与 Hermes/Codex/Claude Code 高相关；当前抓取可能有 TLS 兼容问题。
+
+  - source_id: simplebench
+    priority: P2
+    name: SimpleBench
+    urls:
+      primary: https://huggingface.co/spaces/simple-bench/simple-bench
+    organization: SimpleBench authors
+    categories: [reasoning, common_sense, robustness]
+    metric_types: [accuracy]
+    source_trust: medium
+    contamination_risk: low_medium
+    recommended_weight: medium_for_common_sense
+    update_frequency: periodic
+    use_in: [common_sense, robustness]
+    ingestion_method: hf_space_or_manual
+    notes: HF Space 访问可能受限，适合作为传播素材。
+
+  - source_id: zebralogic
+    priority: P2
+    name: ZebraLogic
+    urls:
+      primary: https://huggingface.co/spaces/allenai/ZebraLogic
+    organization: AllenAI / ZebraLogic authors
+    categories: [reasoning, logic]
+    metric_types: [accuracy]
+    source_trust: medium_high
+    contamination_risk: low_medium
+    recommended_weight: medium_for_logic_reasoning
+    update_frequency: periodic
+    use_in: [logic_reasoning]
+    ingestion_method: hf_space_or_manual
+    notes: 逻辑推理子指标。
+
+  - source_id: sea_helm
+    priority: P2
+    name: SEA-HELM
+    urls:
+      primary: https://leaderboard.sea-lion.ai/
+    organization: SEA-LION / AI Singapore ecosystem
+    categories: [multilingual, southeast_asia]
+    metric_types: [benchmark_aggregate]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: medium_for_multilingual_regional_coverage
+    update_frequency: periodic
+    use_in: [multilingual, regional_language]
+    ingestion_method: manual_or_scrape
+    notes: 全球化扩展时有价值。
+
+  - source_id: opencompass_video_vlm
+    priority: P2
+    name: OpenCompass Open VLM Video Leaderboard
+    urls:
+      primary: https://huggingface.co/spaces/opencompass/openvlm_video_leaderboard
+    organization: OpenCompass
+    categories: [multimodal, video]
+    metric_types: [video_vlm_benchmark_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_for_video_understanding
+    update_frequency: periodic
+    use_in: [video_understanding, multimodal]
+    ingestion_method: hf_space_or_manual
+    notes: 视频理解后续扩展来源。
+
+  - source_id: video_mme
+    priority: P2
+    name: Video-MME
+    urls:
+      primary: https://video-mme.github.io/
+    organization: Video-MME authors
+    categories: [multimodal, video]
+    metric_types: [video_understanding_score]
+    source_trust: high
+    contamination_risk: medium
+    recommended_weight: medium_for_video_understanding
+    update_frequency: periodic
+    use_in: [video_understanding, multimodal]
+    ingestion_method: manual_or_scrape
+    notes: 需确认最新项目页和数据入口。
+
+  - source_id: alpacaeval
+    priority: P2
+    name: AlpacaEval
+    urls:
+      primary: https://tatsu-lab.github.io/alpaca_eval/
+    organization: Tatsu Lab
+    categories: [preference, instruction_following]
+    metric_types: [win_rate, length_controlled_win_rate]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: low_medium
+    update_frequency: periodic
+    use_in: [instruction_following, preference]
+    ingestion_method: manual_or_scrape
+    notes: 自动偏好评测，可能受评审模型偏差影响。
+
+  - source_id: rewardbench
+    priority: P2
+    name: RewardBench
+    urls:
+      primary: https://huggingface.co/spaces/allenai/reward-bench
+    organization: AllenAI
+    categories: [reward_model, alignment]
+    metric_types: [reward_model_score]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: low_for_main_llm_rank
+    update_frequency: periodic
+    use_in: [alignment, reward_model]
+    ingestion_method: hf_space_or_manual
+    notes: 主要用于奖励模型/偏好模型，不是通用 LLM 主榜核心来源。
+
+  - source_id: wildbench
+    priority: P2
+    name: WildBench
+    urls:
+      primary: https://huggingface.co/spaces/allenai/WildBench
+    organization: AllenAI
+    categories: [general, real_user_tasks, open_ended]
+    metric_types: [open_ended_task_score]
+    source_trust: medium_high
+    contamination_risk: medium
+    recommended_weight: low_medium
+    update_frequency: periodic
+    use_in: [general_chat, real_user_tasks]
+    ingestion_method: hf_space_or_manual
+    notes: 真实开放任务辅助来源。
+
+  - source_id: tau_bench_tool_use
+    priority: P2
+    name: τ-bench / Tool-use Benchmarks
+    urls:
+      primary: TBD
+    organization: TBD
+    categories: [agent, tool_use]
+    metric_types: [task_success_rate]
+    source_trust: medium
+    contamination_risk: medium
+    recommended_weight: medium_high_for_agent_once_confirmed
+    update_frequency: TBD
+    use_in: [agent, tool_use]
+    ingestion_method: manual_after_source_confirmation
+    notes: 需要后续确认权威入口。
