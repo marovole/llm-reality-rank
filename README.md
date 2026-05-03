@@ -48,7 +48,8 @@ Reality Value Index 拆成五层：
 - 第一版 machine-readable sources.yaml
 - 第一版 canonical models.yaml
 - P0 来源 raw_rankings.csv 录入模板
-- scoring pipeline 实施计划
+- 可运行的 validate / normalize / aggregate scoring pipeline
+- 基础 pytest 测试和 GitHub Actions CI
 
 还没有发布正式排名。当前数据中的 TODO 占位不应被当成结论引用。
 
@@ -56,6 +57,7 @@ Reality Value Index 拆成五层：
 
 ```text
 docs/
+  HANDOFF.md
   llm-reality-rank-source-registry.md
   llm-reality-rank-scoring-methodology.md
   llm-reality-rank-model-normalization.md
@@ -68,12 +70,30 @@ data/llm-reality-rank/
 
 scripts/llm-reality-rank/
   validate_data.py
+  normalize_scores.py
+  aggregate_scores.py
 
 outputs/llm-reality-rank/
   .gitkeep
+  normalized_scores.csv              # generated, ignored
+  model_scores.csv                   # generated, ignored
+  model_scores.md                    # generated, ignored
+  first-draft-leaderboard.md         # generated, ignored
 
 tests/llm-reality-rank/
-  .gitkeep
+  test_normalize_scores.py
+  test_aggregate_scores.py
+
+.github/workflows/
+  ci.yml
+```
+
+## 安装依赖
+
+本项目保持轻量：运行脚本只依赖 Python 标准库和 PyYAML，测试使用 pytest。
+
+```bash
+python3 -m pip install -r requirements.txt
 ```
 
 ## 快速验证
@@ -87,6 +107,22 @@ python3 scripts/llm-reality-rank/validate_data.py
 ```text
 VALIDATION PASSED
 ```
+
+运行测试：
+
+```bash
+python3 -m pytest tests/llm-reality-rank -q
+```
+
+运行完整 smoke-test pipeline：
+
+```bash
+python3 scripts/llm-reality-rank/validate_data.py
+python3 scripts/llm-reality-rank/normalize_scores.py
+python3 scripts/llm-reality-rank/aggregate_scores.py
+```
+
+生成文件写入 `outputs/llm-reality-rank/`，其中 CSV/Markdown 输出属于 generated artifacts，默认被 git ignore。后续如果需要发布正式版本，建议另存为 `snapshots/` 下的人工复核快照。
 
 ## 第一版收录来源
 
@@ -120,11 +156,10 @@ data/llm-reality-rank/sources.yaml
 ## 下一步
 
 1. 填入 P0 来源的真实分数。
-2. 实现 normalize_scores.py。
-3. 实现 aggregate_scores.py。
-4. 生成第一版 model_scores.csv 和 model_scores.md。
-5. 写第一篇方法论长文。
-6. 开发静态网页榜单。
+2. 复核模型 canonical_id 和 unknown 版本。
+3. 改进主榜 eligibility、missing dimensions 和 confidence 逻辑。
+4. 写第一篇方法论长文。
+5. 开发静态网页榜单。
 
 ## License
 

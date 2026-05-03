@@ -52,6 +52,34 @@ OUTPUT_FIELDS = [
     "notes",
 ]
 
+DIRECT_SCORE_TYPES = {
+    "accuracy",
+    "aggregate_score",
+    "benchmark_aggregate",
+    "benchmark_score",
+    "holistic_benchmark_metrics",
+    "pass_rate",
+    "percentage",
+    "resolved_issue_rate",
+    "score",
+    "task_success_rate",
+}
+
+GROUP_HIGHER_IS_BETTER_TYPES = {
+    "context",
+    "context_length",
+    "context_window",
+    "elo",
+    "speed",
+    "throughput",
+    "tokens_per_second",
+}
+
+GROUP_LOWER_IS_BETTER_TYPES = {
+    "cost",
+    "latency",
+    "price",
+}
 
 def parse_float(value: str | None) -> float | None:
     if value is None:
@@ -69,9 +97,60 @@ def clamp_score(value: float) -> float:
     return max(0.0, min(100.0, value))
 
 
-def normalize_row_score(row: dict[str, str], group_size: int) -> float | None:
+def metric_type(row: dict[str, str]) -> str:
+    return row.get("metric_type", "").strip().lower()
+
+
+def higher_is_better(row: dict[str, str]) -> bool:
+    return row.get("score_higher_is_better", "true").strip().lower() != "false"
+
+
+def should_group_normalize_score(row: dict[str, str], raw_score: float) -> bool:
+    kind = metric_type(row)
+    if kind in GROUP_HIGHER_IS_BETTER_TYPES or kind in GROUP_LOWER_IS_BETTER_TYPES:
+        return True
+    if kind in DIRECT_SCORE_TYPES:
+        return raw_score > 100
+    if 0 <= raw_score <= 100:
+        return False
+    return True
+
+
+def min_max_score(value: float, values: list[float], *, lower_is_better: bool) -> float:
+    low = min(values)
+    high = max(values)
+    if high == low:
+        return 100.0
+    if lower_is_better:
+        normalized = 100.0 * (high - value) / (high - low)
+    else:
+        normalized = 100.0 * (value - low) / (high - low)
+    return clamp_score(normalized)
+
+
+def normalize_rank(raw_rank: float, ranks: list[float]) -> float:
+    if len(ranks) <= 1:
+        return 100.0
+    best_rank = min(ranks)
+    worst_rank = max(ranks)
+    if worst_rank == best_rank:
+        return 100.0
+    normalized = 100.0 * (worst_rank - raw_rank) / (worst_rank - best_rank)
+    return clamp_score(normalized)
+
+
+def normalize_row_score(
+    row: dict[str, str],
+    group_size: int,
+    group_score_values: list[float] | None = None,
+    group_rank_values: list[float] | None = None,
+) -> float | None:
     raw_score = parse_float(row.get("score_raw"))
     if raw_score is not None:
+        if should_group_normalize_score(row, raw_score):
+            values = group_score_values or [raw_score]
+            lower_is_better = metric_type(row) in GROUP_LOWER_IS_BETTER_TYPES or not higher_is_better(row)
+            return round(min_max_score(raw_score, values, lower_is_better=lower_is_better), 6)
         if 0 <= raw_score <= 1:
             return round(raw_score * 100, 6)
         return round(clamp_score(raw_score), 6)
@@ -83,13 +162,8 @@ def normalize_row_score(row: dict[str, str], group_size: int) -> float | None:
     if group_size <= 1:
         return 100.0
 
-    rank = int(raw_rank)
-    higher_is_better = row.get("score_higher_is_better", "true").strip().lower() != "false"
-    if higher_is_better:
-        normalized = 100.0 * (rank - 1) / (group_size - 1)
-    else:
-        normalized = 100.0 * (group_size - rank) / (group_size - 1)
-    return round(clamp_score(normalized), 6)
+    ranks = group_rank_values or [raw_rank]
+    return round(normalize_rank(raw_rank, ranks), 6)
 
 
 def source_effective_weight(row: dict[str, str]) -> float:
@@ -119,14 +193,33 @@ def group_sizes(rows: Iterable[dict[str, str]]) -> dict[tuple[str, str], int]:
     return groups
 
 
+def group_values(
+    rows: Iterable[dict[str, str]],
+    field_name: str,
+) -> dict[tuple[str, str], list[float]]:
+    groups: dict[tuple[str, str], list[float]] = defaultdict(list)
+    for row in rows:
+        value = parse_float(row.get(field_name))
+        if value is not None:
+            groups[(row.get("source_id", ""), row.get("metric_name", ""))].append(value)
+    return groups
+
+
 def normalize_rows(rows: list[dict[str, str]]) -> tuple[list[dict[str, str]], int]:
     sizes = group_sizes(rows)
+    score_values = group_values(rows, "score_raw")
+    rank_values = group_values(rows, "rank_raw")
     normalized_rows: list[dict[str, str]] = []
     skipped = 0
 
     for row in rows:
         key = (row.get("source_id", ""), row.get("metric_name", ""))
-        score_normalized = normalize_row_score(row, sizes.get(key, 1))
+        score_normalized = normalize_row_score(
+            row,
+            sizes.get(key, 1),
+            score_values.get(key),
+            rank_values.get(key),
+        )
         if score_normalized is None:
             skipped += 1
             continue
