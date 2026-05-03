@@ -45,6 +45,154 @@ def test_fixture_mode_parses_rows_without_network(tmp_path):
     assert result.rows[0]["notes"].startswith("Fixture ingestion row")
 
 
+def test_aider_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "aider_polyglot.csv"
+    fixture.write_text(
+        "Model,Rank,Percent correct,Provider,Canonical ID,Date observed,Source URL,Notes\n"
+        "o3 (high),6,81.3,OpenAI,openai/o3@unknown,2026-05-03,https://aider.chat/docs/leaderboards/,Visible polyglot row.\n",
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("aider", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "aider_leaderboards"
+    assert row["category_primary"] == "coding"
+    assert row["metric_name"] == "polyglot_score"
+    assert row["metric_type"] == "pass_rate"
+    assert row["model_name_raw"] == "o3 (high)"
+    assert row["canonical_id"] == "openai/o3@unknown"
+    assert row["provider"] == "OpenAI"
+    assert row["rank_raw"] == "6"
+    assert row["score_raw"] == "81.3"
+    assert row["source_url"] == "https://aider.chat/docs/leaderboards/"
+    assert "canonicalized" in row["notes"].lower()
+
+
+def test_livebench_json_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "livebench.json"
+    fixture.write_text(
+        json.dumps(
+            {
+                "date_observed": "2026-05-03",
+                "source_url": "https://livebench.ai/",
+                "rows": [
+                    {
+                        "model": "Gemini 2.5 Pro",
+                        "rank": 1,
+                        "global_average": 72.5,
+                        "provider": "Google",
+                        "canonical_id": "google/gemini-2.5-pro@unknown",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("livebench", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "livebench"
+    assert row["metric_name"] == "global_average"
+    assert row["metric_type"] == "benchmark_score"
+    assert row["model_name_raw"] == "Gemini 2.5 Pro"
+    assert row["rank_raw"] == "1"
+    assert row["score_raw"] == "72.5"
+    assert row["score_unit"] == "score"
+    assert row["source_url"] == "https://livebench.ai/"
+    assert "canonicalized" in row["notes"].lower()
+
+
+def test_swe_bench_verified_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "swe_bench_verified.csv"
+    fixture.write_text(
+        "name,resolved,rank,provider,canonical_id,date_observed,source_url\n"
+        "Claude 3.5 Sonnet,49.0,2,Anthropic,anthropic/claude-3.5-sonnet@2024-10-22,2026-05-03,https://www.swebench.com/\n",
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("swe_bench_verified", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "swe_bench_verified"
+    assert row["category_primary"] == "coding"
+    assert row["metric_name"] == "resolved_rate"
+    assert row["metric_type"] == "resolved_issue_rate"
+    assert row["model_name_raw"] == "Claude 3.5 Sonnet"
+    assert row["rank_raw"] == "2"
+    assert row["score_raw"] == "49.0"
+    assert row["score_unit"] == "percent"
+    assert row["source_url"] == "https://www.swebench.com/"
+    assert "canonicalized" in row["notes"].lower()
+
+
+def test_artificial_analysis_unresolved_fixture_row_keeps_explicit_status(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "artificial_analysis.json"
+    fixture.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name": "Unmapped Model X",
+                    "rank": 9,
+                    "intelligence_index": 42,
+                    "provider": "Unknown Provider",
+                    "date_observed": "2026-05-03",
+                    "source_url": "https://artificialanalysis.ai/leaderboards/models",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("artificial_analysis", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row, canonical_required=False)
+    assert row["source_id"] == "artificial_analysis_llm"
+    assert row["category_primary"] == "practical"
+    assert row["metric_name"] == "intelligence_index"
+    assert row["metric_type"] == "aggregate_score"
+    assert row["model_name_raw"] == "Unmapped Model X"
+    assert row["canonical_id"] == ""
+    assert row["rank_raw"] == "9"
+    assert row["score_raw"] == "42"
+    assert "canonicalization_status=unresolved" in row["notes"]
+
+
+def test_lmarena_fixture_fails_closed_to_manual_required_status(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "lmarena.csv"
+    fixture.write_text(
+        "model_name_raw,canonical_id,provider,rank_raw,score_raw\n"
+        "Gemini 3.1 Pro Preview,google/gemini-3.1-pro-preview@unknown,Google,4,1493\n",
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("lmarena", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "manual_required"
+    assert result.used_network is False
+    assert result.rows == []
+    assert "manual" in result.message.lower()
+    assert "unsafe" in result.message.lower()
+
+
 def test_lmarena_pickle_fixture_fails_closed_without_execution(tmp_path):
     module = load_module()
     marker = tmp_path / "executed"
@@ -58,6 +206,35 @@ def test_lmarena_pickle_fixture_fails_closed_without_execution(tmp_path):
     assert result.rows == []
     assert "pickle" in result.message.lower()
     assert not marker.exists()
+
+
+def assert_required_traceability(row: dict[str, str], *, canonical_required: bool = True) -> None:
+    required = [
+        "source_id",
+        "source_name",
+        "source_priority",
+        "category_primary",
+        "metric_name",
+        "metric_type",
+        "model_name_raw",
+        "provider",
+        "score_unit",
+        "score_higher_is_better",
+        "date_observed",
+        "source_url",
+        "evaluation_independence",
+        "source_trust",
+        "contamination_risk",
+        "freshness_weight",
+        "notes",
+    ]
+    for field in required:
+        assert row[field], field
+    assert row["rank_raw"] or row["score_raw"]
+    if canonical_required:
+        assert row["canonical_id"]
+    else:
+        assert "canonicalization_status=unresolved" in row["notes"]
 
 
 def test_cli_fixture_json_reports_status_and_rows(tmp_path, capsys):

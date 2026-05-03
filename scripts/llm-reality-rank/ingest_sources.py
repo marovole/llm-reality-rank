@@ -119,6 +119,41 @@ TARGETS = {
     },
 }
 
+FIELD_ALIASES = {
+    "model_name_raw": [
+        "model_name_raw",
+        "model_name",
+        "model",
+        "name",
+        "Model",
+        "Model name",
+        "Model Name",
+    ],
+    "canonical_id": [
+        "canonical_id",
+        "canonical_model_id",
+        "Canonical ID",
+        "Canonical model ID",
+    ],
+    "provider": ["provider", "Provider", "organization", "Organization"],
+    "rank_raw": ["rank_raw", "rank", "Rank", "overall_rank"],
+    "score_raw": [
+        "score_raw",
+        "score",
+        "Score",
+        "Percent correct",
+        "percent_correct",
+        "global_average",
+        "resolved",
+        "resolved_rate",
+        "intelligence_index",
+    ],
+    "date_published": ["date_published", "published_at", "Date published"],
+    "date_observed": ["date_observed", "Date observed", "observed_at"],
+    "source_url": ["source_url", "Source URL", "url"],
+    "notes": ["notes", "Notes"],
+}
+
 
 class IngestionResult:
     def __init__(
@@ -172,13 +207,48 @@ def parse_fixture_rows(path: Path) -> list[dict[str, str]]:
         raise UnsafeSourceError("pickle fixture is unsafe and will not be executed")
     if path.suffix.lower() == ".json":
         payload = json.loads(path.read_text(encoding="utf-8"))
+        defaults = {}
         if isinstance(payload, dict):
+            defaults = {
+                str(k): "" if v is None else str(v)
+                for k, v in payload.items()
+                if k != "rows" and not isinstance(v, (list, dict))
+            }
             payload = payload.get("rows", [])
         if not isinstance(payload, list):
             raise ValueError("JSON fixture must contain a list of row objects")
-        return [{str(k): "" if v is None else str(v) for k, v in row.items()} for row in payload]
+        return [
+            defaults | {str(k): "" if v is None else str(v) for k, v in row.items()}
+            for row in payload
+        ]
     with path.open("r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def first_value(row: dict[str, str], aliases: list[str]) -> str:
+    for alias in aliases:
+        value = row.get(alias, "")
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return ""
+
+
+def fixture_value(row: dict[str, str], field: str) -> str:
+    return first_value(row, FIELD_ALIASES.get(field, [field]))
+
+
+def canonicalization_note(canonical_id: str) -> str:
+    if canonical_id:
+        return f"canonicalization_status=canonicalized; canonical_id={canonical_id}"
+    return "canonicalization_status=unresolved; canonical_id unavailable in fixture row"
+
+
+def row_notes(fixture_row: dict[str, str], canonical_id: str) -> str:
+    notes = fixture_value(fixture_row, "notes")
+    status = canonicalization_note(canonical_id)
+    if notes:
+        return f"{status}; {notes}"
+    return f"Fixture ingestion row; proposed only and requires human review before promotion.; {status}"
 
 
 def proposed_row(target: str, fixture_row: dict[str, str], *, source_url: str) -> dict[str, str]:
@@ -188,24 +258,31 @@ def proposed_row(target: str, fixture_row: dict[str, str], *, source_url: str) -
         if field in meta:
             row[field] = str(meta[field])
 
+    canonical_id = fixture_value(fixture_row, "canonical_id")
+    row_source_url = fixture_value(fixture_row, "source_url") or source_url
     row.update(
         {
-            "model_name_raw": fixture_row.get("model_name_raw", ""),
-            "canonical_id": fixture_row.get("canonical_id", ""),
-            "provider": fixture_row.get("provider", ""),
-            "rank_raw": fixture_row.get("rank_raw", ""),
-            "score_raw": fixture_row.get("score_raw", ""),
-            "date_published": fixture_row.get("date_published", ""),
-            "date_observed": fixture_row.get("date_observed") or date.today().isoformat(),
-            "source_url": source_url,
-            "notes": fixture_row.get("notes")
-            or "Fixture ingestion row; proposed only and requires human review before promotion.",
+            "model_name_raw": fixture_value(fixture_row, "model_name_raw"),
+            "canonical_id": canonical_id,
+            "provider": fixture_value(fixture_row, "provider"),
+            "rank_raw": fixture_value(fixture_row, "rank_raw"),
+            "score_raw": fixture_value(fixture_row, "score_raw"),
+            "date_published": fixture_value(fixture_row, "date_published"),
+            "date_observed": fixture_value(fixture_row, "date_observed") or date.today().isoformat(),
+            "source_url": row_source_url,
+            "notes": row_notes(fixture_row, canonical_id),
         }
     )
     return row
 
 
 def parse_structured_fixture(target: str, fixture_path: Path) -> IngestionResult:
+    if target == "lmarena":
+        return manual_required(
+            target,
+            "LMArena fixture ingestion is manual_required: safe structured parser is not configured and unsafe pickle/anti-bot paths are prohibited.",
+            used_network=False,
+        )
     try:
         fixture_rows = parse_fixture_rows(fixture_path)
     except UnsafeSourceError as exc:

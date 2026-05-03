@@ -164,6 +164,44 @@ def test_normalize_speed_and_large_context_as_higher_is_better_within_group():
     assert scores["long-context"] == "100.000000"
 
 
+def test_normalization_preserves_required_traceability_fields():
+    module = load_module()
+    input_row = base_row(
+        source_id="aider_leaderboards",
+        metric_name="polyglot_score",
+        model="openai/o3@unknown",
+        score_raw="81.3",
+        metric_type="pass_rate",
+    )
+    input_row.update(
+        {
+            "category_primary": "coding",
+            "provider": "OpenAI",
+            "model_name_raw": "o3 (high)",
+            "source_url": "https://aider.chat/docs/leaderboards/",
+            "date_observed": "2026-05-03",
+            "notes": "canonicalization_status=canonicalized; visible fixture row.",
+        }
+    )
+
+    normalized, skipped = module.normalize_rows([input_row])
+
+    assert skipped == 0
+    [row] = normalized
+    for field in [
+        "source_id",
+        "metric_name",
+        "category_primary",
+        "canonical_id",
+        "provider",
+        "model_name_raw",
+        "source_url",
+        "date_observed",
+        "notes",
+    ]:
+        assert row[field] == input_row[field]
+
+
 def base_row(
     *,
     source_id: str = "source",
