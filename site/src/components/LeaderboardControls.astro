@@ -1,0 +1,57 @@
+---
+import { scenarios } from '../lib/data';
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  action: string;
+  filters: {
+    scenarioId: string;
+    query: string;
+    confidence: string;
+    eligibility: string;
+  };
+  confidenceOptions: Option[];
+  eligibilityOptions: Option[];
+}
+
+const { action, filters, confidenceOptions, eligibilityOptions } = Astro.props;
+---
+<form class="leaderboard-controls" action={action} method="get" aria-label="排行榜筛选控件">
+  <label>
+    <span>场景</span>
+    <select name="scenario">
+      <option value="overall" selected={filters.scenarioId === 'overall'}>综合榜</option>
+      {scenarios.map((scenario) => (
+        <option value={scenario.id} selected={filters.scenarioId === scenario.id}>{scenario.label_zh}</option>
+      ))}
+    </select>
+  </label>
+  <label>
+    <span>搜索模型/厂商</span>
+    <input name="q" value={filters.query} type="search" placeholder="例如 GPT、Gemini、Anthropic" />
+  </label>
+  <label>
+    <span>置信度</span>
+    <select name="confidence">
+      {confidenceOptions.map((option) => (
+        <option value={option.value} selected={filters.confidence === option.value}>{option.label}</option>
+      ))}
+    </select>
+  </label>
+  <label>
+    <span>资格状态</span>
+    <select name="eligibility">
+      {eligibilityOptions.map((option) => (
+        <option value={option.value} selected={filters.eligibility === option.value}>{option.label}</option>
+      ))}
+    </select>
+  </label>
+  <div class="control-actions">
+    <button type="submit">应用筛选</button>
+    <a href={action}>重置</a>
+  </div>
+</form>

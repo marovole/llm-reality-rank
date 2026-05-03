@@ -1,9 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import LeaderboardControls from '../../components/LeaderboardControls.astro';
 import LeaderboardTable from '../../components/LeaderboardTable.astro';
 import ScenarioNav from '../../components/ScenarioNav.astro';
 import SnapshotNotice from '../../components/SnapshotNotice.astro';
-import { pageTitle, scenarioLabel, scenarios, scoresForScenario } from '../../lib/data';
+import { pageTitle, scenarioLabel, scenarios } from '../../lib/data';
+import { buildLeaderboardView } from '../../lib/leaderboard';
 
 export function getStaticPaths() {
   return scenarios.map((scenario) => ({ params: { scenario: scenario.id } }));
@@ -11,13 +13,23 @@ export function getStaticPaths() {
 
 const scenarioId = Astro.params.scenario ?? '';
 const label = scenarioLabel(scenarioId);
-const scenarioScores = scoresForScenario(scenarioId);
+const view = buildLeaderboardView(Astro.url.searchParams, scenarioId);
 ---
 <BaseLayout title={pageTitle(`${label}场景榜`)} description={`LLM Reality Rank ${label} 场景静态排行榜，展示 reviewed alpha 数据、置信度和缺失维度。`} canonicalPath={`/leaderboard/${scenarioId}/`}>
   <p class="eyebrow">Scenario leaderboard</p>
   <h1>{label}场景榜</h1>
   <p>场景页为静态预渲染路线，刷新和直接访问均返回对应 HTML。若该维度暂无 reviewed alpha 分数，页面会显示明确空状态。</p>
-  <ScenarioNav />
+  <ScenarioNav activeScenario={view.filters.scenarioId} />
   <SnapshotNotice />
-  <LeaderboardTable scores={scenarioScores} scenarioId={scenarioId} title={`${label} reviewed alpha 排行`} />
+  <LeaderboardControls action={`/leaderboard/${scenarioId}/`} filters={view.filters} confidenceOptions={view.confidenceOptions} eligibilityOptions={view.eligibilityOptions} />
+  <LeaderboardTable
+    scores={view.rows}
+    clientRows={view.clientRows}
+    scenarioId={view.filters.scenarioId}
+    title={`${view.filters.scenarioId === 'overall' ? '综合' : scenarioLabel(view.filters.scenarioId)} reviewed alpha 排行`}
+    dataState={view.dataState}
+    totalRows={view.allRows.length}
+    staleCount={view.staleCount}
+    missingDimensionCount={view.missingDimensionCount}
+  />
 </BaseLayout>

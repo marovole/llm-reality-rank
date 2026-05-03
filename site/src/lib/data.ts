@@ -52,6 +52,8 @@ type Snapshot = {
   limitations: string[];
 };
 
+export type { Model, Score, Scenario, Preset, Source, Snapshot };
+
 export const apiManifest = manifest;
 export const models = (modelsPayload as unknown as { models: Model[] }).models;
 export const scores = (scoresPayload as unknown as { scores: Score[] }).scores;

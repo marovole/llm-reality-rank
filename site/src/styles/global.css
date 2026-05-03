@@ -61,8 +61,20 @@ td small { display: block; color: var(--muted); margin-top: 0.25rem; }
 .badge, .warning-badge { display: inline-flex; align-items: center; border: 1.5px solid var(--line); padding: 0.25rem 0.5rem; font-family: var(--mono); font-size: 0.82rem; background: var(--sage); }
 .warning-badge { background: var(--gold); }
 .empty-state { border: 1.5px dashed var(--line); padding: 1rem; background: var(--paper); }
+.error-state { border-style: solid; background: var(--accent-soft); }
+.warning-text { color: var(--accent); font-weight: 800; }
+.leaderboard-status { border: 1.5px solid var(--line); background: var(--paper); padding: 0.85rem 1rem; margin-bottom: 1rem; }
+.leaderboard-status p { margin: 0.2rem 0; color: var(--muted); }
 
 .scenario-nav { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1rem 0 1.5rem; }
+.scenario-nav a[aria-current="page"] { background: var(--ink); color: var(--paper); }
+.leaderboard-controls { display: grid; grid-template-columns: minmax(180px, 0.9fr) minmax(240px, 1.4fr) minmax(170px, 0.8fr) minmax(170px, 0.8fr) auto; gap: 0.8rem; align-items: end; border: 2px solid var(--line); background: var(--sage); box-shadow: 5px 5px 0 var(--line); padding: 1rem; margin: 1.25rem 0; }
+.leaderboard-controls label { display: grid; gap: 0.35rem; font-weight: 800; }
+.leaderboard-controls label span { font-family: var(--mono); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.leaderboard-controls input, .leaderboard-controls select { width: 100%; border: 1.5px solid var(--line); border-radius: 0; background: var(--paper-soft); color: var(--ink); padding: 0.65rem; font: inherit; }
+.control-actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.control-actions button, .control-actions a { border: 1.5px solid var(--line); background: var(--accent); color: var(--paper-soft); box-shadow: 3px 3px 0 var(--line); padding: 0.65rem 0.8rem; font: inherit; font-weight: 800; text-decoration: none; cursor: pointer; }
+.control-actions a { background: var(--paper-soft); color: var(--ink); }
 .card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
 .source-list article, .snapshot-list article, .model-card { border: 1.5px solid var(--line); background: var(--paper-soft); padding: 1rem; }
 .nav-card-list { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
@@ -82,4 +94,5 @@ td small { display: block; color: var(--muted); margin-top: 0.25rem; }
   .nav-links { justify-content: flex-start; }
   .hero, .grid.two { grid-template-columns: 1fr; }
   .hero h1 { max-width: none; }
+  .leaderboard-controls { grid-template-columns: 1fr; }
 }

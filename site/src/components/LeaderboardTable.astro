@@ -1,41 +1,81 @@
 ---
-import { formatScore, getModelForScore, getModelPath, scenarioLabel } from '../lib/data';
+import { formatScore, getModelPath, scenarioLabel } from '../lib/data';
 
 interface Props {
   scores: any[];
+  clientRows?: any[];
   scenarioId?: string;
   title: string;
+  dataState?: { ok: boolean; message: string; detail?: string };
+  totalRows?: number;
+  staleCount?: number;
+  missingDimensionCount?: number;
 }
 
-const { scores, scenarioId, title } = Astro.props;
+const {
+  scores,
+  clientRows = scores,
+  scenarioId,
+  title,
+  dataState = { ok: true, message: 'Reviewed alpha data loaded.' },
+  totalRows = scores.length,
+  staleCount = 0,
+  missingDimensionCount = 0,
+} = Astro.props;
+
+const scoreHeading = scenarioId && scenarioId !== 'overall' ? scenarioLabel(scenarioId) : '综合分';
+const clientRowsJson = JSON.stringify(clientRows);
+const queryActive = Astro.url.searchParams.has('q') || Astro.url.searchParams.has('confidence') || Astro.url.searchParams.has('eligibility') || Astro.url.searchParams.has('scenario');
 ---
 <section class="panel" aria-labelledby="leaderboard-title">
   <div class="section-heading">
     <p class="eyebrow">Reviewed alpha · 非最终官方排名</p>
     <h2 id="leaderboard-title">{title}</h2>
   </div>
-  {scores.length === 0 ? (
-    <p class="empty-state">该场景暂无 reviewed alpha 数据。我们不会用占位数据补齐排名。</p>
+  <div class="leaderboard-status" aria-label="榜单数据状态">
+    <p>
+      <strong>{totalRows}</strong> 条候选记录 ·
+      <strong>{missingDimensionCount}</strong> 条存在缺失维度 ·
+      <strong>{staleCount}</strong> 条触发 freshness/stale 警告
+    </p>
+    <p>置信度、eligibility、missing dimensions 与 freshness 会和排名一起显示；低覆盖数据不会被包装成最终官方结论。</p>
+  </div>
+  {!dataState.ok ? (
+    <div class="empty-state error-state" role="alert">
+      <strong>{dataState.message}</strong>
+      {dataState.detail && <p>{dataState.detail}</p>}
+    </div>
+  ) : scores.length === 0 ? (
+    <div class="empty-state" role="status">
+      <strong>没有符合当前筛选条件的 reviewed alpha 记录。</strong>
+      <p>请清空搜索词或放宽置信度/状态筛选。页面不会用占位数据补齐排名。</p>
+    </div>
+  ) : queryActive ? (
+    <div class="empty-state" role="status">
+      <strong>筛选参数已载入，客户端会在页面加载后更新可见排名。</strong>
+      <p>如果没有匹配结果，将显示“没有符合当前筛选条件”的空状态；不会用占位数据补齐排名。</p>
+    </div>
   ) : (
-    <div class="table-wrap">
+    <div class="table-wrap" data-leaderboard-root data-rows={clientRowsJson} data-initial-scenario={scenarioId ?? 'overall'}>
       <table>
         <thead>
           <tr>
             <th scope="col">Rank</th>
             <th scope="col">模型</th>
-            <th scope="col">{scenarioId ? scenarioLabel(scenarioId) : '综合分'}</th>
+            <th scope="col">{scoreHeading}</th>
             <th scope="col">置信度</th>
             <th scope="col">覆盖</th>
-            <th scope="col">状态</th>
+            <th scope="col">缺失/新鲜度</th>
+            <th scope="col">限制</th>
           </tr>
         </thead>
         <tbody>
-          {scores.map((score, index) => {
-            const model = getModelForScore(score);
-            const visibleScore = scenarioId ? score.dimension_scores[scenarioId] : score.overall_score;
+          {scores.map((score) => {
+            const model = score.model;
+            const visibleScore = score.visibleScore ?? (scenarioId && scenarioId !== 'overall' ? score.dimension_scores[scenarioId] : score.overall_score);
             return (
               <tr>
-                <td>#{scenarioId ? index + 1 : score.rank}</td>
+                <td>#{score.displayRank ?? score.rank}</td>
                 <td>
                   <a href={getModelPath(score.canonical_id)}>{model?.display_name ?? score.canonical_id}</a>
                   <small>{model?.provider ?? 'Unknown provider'}</small>
@@ -43,7 +83,24 @@ const { scores, scenarioId, title } = Astro.props;
                 <td>{formatScore(visibleScore)}</td>
                 <td><span class="badge">{score.confidence.label} · {formatScore(score.confidence.score)}</span></td>
                 <td>{score.source_coverage.source_count} sources / {score.source_coverage.scenario_count} dimensions</td>
-                <td><span class="warning-badge">{score.eligibility.status}</span></td>
+                <td>
+                  {score.missing_dimensions.length > 0 ? (
+                    <span class="warning-badge">{score.missing_dimensions.length} missing</span>
+                  ) : (
+                    <span class="badge">complete</span>
+                  )}
+                  <small>{score.missing_dimensions.slice(0, 3).map(scenarioLabel).join('、') || '当前场景无缺失标记'}</small>
+                  {score.freshness?.stale ? (
+                    <small class="warning-text">stale/unknown freshness · newest {score.freshness.newestDate ?? 'unknown'}</small>
+                  ) : (
+                    <small>freshness ok · newest {score.freshness?.newestDate ?? 'unknown'}</small>
+                  )}
+                </td>
+                <td>
+                  <span class="warning-badge">{score.eligibility.status}</span>
+                  <small>{score.eligibility.reason}</small>
+                  {score.uncertainty_flags.length > 0 && <small>{score.uncertainty_flags.join(' · ')}</small>}
+                </td>
               </tr>
             );
           })}
@@ -52,3 +109,110 @@ const { scores, scenarioId, title } = Astro.props;
     </div>
   )}
 </section>
+<script>
+  import { scenarioLabel, formatScore, getModelPath } from '../lib/data';
+
+  type ClientRow = {
+    canonical_id: string;
+    rank: number;
+    displayRank?: number;
+    overall_score: number;
+    dimension_scores: Record<string, number>;
+    confidence: { label: string; score: number };
+    eligibility: { status: string; reason: string };
+    missing_dimensions: string[];
+    source_coverage: { source_count: number; scenario_count: number };
+    uncertainty_flags: string[];
+    freshness?: { newestDate?: string; stale: boolean };
+    model?: { display_name: string; provider: string };
+  };
+
+  function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[character] ?? character));
+  }
+
+  function renderRow(row: ClientRow, index: number, scenarioId: string): string {
+    const visibleScore = scenarioId === 'overall' ? row.overall_score : row.dimension_scores[scenarioId];
+    const displayRank = scenarioId === 'overall' ? row.rank : index + 1;
+    const modelName = row.model?.display_name ?? row.canonical_id;
+    const provider = row.model?.provider ?? 'Unknown provider';
+    const missingPreview = row.missing_dimensions.slice(0, 3).map(scenarioLabel).join('、') || '当前场景无缺失标记';
+    const freshnessLine = row.freshness?.stale
+      ? `<small class="warning-text">stale/unknown freshness · newest ${escapeHtml(row.freshness.newestDate ?? 'unknown')}</small>`
+      : `<small>freshness ok · newest ${escapeHtml(row.freshness?.newestDate ?? 'unknown')}</small>`;
+    return `<tr>
+      <td>#${displayRank}</td>
+      <td><a href="${getModelPath(row.canonical_id)}">${escapeHtml(modelName)}</a><small>${escapeHtml(provider)}</small></td>
+      <td>${formatScore(visibleScore)}</td>
+      <td><span class="badge">${escapeHtml(row.confidence.label)} · ${formatScore(row.confidence.score)}</span></td>
+      <td>${row.source_coverage.source_count} sources / ${row.source_coverage.scenario_count} dimensions</td>
+      <td>
+        ${row.missing_dimensions.length > 0 ? `<span class="warning-badge">${row.missing_dimensions.length} missing</span>` : '<span class="badge">complete</span>'}
+        <small>${escapeHtml(missingPreview)}</small>
+        ${freshnessLine}
+      </td>
+      <td>
+        <span class="warning-badge">${escapeHtml(row.eligibility.status)}</span>
+        <small>${escapeHtml(row.eligibility.reason)}</small>
+        ${row.uncertainty_flags.length > 0 ? `<small>${escapeHtml(row.uncertainty_flags.join(' · '))}</small>` : ''}
+      </td>
+    </tr>`;
+  }
+
+  function hydrateLeaderboard(root: HTMLElement): void {
+    const form = document.querySelector<HTMLFormElement>('.leaderboard-controls');
+    const tbody = root.querySelector('tbody');
+    if (!form || !tbody) return;
+    const controls = form;
+    const body = tbody;
+    const allRows = JSON.parse(root.dataset.rows ?? '[]') as ClientRow[];
+    const initialScenario = root.dataset.initialScenario ?? 'overall';
+    const initialParams = new URLSearchParams(window.location.search);
+    for (const name of ['scenario', 'q', 'confidence', 'eligibility']) {
+      const value = initialParams.get(name);
+      const control = controls.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      if (value && control) control.value = value;
+    }
+
+    function applyFilters(): void {
+      const formData = new FormData(controls);
+      const scenarioId = String(formData.get('scenario') || initialScenario);
+      const query = String(formData.get('q') || '').trim().toLowerCase();
+      const confidence = String(formData.get('confidence') || 'all').toLowerCase();
+      const eligibility = String(formData.get('eligibility') || 'all').toLowerCase();
+      const scenarioRows = allRows
+        .filter((row) => scenarioId === 'overall' || typeof row.dimension_scores[scenarioId] === 'number')
+        .sort((a, b) => {
+          if (scenarioId === 'overall') return a.rank - b.rank || a.canonical_id.localeCompare(b.canonical_id);
+          return (b.dimension_scores[scenarioId] ?? -Infinity) - (a.dimension_scores[scenarioId] ?? -Infinity) || a.canonical_id.localeCompare(b.canonical_id);
+        })
+        .filter((row) => {
+          const haystack = [row.canonical_id, row.model?.display_name, row.model?.provider, row.confidence.label, row.eligibility.status].filter(Boolean).join(' ').toLowerCase();
+          return (query.length === 0 || haystack.includes(query))
+            && (confidence === 'all' || row.confidence.label.toLowerCase() === confidence)
+            && (eligibility === 'all' || row.eligibility.status.toLowerCase() === eligibility);
+        });
+      if (scenarioRows.length === 0) {
+        body.innerHTML = '<tr><td colspan="7"><strong>没有符合当前筛选条件的 reviewed alpha 记录。</strong><small>请清空搜索词或放宽筛选；不会用占位数据补齐排名。</small></td></tr>';
+        return;
+      }
+      body.innerHTML = scenarioRows.map((row, index) => renderRow(row, index, scenarioId)).join('');
+    }
+
+    controls.addEventListener('input', applyFilters);
+    controls.addEventListener('change', applyFilters);
+    controls.addEventListener('submit', (event) => {
+      event.preventDefault();
+      applyFilters();
+    });
+    applyFilters();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-leaderboard-root]').forEach(hydrateLeaderboard);
+</script>

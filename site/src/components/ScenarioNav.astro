@@ -1,9 +1,15 @@
 ---
 import { scenarios } from '../lib/data';
+
+interface Props {
+  activeScenario?: string;
+}
+
+const { activeScenario = 'overall' } = Astro.props;
 ---
 <nav class="scenario-nav" aria-label="场景榜单导航">
-  <a href="/leaderboard/">综合</a>
+  <a href="/leaderboard/" aria-current={activeScenario === 'overall' ? 'page' : undefined}>综合</a>
   {scenarios.map((scenario) => (
-    <a href={`/leaderboard/${scenario.id}/`}>{scenario.label_zh}</a>
+    <a href={`/leaderboard/${scenario.id}/`} aria-current={activeScenario === scenario.id ? 'page' : undefined}>{scenario.label_zh}</a>
   ))}
 </nav>
