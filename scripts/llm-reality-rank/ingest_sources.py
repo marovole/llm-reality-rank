@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sys
+from datetime import date
+from pathlib import Path
+from typing import Iterable
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
+
+ROOT = Path(__file__).resolve().parents[2]
+
+USER_AGENT = "llm-reality-rank-ingestion/0.1 (+https://github.com/) safe-public-fetch"
+DEFAULT_TIMEOUT_SECONDS = 10
+
+RAW_ROW_FIELDS = [
+    "source_id",
+    "source_name",
+    "source_priority",
+    "category_primary",
+    "metric_name",
+    "metric_type",
+    "model_name_raw",
+    "canonical_id",
+    "provider",
+    "rank_raw",
+    "score_raw",
+    "score_unit",
+    "score_higher_is_better",
+    "date_published",
+    "date_observed",
+    "source_url",
+    "evaluation_independence",
+    "source_trust",
+    "contamination_risk",
+    "freshness_weight",
+    "notes",
+]
+
+TARGETS = {
+    "aider": {
+        "source_id": "aider_leaderboards",
+        "source_name": "Aider LLM Leaderboards",
+        "source_priority": "P0",
+        "category_primary": "coding",
+        "metric_name": "polyglot_score",
+        "metric_type": "pass_rate",
+        "score_unit": "percent_correct",
+        "score_higher_is_better": "true",
+        "source_url": "https://aider.chat/docs/leaderboards/",
+        "evaluation_independence": "platform_or_community",
+        "source_trust": "high",
+        "contamination_risk": "low_medium",
+        "freshness_weight": "1.0",
+    },
+    "livebench": {
+        "source_id": "livebench",
+        "source_name": "LiveBench",
+        "source_priority": "P0",
+        "category_primary": "general",
+        "metric_name": "global_average",
+        "metric_type": "benchmark_score",
+        "score_unit": "score",
+        "score_higher_is_better": "true",
+        "source_url": "https://livebench.ai/",
+        "evaluation_independence": "independent_third_party",
+        "source_trust": "high",
+        "contamination_risk": "low",
+        "freshness_weight": "1.0",
+    },
+    "swe_bench_verified": {
+        "source_id": "swe_bench_verified",
+        "source_name": "SWE-bench Verified",
+        "source_priority": "P0",
+        "category_primary": "coding",
+        "metric_name": "resolved_rate",
+        "metric_type": "resolved_issue_rate",
+        "score_unit": "percent",
+        "score_higher_is_better": "true",
+        "source_url": "https://www.swebench.com/",
+        "evaluation_independence": "independent_third_party",
+        "source_trust": "high",
+        "contamination_risk": "medium",
+        "freshness_weight": "1.0",
+    },
+    "artificial_analysis": {
+        "source_id": "artificial_analysis_llm",
+        "source_name": "Artificial Analysis LLM Leaderboard / Intelligence Index",
+        "source_priority": "P0",
+        "category_primary": "practical",
+        "metric_name": "intelligence_index",
+        "metric_type": "aggregate_score",
+        "score_unit": "index",
+        "score_higher_is_better": "true",
+        "source_url": "https://artificialanalysis.ai/leaderboards/models",
+        "evaluation_independence": "platform_or_community",
+        "source_trust": "high",
+        "contamination_risk": "low_medium",
+        "freshness_weight": "1.0",
+    },
+    "lmarena": {
+        "source_id": "lmarena_chatbot_arena",
+        "source_name": "LMArena / Chatbot Arena Leaderboard",
+        "source_priority": "P0",
+        "category_primary": "general",
+        "metric_name": "arena_elo",
+        "metric_type": "elo",
+        "score_unit": "elo",
+        "score_higher_is_better": "true",
+        "source_url": "https://lmarena.ai/leaderboard/",
+        "evaluation_independence": "independent_third_party",
+        "source_trust": "high",
+        "contamination_risk": "low_medium",
+        "freshness_weight": "1.0",
+    },
+}
+
+
+class IngestionResult:
+    def __init__(
+        self,
+        *,
+        target: str,
+        status: str,
+        message: str,
+        rows: list[dict[str, str]],
+        used_network: bool,
+        source_url: str,
+    ) -> None:
+        self.target = target
+        self.status = status
+        self.message = message
+        self.rows = rows
+        self.used_network = used_network
+        self.source_url = source_url
+
+    def to_dict(self) -> dict:
+        return {
+            "target": self.target,
+            "status": self.status,
+            "message": self.message,
+            "row_count": len(self.rows),
+            "used_network": self.used_network,
+            "source_url": self.source_url,
+            "rows": self.rows,
+        }
+
+
+def target_names() -> list[str]:
+    return sorted(TARGETS)
+
+
+def bounded_live_fetch(url: str, *, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> bytes:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        raise ValueError(f"unsupported URL scheme for safe fetch: {parsed.scheme}")
+    request = Request(url, headers={"User-Agent": USER_AGENT})
+    with urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+def is_pickle_path(path: Path) -> bool:
+    return path.suffix.lower() in {".pkl", ".pickle"}
+
+
+def parse_fixture_rows(path: Path) -> list[dict[str, str]]:
+    if is_pickle_path(path):
+        raise UnsafeSourceError("pickle fixture is unsafe and will not be executed")
+    if path.suffix.lower() == ".json":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            payload = payload.get("rows", [])
+        if not isinstance(payload, list):
+            raise ValueError("JSON fixture must contain a list of row objects")
+        return [{str(k): "" if v is None else str(v) for k, v in row.items()} for row in payload]
+    with path.open("r", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def proposed_row(target: str, fixture_row: dict[str, str], *, source_url: str) -> dict[str, str]:
+    meta = TARGETS[target]
+    row = {field: "" for field in RAW_ROW_FIELDS}
+    for field in RAW_ROW_FIELDS:
+        if field in meta:
+            row[field] = str(meta[field])
+
+    row.update(
+        {
+            "model_name_raw": fixture_row.get("model_name_raw", ""),
+            "canonical_id": fixture_row.get("canonical_id", ""),
+            "provider": fixture_row.get("provider", ""),
+            "rank_raw": fixture_row.get("rank_raw", ""),
+            "score_raw": fixture_row.get("score_raw", ""),
+            "date_published": fixture_row.get("date_published", ""),
+            "date_observed": fixture_row.get("date_observed") or date.today().isoformat(),
+            "source_url": source_url,
+            "notes": fixture_row.get("notes")
+            or "Fixture ingestion row; proposed only and requires human review before promotion.",
+        }
+    )
+    return row
+
+
+def parse_structured_fixture(target: str, fixture_path: Path) -> IngestionResult:
+    try:
+        fixture_rows = parse_fixture_rows(fixture_path)
+    except UnsafeSourceError as exc:
+        return manual_required(target, str(exc), used_network=False)
+
+    source_url = f"fixture://{fixture_path.name}"
+    rows = [proposed_row(target, row, source_url=source_url) for row in fixture_rows]
+    return IngestionResult(
+        target=target,
+        status="ok",
+        message=f"Parsed {len(rows)} fixture rows without network access.",
+        rows=rows,
+        used_network=False,
+        source_url=source_url,
+    )
+
+
+class UnsafeSourceError(Exception):
+    pass
+
+
+def manual_required(target: str, message: str, *, used_network: bool) -> IngestionResult:
+    return IngestionResult(
+        target=target,
+        status="manual_required",
+        message=message,
+        rows=[],
+        used_network=used_network,
+        source_url=TARGETS[target]["source_url"],
+    )
+
+
+def ingest_target(target: str, *, mode: str = "fixture", fixture_path: Path | None = None) -> IngestionResult:
+    if target not in TARGETS:
+        raise ValueError(f"unknown ingestion target: {target}")
+    if mode == "fixture":
+        if fixture_path is None:
+            return manual_required(target, "fixture mode requires an explicit --fixture path", used_network=False)
+        return parse_structured_fixture(target, fixture_path)
+    if target == "lmarena":
+        return manual_required(
+            target,
+            "LMArena safe structured current data is not configured; remote pickle execution and anti-bot bypass are prohibited.",
+            used_network=False,
+        )
+    return ingest_live_safe(target)
+
+
+def ingest_live_safe(target: str) -> IngestionResult:
+    url = TARGETS[target]["source_url"]
+    try:
+        content = bounded_live_fetch(url)
+    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+        return manual_required(target, f"bounded public request failed safely: {exc}", used_network=True)
+    if looks_like_pickle(content):
+        return manual_required(target, "live response appears to be pickle data; unsafe deserialization refused.", used_network=True)
+    return manual_required(
+        target,
+        "bounded public request completed, but no committed safe structured parser is configured for this live response.",
+        used_network=True,
+    )
+
+
+def looks_like_pickle(content: bytes) -> bool:
+    return content.startswith(b"\x80") or b"pickle" in content[:200].lower()
+
+
+def write_rows(path: Path, rows: Iterable[dict[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=RAW_ROW_FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Safe source ingestion framework for LLM Reality Rank.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers.add_parser("list", help="List available ingestion targets.")
+
+    ingest = subparsers.add_parser("ingest", help="Ingest a source target in fixture or bounded live-safe mode.")
+    ingest.add_argument("target", choices=target_names())
+    ingest.add_argument("--mode", choices=["fixture", "live-safe"], default="fixture")
+    ingest.add_argument("--fixture", type=Path)
+    ingest.add_argument("--output-csv", type=Path)
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    if args.command == "list":
+        for target in target_names():
+            meta = TARGETS[target]
+            print(f"{target}\t{meta['source_id']}\t{meta['source_name']}")
+        return 0
+
+    result = ingest_target(args.target, mode=args.mode, fixture_path=args.fixture)
+    if args.output_csv and result.rows:
+        write_rows(args.output_csv, result.rows)
+    print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+    return 0 if result.status in {"ok", "manual_required"} else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

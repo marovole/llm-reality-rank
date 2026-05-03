@@ -57,6 +57,23 @@ REQUIRED_RANKING_FIELDS = {
     "notes",
 }
 
+CORE_REQUIRED_RANKING_VALUES = {
+    "source_id",
+    "source_name",
+    "source_priority",
+    "category_primary",
+    "metric_name",
+    "metric_type",
+    "model_name_raw",
+    "provider",
+    "date_observed",
+    "source_url",
+    "evaluation_independence",
+    "source_trust",
+    "contamination_risk",
+    "notes",
+}
+
 
 def load_yaml(path: Path):
     with path.open("r", encoding="utf-8") as f:
@@ -113,6 +130,14 @@ def main() -> None:
         for row_num, row in enumerate(reader, 2):
             source_id = row.get("source_id")
             canonical_id = row.get("canonical_id")
+
+            missing_values = [
+                field
+                for field in sorted(CORE_REQUIRED_RANKING_VALUES)
+                if not row.get(field, "").strip()
+            ]
+            if missing_values:
+                errors.append(f"row {row_num}: missing required values: {missing_values}")
 
             if source_id and source_id not in source_ids:
                 errors.append(f"row {row_num}: unknown source_id {source_id}")
