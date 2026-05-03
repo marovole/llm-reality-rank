@@ -193,6 +193,91 @@ def test_selector_data_contains_dimensions_presets_and_models(tmp_path):
     assert selector_data["models"][0]["confidence"]["label"]
 
 
+def test_new_snapshot_preserves_old_snapshot_and_moves_latest_pointer(tmp_path):
+    module = load_module()
+    paths = write_fixture_dataset(tmp_path)
+    snapshot_root = tmp_path / "snapshots"
+    api_root = tmp_path / "api" / "v1"
+
+    first = module.promote_reviewed_snapshot(
+        snapshot_id="2026-05-alpha",
+        raw_rankings_path=paths["raw"],
+        normalized_scores_path=paths["normalized"],
+        model_scores_path=paths["scores"],
+        sources_path=paths["sources"],
+        models_path=paths["models"],
+        snapshot_root=snapshot_root,
+        api_root=api_root,
+        generated_at="2026-05-03T00:00:00Z",
+    )
+    old_manifest = first["snapshot_dir"] / "manifest.json"
+    old_checksum = old_manifest.read_bytes()
+
+    second = module.promote_reviewed_snapshot(
+        snapshot_id="2026-06-alpha",
+        raw_rankings_path=paths["raw"],
+        normalized_scores_path=paths["normalized"],
+        model_scores_path=paths["scores"],
+        sources_path=paths["sources"],
+        models_path=paths["models"],
+        snapshot_root=snapshot_root,
+        api_root=api_root,
+        generated_at="2026-06-01T00:00:00Z",
+    )
+
+    assert second["ok"] is True
+    assert old_manifest.read_bytes() == old_checksum
+    api_snapshots = read_json(api_root / "snapshots.json")
+    assert api_snapshots["current_snapshot_id"] == "2026-06-alpha"
+    snapshots_by_id = {snapshot["snapshot_id"]: snapshot for snapshot in api_snapshots["snapshots"]}
+    assert set(snapshots_by_id) == {"2026-05-alpha", "2026-06-alpha"}
+    assert snapshots_by_id["2026-05-alpha"]["latest"] is False
+    assert snapshots_by_id["2026-05-alpha"]["current"] is False
+    assert snapshots_by_id["2026-06-alpha"]["latest"] is True
+    assert snapshots_by_id["2026-06-alpha"]["current"] is True
+
+
+def test_scores_trace_to_source_evidence_and_selector_payload_matches_api(tmp_path):
+    module = load_module()
+    paths = write_fixture_dataset(tmp_path)
+
+    result = module.promote_reviewed_snapshot(
+        snapshot_id="2026-05-alpha",
+        raw_rankings_path=paths["raw"],
+        normalized_scores_path=paths["normalized"],
+        model_scores_path=paths["scores"],
+        sources_path=paths["sources"],
+        models_path=paths["models"],
+        snapshot_root=tmp_path / "snapshots",
+        api_root=tmp_path / "api" / "v1",
+        generated_at="2026-05-03T00:00:00Z",
+    )
+
+    api_root = result["api_root"]
+    scores = read_json(api_root / "scores.json")["scores"]
+    source_evidence = read_json(api_root / "source-evidence.json")["source_evidence"]
+    selector_models = read_json(api_root / "selector-data.json")["models"]
+    evidence_by_id = {evidence["evidence_id"]: evidence for evidence in source_evidence}
+    selector_by_id = {model["canonical_id"]: model for model in selector_models}
+
+    for score in scores:
+        selector_model = selector_by_id[score["canonical_id"]]
+        assert selector_model["scores"]["overall_score"] == score["overall_score"]
+        assert selector_model["scores"]["dimensions"] == score["dimension_scores"]
+        assert selector_model["confidence"] == score["confidence"]
+        assert selector_model["missing_dimensions"] == score["missing_dimensions"]
+        assert selector_model["source_ids"] == sorted({ref["source_id"] for ref in score["source_refs"]})
+        for ref in score["source_refs"]:
+            evidence = evidence_by_id[ref["evidence_id"]]
+            assert evidence["canonical_id"] == score["canonical_id"]
+            assert evidence["source_id"] == ref["source_id"]
+            assert evidence["metric_name"] == ref["metric_name"]
+            assert evidence["source_url"] == ref["url"]
+            assert evidence["date_observed"] == ref["date_observed"]
+            assert evidence["model_name_raw"]
+            assert evidence["score_raw"] is not None or evidence["rank_raw"] is not None
+
+
 def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 

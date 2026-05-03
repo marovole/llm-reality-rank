@@ -455,23 +455,46 @@ def build_scores_api(
     return {"scores": scores}
 
 
-def build_snapshots_api(manifest: dict[str, Any]) -> dict[str, Any]:
+def snapshot_record(manifest: dict[str, Any], *, is_current: bool) -> dict[str, Any]:
+    return {
+        "snapshot_id": manifest["snapshot_id"],
+        "date": manifest["generated_at"][:10],
+        "generated_at": manifest["generated_at"],
+        "review_status": manifest["review_status"],
+        "publication_status": manifest["publication_status"],
+        "current": is_current,
+        "latest": is_current,
+        "freshness": manifest["freshness"],
+        "artifacts": manifest["artifacts"],
+        "limitations": manifest["limitations"],
+    }
+
+
+def load_existing_snapshot_manifests(snapshot_root: Path, current_snapshot_id: str) -> list[dict[str, Any]]:
+    manifests: list[dict[str, Any]] = []
+    if not snapshot_root.exists():
+        return manifests
+    for child in sorted(snapshot_root.iterdir()):
+        manifest_path = child / "manifest.json"
+        if not child.is_dir() or not manifest_path.exists() or child.name == current_snapshot_id:
+            continue
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("snapshot_id"):
+            manifests.append(manifest)
+    return manifests
+
+
+def build_snapshots_api(manifest: dict[str, Any], historical_manifests: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    records = [
+        snapshot_record(existing_manifest, is_current=False)
+        for existing_manifest in historical_manifests or []
+        if existing_manifest.get("snapshot_id") != manifest["snapshot_id"]
+    ]
+    records.append(snapshot_record(manifest, is_current=True))
+    records.sort(key=lambda record: (record["generated_at"], record["snapshot_id"]))
     return {
         "current_snapshot_id": manifest["snapshot_id"],
-        "snapshots": [
-            {
-                "snapshot_id": manifest["snapshot_id"],
-                "date": manifest["generated_at"][:10],
-                "generated_at": manifest["generated_at"],
-                "review_status": manifest["review_status"],
-                "publication_status": manifest["publication_status"],
-                "current": True,
-                "latest": True,
-                "freshness": manifest["freshness"],
-                "artifacts": manifest["artifacts"],
-                "limitations": manifest["limitations"],
-            }
-        ],
+        "snapshots": records,
     }
 
 
@@ -609,7 +632,8 @@ def promote_reviewed_snapshot(
     sources_api = build_sources_api(sources, used_source_ids, raw_rows)
     scenarios_api = build_scenarios_api()
     scores_api = build_scores_api(snapshot_id, score_rows, evidence)
-    snapshots_api = build_snapshots_api(manifest)
+    historical_manifests = load_existing_snapshot_manifests(snapshot_root, snapshot_id)
+    snapshots_api = build_snapshots_api(manifest, historical_manifests)
     api_manifest = build_api_manifest(snapshot_id, generated_at)
     selector_data = build_selector_data(snapshot_id, models_api, scores_api, scenarios_api)
     leaderboard = {
