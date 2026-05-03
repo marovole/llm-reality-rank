@@ -57,7 +57,8 @@ const queryActive = Astro.url.searchParams.has('q') || Astro.url.searchParams.ha
     </div>
   ) : (
     <div class="table-wrap" data-leaderboard-root data-rows={clientRowsJson} data-initial-scenario={scenarioId ?? 'overall'}>
-      <table>
+      <table class="responsive-table">
+        <caption>{title}：显示 rank、模型、{scoreHeading}、置信度、覆盖、缺失/新鲜度和限制。</caption>
         <thead>
           <tr>
             <th scope="col">Rank</th>
@@ -75,19 +76,19 @@ const queryActive = Astro.url.searchParams.has('q') || Astro.url.searchParams.ha
             const visibleScore = score.visibleScore ?? (scenarioId && scenarioId !== 'overall' ? score.dimension_scores[scenarioId] : score.overall_score);
             return (
               <tr>
-                <td>#{score.displayRank ?? score.rank}</td>
-                <td>
-                  <a href={getModelPath(score.canonical_id)}>{model?.display_name ?? score.canonical_id}</a>
+                <td data-label="Rank">#{score.displayRank ?? score.rank}</td>
+                <td data-label="模型">
+                  <a href={getModelPath(score.canonical_id)} aria-label={`查看${model?.display_name ?? score.canonical_id}模型详情`}>{model?.display_name ?? score.canonical_id}</a>
                   <small>{model?.provider ?? 'Unknown provider'}</small>
                 </td>
-                <td>{formatScore(visibleScore)}</td>
-                <td><span class="badge">{score.confidence.label} · {formatScore(score.confidence.score)}</span></td>
-                <td>{score.source_coverage.source_count} sources / {score.source_coverage.scenario_count} dimensions</td>
-                <td>
+                <td data-label={scoreHeading}>{formatScore(visibleScore)}</td>
+                <td data-label="置信度"><span class="badge" role="status" aria-label={`置信度：${score.confidence.label}，分数 ${formatScore(score.confidence.score)}`}>{score.confidence.label} · {formatScore(score.confidence.score)}</span></td>
+                <td data-label="覆盖">{score.source_coverage.source_count} sources / {score.source_coverage.scenario_count} dimensions</td>
+                <td data-label="缺失/新鲜度">
                   {score.missing_dimensions.length > 0 ? (
-                    <span class="warning-badge">{score.missing_dimensions.length} missing</span>
+                    <span class="warning-badge" role="status" aria-label={score.missing_dimensions.length > 0 ? `缺失维度：${score.missing_dimensions.length} 个` : '没有缺失维度'}>{score.missing_dimensions.length} missing</span>
                   ) : (
-                    <span class="badge">complete</span>
+                    <span class="badge" role="status" aria-label={score.missing_dimensions.length > 0 ? `缺失维度：${score.missing_dimensions.length} 个` : '没有缺失维度'}>complete</span>
                   )}
                   <small>{score.missing_dimensions.slice(0, 3).map(scenarioLabel).join('、') || '当前场景无缺失标记'}</small>
                   {score.freshness?.stale ? (
@@ -96,8 +97,8 @@ const queryActive = Astro.url.searchParams.has('q') || Astro.url.searchParams.ha
                     <small>freshness ok · newest {score.freshness?.newestDate ?? 'unknown'}</small>
                   )}
                 </td>
-                <td>
-                  <span class="warning-badge">{score.eligibility.status}</span>
+                <td data-label="限制">
+                  <span class="warning-badge" role="status" aria-label={`资格状态：${score.eligibility.status}`}>{score.eligibility.status}</span>
                   <small>{score.eligibility.reason}</small>
                   {score.uncertainty_flags.length > 0 && <small>{score.uncertainty_flags.join(' · ')}</small>}
                 </td>
@@ -147,18 +148,18 @@ const queryActive = Astro.url.searchParams.has('q') || Astro.url.searchParams.ha
       ? `<small class="warning-text">stale/unknown freshness · newest ${escapeHtml(row.freshness.newestDate ?? 'unknown')}</small>`
       : `<small>freshness ok · newest ${escapeHtml(row.freshness?.newestDate ?? 'unknown')}</small>`;
     return `<tr>
-      <td>#${displayRank}</td>
-      <td><a href="${getModelPath(row.canonical_id)}">${escapeHtml(modelName)}</a><small>${escapeHtml(provider)}</small></td>
-      <td>${formatScore(visibleScore)}</td>
-      <td><span class="badge">${escapeHtml(row.confidence.label)} · ${formatScore(row.confidence.score)}</span></td>
-      <td>${row.source_coverage.source_count} sources / ${row.source_coverage.scenario_count} dimensions</td>
-      <td>
-        ${row.missing_dimensions.length > 0 ? `<span class="warning-badge">${row.missing_dimensions.length} missing</span>` : '<span class="badge">complete</span>'}
+      <td data-label="Rank">#${displayRank}</td>
+      <td data-label="模型"><a href="${getModelPath(row.canonical_id)}" aria-label="查看${escapeHtml(modelName)}模型详情">${escapeHtml(modelName)}</a><small>${escapeHtml(provider)}</small></td>
+      <td data-label="${escapeHtml(scenarioId === 'overall' ? '综合分' : scenarioLabel(scenarioId))}">${formatScore(visibleScore)}</td>
+      <td data-label="置信度"><span class="badge" role="status" aria-label="置信度：${escapeHtml(row.confidence.label)}，分数 ${formatScore(row.confidence.score)}">${escapeHtml(row.confidence.label)} · ${formatScore(row.confidence.score)}</span></td>
+      <td data-label="覆盖">${row.source_coverage.source_count} sources / ${row.source_coverage.scenario_count} dimensions</td>
+      <td data-label="缺失/新鲜度">
+        ${row.missing_dimensions.length > 0 ? `<span class="warning-badge" role="status" aria-label="缺失维度：${row.missing_dimensions.length} 个">${row.missing_dimensions.length} missing</span>` : '<span class="badge" role="status" aria-label="没有缺失维度">complete</span>'}
         <small>${escapeHtml(missingPreview)}</small>
         ${freshnessLine}
       </td>
-      <td>
-        <span class="warning-badge">${escapeHtml(row.eligibility.status)}</span>
+      <td data-label="限制">
+        <span class="warning-badge" role="status" aria-label="资格状态：${escapeHtml(row.eligibility.status)}">${escapeHtml(row.eligibility.status)}</span>
         <small>${escapeHtml(row.eligibility.reason)}</small>
         ${row.uncertainty_flags.length > 0 ? `<small>${escapeHtml(row.uncertainty_flags.join(' · '))}</small>` : ''}
       </td>

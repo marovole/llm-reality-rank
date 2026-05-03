@@ -20,8 +20,8 @@ const modelSourceNames = model?.source_names?.length ? model.source_names : mode
       <p>{model.provider} · {model.model_type ?? 'unknown type'} · version: {model.version ?? 'unknown'}</p>
       <SnapshotNotice />
       <section class="grid two">
-        <article class="panel">
-          <h2>模型身份</h2>
+        <article class="panel" aria-labelledby="model-identity-title">
+          <h2 id="model-identity-title">模型身份</h2>
           <dl class="metadata-list">
             <div><dt>Canonical ID</dt><dd><code>{model.canonical_id}</code></dd></div>
             <div><dt>Provider</dt><dd>{model.provider}</dd></div>
@@ -39,11 +39,11 @@ const modelSourceNames = model?.source_names?.length ? model.source_names : mode
           )}
           {model.notes && <p class="warning-text">Canonicalization/version caveat: {model.notes}</p>}
         </article>
-        <article class="panel">
-          <h2>分数与置信度</h2>
+        <article class="panel" aria-labelledby="model-score-title">
+          <h2 id="model-score-title">分数与置信度</h2>
           <p>综合分：<strong>{formatScore(score.overall_score)}</strong> · Rank #{score.rank}</p>
-          <p><span class="badge">Confidence {score.confidence.label} · {formatScore(score.confidence.score)}</span></p>
-          <p><span class="warning-badge">{score.eligibility.status}</span> {score.eligibility.reason}</p>
+          <p><span class="badge" role="status" aria-label={`置信度：${score.confidence.label}，分数 ${formatScore(score.confidence.score)}`}>Confidence {score.confidence.label} · {formatScore(score.confidence.score)}</span></p>
+          <p><span class="warning-badge" role="status" aria-label={`资格状态：${score.eligibility.status}`}>{score.eligibility.status}</span> {score.eligibility.reason}</p>
           <h3>缺失维度</h3>
           {score.missing_dimensions.length ? (
             <p>{score.missing_dimensions.map(scenarioLabel).join('、')}</p>
@@ -73,8 +73,8 @@ const modelSourceNames = model?.source_names?.length ? model.source_names : mode
             const hasUrl = typeof evidenceUrl === 'string' && evidenceUrl.length > 0;
             const canonicalizationStatus = evidence?.notes.match(/canonicalization_status=([^;]+)/)?.[1] ?? 'not specified';
             return (
-              <article>
-                <h3>{source?.name ?? ref.source_id}</h3>
+              <article aria-labelledby={`evidence-${ref.evidence_id}`}>
+                <h3 id={`evidence-${ref.evidence_id}`}>{source?.name ?? ref.source_id}</h3>
                 <dl class="metadata-list evidence-metadata">
                   <div><dt>Source ID</dt><dd><code>{ref.source_id}</code></dd></div>
                   <div><dt>Evidence ID</dt><dd><code>{ref.evidence_id}</code></dd></div>
@@ -90,7 +90,7 @@ const modelSourceNames = model?.source_names?.length ? model.source_names : mode
                 <p>
                   <strong>目标 URL：</strong>
                   {hasUrl ? (
-                    <a href={evidenceUrl} target="_blank" rel="noopener noreferrer external">外部来源：{evidenceUrl}</a>
+                    <a href={evidenceUrl} target="_blank" rel="noopener noreferrer external" aria-label={`打开外部来源：${evidenceUrl}`}>外部来源：{evidenceUrl}</a>
                   ) : (
                     <span class="warning-badge">URL unavailable — evidence retained</span>
                   )}

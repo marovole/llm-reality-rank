@@ -20,8 +20,8 @@ import { currentSnapshot, pageTitle, sourceEvidence, sources } from '../../lib/d
     <h2>Reviewed alpha sources</h2>
     <div class="card-list">
       {sources.map((source) => (
-        <article>
-          <h3>{source.name}</h3>
+        <article aria-labelledby={`source-${source.source_id}`}>
+          <h3 id={`source-${source.source_id}`}>{source.name}</h3>
           <p>{source.notes}</p>
           <dl class="metadata-list">
             <div><dt>source_id</dt><dd><code>{source.source_id}</code></dd></div>
@@ -37,7 +37,7 @@ import { currentSnapshot, pageTitle, sourceEvidence, sources } from '../../lib/d
           <p>
             <strong>目标 URL：</strong>
             {source.source_url ? (
-              <a href={source.source_url} target="_blank" rel="noopener noreferrer external">外部来源：{source.source_url}</a>
+              <a href={source.source_url} target="_blank" rel="noopener noreferrer external" aria-label={`打开外部来源：${source.source_url}`}>外部来源：{source.source_url}</a>
             ) : (
               <span class="warning-badge">URL unavailable — source retained</span>
             )}
@@ -51,15 +51,15 @@ import { currentSnapshot, pageTitle, sourceEvidence, sources } from '../../lib/d
     <p>下方样例证明来源证据不会被隐藏：即使只显示前几条，也保留 source、metric、date、raw model name、score_raw、notes 和目标 URL。</p>
     <div class="evidence-list">
       {sourceEvidence.slice(0, 4).map((evidence) => (
-        <article>
-          <h3>{evidence.source_id} · {evidence.metric_name}</h3>
+        <article aria-labelledby={`sample-${evidence.evidence_id}`}>
+          <h3 id={`sample-${evidence.evidence_id}`}>{evidence.source_id} · {evidence.metric_name}</h3>
           <p><code>{evidence.evidence_id}</code> · {evidence.date_observed} · {evidence.model_name_raw}</p>
           <p>score_raw: {evidence.score_raw ?? '—'} · normalized: {evidence.score_normalized ?? '—'} · canonicalization_status: {evidence.notes.match(/canonicalization_status=([^;]+)/)?.[1] ?? 'not specified'}</p>
           <p>{evidence.notes}</p>
           <p>
             <strong>目标 URL：</strong>
             {evidence.source_url ? (
-              <a href={evidence.source_url} target="_blank" rel="noopener noreferrer external">外部来源：{evidence.source_url}</a>
+              <a href={evidence.source_url} target="_blank" rel="noopener noreferrer external" aria-label={`打开外部来源：${evidence.source_url}`}>外部来源：{evidence.source_url}</a>
             ) : (
               <span class="warning-badge">URL unavailable — evidence retained</span>
             )}

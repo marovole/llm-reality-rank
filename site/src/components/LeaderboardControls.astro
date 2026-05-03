@@ -23,7 +23,7 @@ const { action, filters, confidenceOptions, eligibilityOptions } = Astro.props;
 <form class="leaderboard-controls" action={action} method="get" aria-label="排行榜筛选控件">
   <label>
     <span>场景</span>
-    <select name="scenario">
+    <select name="scenario" aria-label="选择榜单场景">
       <option value="overall" selected={filters.scenarioId === 'overall'}>综合榜</option>
       {scenarios.map((scenario) => (
         <option value={scenario.id} selected={filters.scenarioId === scenario.id}>{scenario.label_zh}</option>
@@ -32,11 +32,11 @@ const { action, filters, confidenceOptions, eligibilityOptions } = Astro.props;
   </label>
   <label>
     <span>搜索模型/厂商</span>
-    <input name="q" value={filters.query} type="search" placeholder="例如 GPT、Gemini、Anthropic" />
+    <input name="q" value={filters.query} type="search" placeholder="例如 GPT、Gemini、Anthropic" aria-label="搜索模型或厂商" />
   </label>
   <label>
     <span>置信度</span>
-    <select name="confidence">
+    <select name="confidence" aria-label="筛选置信度">
       {confidenceOptions.map((option) => (
         <option value={option.value} selected={filters.confidence === option.value}>{option.label}</option>
       ))}
@@ -44,14 +44,14 @@ const { action, filters, confidenceOptions, eligibilityOptions } = Astro.props;
   </label>
   <label>
     <span>资格状态</span>
-    <select name="eligibility">
+    <select name="eligibility" aria-label="筛选资格状态">
       {eligibilityOptions.map((option) => (
         <option value={option.value} selected={filters.eligibility === option.value}>{option.label}</option>
       ))}
     </select>
   </label>
   <div class="control-actions">
-    <button type="submit">应用筛选</button>
-    <a href={action}>重置</a>
+    <button type="submit" aria-label="应用排行榜筛选">应用筛选</button>
+    <a href={action} aria-label="重置排行榜筛选">重置</a>
   </div>
 </form>

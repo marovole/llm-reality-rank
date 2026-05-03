@@ -12,8 +12,8 @@ import { pageTitle, presets, rankedScores, scenarioLabel, selectorData } from '.
     <h2>Preset 输入</h2>
     <div class="card-list">
       {presets.map((preset) => (
-        <article class="model-card">
-          <h3>{preset.display_name}</h3>
+        <article class="model-card" aria-labelledby={`preset-${preset.id}`}>
+          <h3 id={`preset-${preset.id}`}>{preset.display_name}</h3>
           <p>{preset.description}</p>
           <ul class="weights">
             {Object.entries(preset.weights).map(([dimension, weight]) => <li>{scenarioLabel(dimension)} {weight}</li>)}
