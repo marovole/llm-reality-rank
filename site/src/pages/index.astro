@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LeaderboardTable from '../components/LeaderboardTable.astro';
+import SnapshotNotice from '../components/SnapshotNotice.astro';
+import { currentSnapshot, pageTitle, rankedScores } from '../lib/data';
+---
+<BaseLayout title={pageTitle('真实使用价值榜静态站点')} description="LLM Reality Rank 静态站点首页，提供中文产品定位、reviewed alpha 综合榜预览、置信度和快照限制说明。" canonicalPath="/">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">不是只看考试分，而是看真实使用价值</p>
+      <h1>LLM 真实使用价值榜</h1>
+      <p>面向中文高阶 AI 用户、开发者和创作者的静态数据产品。当前站点基线读取 reviewed alpha snapshot 和静态 JSON API，优先展示可追溯来源、置信度和缺失维度，而不是包装成绝对结论。</p>
+      <p><a class="button-link" href="/leaderboard/">查看榜单</a> <a class="button-link" href="/api/v1/manifest.json">打开 API Manifest</a></p>
+    </div>
+    <aside class="hero-card" aria-label="当前快照摘要">
+      <div>
+        <p class="eyebrow">Snapshot</p>
+        <h2>{currentSnapshot?.snapshot_id ?? 'unavailable'}</h2>
+        <p>{currentSnapshot?.date ?? 'unknown date'} · {currentSnapshot?.review_status ?? 'unknown review status'}</p>
+      </div>
+      <p>Alpha 数据量较小，榜单默认保留低置信度和 ineligible/provisional 标记，避免把 sparse data 误读为官方排名。</p>
+    </aside>
+  </section>
+  <SnapshotNotice />
+  <LeaderboardTable scores={rankedScores.slice(0, 5)} title="综合榜预览" />
+</BaseLayout>

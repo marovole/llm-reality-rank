@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { pageTitle, sources } from '../../lib/data';
+---
+<BaseLayout title={pageTitle('来源登记表')} description="LLM Reality Rank 来源登记表静态页面，列出 reviewed alpha 使用的数据来源、URL、观察日期和限制说明。" canonicalPath="/sources/">
+  <p class="eyebrow">Sources</p>
+  <h1>来源登记表</h1>
+  <SnapshotNotice />
+  <section class="panel source-list">
+    <h2>Reviewed alpha sources</h2>
+    <div class="card-list">
+      {sources.map((source) => (
+        <article>
+          <h3>{source.name}</h3>
+          <p>{source.notes}</p>
+          <p>Last observed: {source.last_observed ?? 'unknown'} · status: {source.status ?? 'unknown'}</p>
+          <a href={source.source_url} target="_blank" rel="noopener noreferrer">外部来源：{source.source_url}</a>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

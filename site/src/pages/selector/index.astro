@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { pageTitle, presets, rankedScores, scenarioLabel, selectorData } from '../../lib/data';
+---
+<BaseLayout title={pageTitle('模型选择器')} description="LLM Reality Rank 模型选择器静态基础页，列出 selector-data.json、场景 preset 和 reviewed alpha 推荐输入。" canonicalPath="/selector/">
+  <p class="eyebrow">Selector foundation</p>
+  <h1>模型选择器</h1>
+  <p>本阶段提供静态选择器路线和数据合同入口。后续交互会在浏览器端基于 <code>/api/v1/selector-data.json</code> 重算权重；当前页面不暴露分享或对比控件，避免承诺尚未实现的状态回放。</p>
+  <SnapshotNotice />
+  <section class="panel">
+    <h2>Preset 输入</h2>
+    <div class="card-list">
+      {presets.map((preset) => (
+        <article class="model-card">
+          <h3>{preset.display_name}</h3>
+          <p>{preset.description}</p>
+          <ul class="weights">
+            {Object.entries(preset.weights).map(([dimension, weight]) => <li>{scenarioLabel(dimension)} {weight}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+  <section class="panel">
+    <h2>当前可选模型</h2>
+    <p>selector-data snapshot: {(selectorData as any).snapshot_id}</p>
+    <p>模型输入记录：{rankedScores.length}。全部建议必须显示置信度和缺失维度。</p>
+  </section>
+</BaseLayout>

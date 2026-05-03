@@ -1,0 +1,54 @@
+---
+import { formatScore, getModelForScore, getModelPath, scenarioLabel } from '../lib/data';
+
+interface Props {
+  scores: any[];
+  scenarioId?: string;
+  title: string;
+}
+
+const { scores, scenarioId, title } = Astro.props;
+---
+<section class="panel" aria-labelledby="leaderboard-title">
+  <div class="section-heading">
+    <p class="eyebrow">Reviewed alpha · 非最终官方排名</p>
+    <h2 id="leaderboard-title">{title}</h2>
+  </div>
+  {scores.length === 0 ? (
+    <p class="empty-state">该场景暂无 reviewed alpha 数据。我们不会用占位数据补齐排名。</p>
+  ) : (
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">模型</th>
+            <th scope="col">{scenarioId ? scenarioLabel(scenarioId) : '综合分'}</th>
+            <th scope="col">置信度</th>
+            <th scope="col">覆盖</th>
+            <th scope="col">状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          {scores.map((score, index) => {
+            const model = getModelForScore(score);
+            const visibleScore = scenarioId ? score.dimension_scores[scenarioId] : score.overall_score;
+            return (
+              <tr>
+                <td>#{scenarioId ? index + 1 : score.rank}</td>
+                <td>
+                  <a href={getModelPath(score.canonical_id)}>{model?.display_name ?? score.canonical_id}</a>
+                  <small>{model?.provider ?? 'Unknown provider'}</small>
+                </td>
+                <td>{formatScore(visibleScore)}</td>
+                <td><span class="badge">{score.confidence.label} · {formatScore(score.confidence.score)}</span></td>
+                <td>{score.source_coverage.source_count} sources / {score.source_coverage.scenario_count} dimensions</td>
+                <td><span class="warning-badge">{score.eligibility.status}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  )}
+</section>

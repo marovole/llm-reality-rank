@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LeaderboardTable from '../../components/LeaderboardTable.astro';
+import ScenarioNav from '../../components/ScenarioNav.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { pageTitle, rankedScores } from '../../lib/data';
+---
+<BaseLayout title={pageTitle('综合排行榜')} description="LLM Reality Rank reviewed alpha 综合排行榜，展示模型综合分、置信度、来源覆盖和资格状态。" canonicalPath="/leaderboard/">
+  <p class="eyebrow">Leaderboard</p>
+  <h1>综合排行榜</h1>
+  <p>综合榜读取同一组静态 API 数据。所有分数都带有置信度、覆盖度和限制提示；当前 reviewed alpha 不应被理解为最终官方结论。</p>
+  <ScenarioNav />
+  <SnapshotNotice />
+  <LeaderboardTable scores={rankedScores} title="Reviewed alpha 综合榜" />
+</BaseLayout>

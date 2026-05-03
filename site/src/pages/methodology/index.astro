@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { pageTitle, scenarios } from '../../lib/data';
+---
+<BaseLayout title={pageTitle('方法论')} description="LLM Reality Rank 方法论基础页，说明 Reality Value Index、场景权重、置信度、资格状态和 reviewed alpha 限制。" canonicalPath="/methodology/">
+  <p class="eyebrow">Methodology</p>
+  <h1>方法论</h1>
+  <SnapshotNotice />
+  <section class="panel">
+    <h2>Reality Value Index</h2>
+    <p>LLM Reality Rank 聚合能力、专项、实用性、生态和置信度信号。当前静态站点只消费 reviewed snapshot JSON，不在前端重新定义评分公式。</p>
+  </section>
+  <section class="panel">
+    <h2>场景维度</h2>
+    <ul>
+      {scenarios.map((scenario) => <li><strong>{scenario.label_zh}</strong> — {scenario.display_name}</li>)}
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>置信度和限制</h2>
+    <p>页面必须展示 confidence、source coverage、missing dimensions、eligibility status 和 limitation copy。低覆盖数据可以被查看，但不能被包装成最终官方排名。</p>
+  </section>
+</BaseLayout>

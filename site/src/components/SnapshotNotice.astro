@@ -1,0 +1,8 @@
+---
+import { apiManifest, currentSnapshot } from '../lib/data';
+---
+<section class="notice" aria-label="数据快照和限制说明">
+  <strong>当前数据快照：{apiManifest.current_snapshot_id}</strong>
+  <span>review_status: {currentSnapshot?.review_status ?? 'unknown'} · publication_status: {currentSnapshot?.publication_status ?? 'unknown'}</span>
+  <p>{apiManifest.disclaimer}</p>
+</section>

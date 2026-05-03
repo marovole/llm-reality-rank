@@ -1,0 +1,9 @@
+---
+import { scenarios } from '../lib/data';
+---
+<nav class="scenario-nav" aria-label="场景榜单导航">
+  <a href="/leaderboard/">综合</a>
+  {scenarios.map((scenario) => (
+    <a href={`/leaderboard/${scenario.id}/`}>{scenario.label_zh}</a>
+  ))}
+</nav>

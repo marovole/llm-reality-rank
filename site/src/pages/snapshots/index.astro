@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { pageTitle, snapshots } from '../../lib/data';
+---
+<BaseLayout title={pageTitle('数据快照')} description="LLM Reality Rank reviewed snapshot 索引页，展示当前 alpha 快照、发布状态、限制和静态 API artifact。" canonicalPath="/snapshots/">
+  <p class="eyebrow">Snapshots</p>
+  <h1>数据快照</h1>
+  <SnapshotNotice />
+  <section class="panel snapshot-list">
+    <h2>Available snapshots</h2>
+    <div class="card-list">
+      {snapshots.map((snapshot) => (
+        <article>
+          <h3>{snapshot.snapshot_id}</h3>
+          <p>{snapshot.date} · {snapshot.review_status} · {snapshot.publication_status}</p>
+          {snapshot.current && <p><span class="badge">current</span></p>}
+          <ul>{snapshot.limitations.map((item) => <li>{item}</li>)}</ul>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

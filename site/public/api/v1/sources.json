@@ -1,0 +1,134 @@
+{
+  "sources": [
+    {
+      "categories": [
+        "coding",
+        "code_editing",
+        "cost"
+      ],
+      "contamination_risk": "low_medium",
+      "dimensions": [
+        "coding",
+        "code_editing",
+        "cost"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "pass_rate",
+        "cost",
+        "code_editing_benchmark"
+      ],
+      "name": "Aider LLM Leaderboards",
+      "notes": "与 AI Coding 真实使用高度相关。",
+      "organization": "Aider",
+      "priority": "P0",
+      "source_id": "aider_leaderboards",
+      "source_trust": "high",
+      "source_url": "https://aider.chat/docs/leaderboards/",
+      "status": "active",
+      "urls": {
+        "primary": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "cost_speed",
+        "api",
+        "practical"
+      ],
+      "contamination_risk": "low_medium",
+      "dimensions": [
+        "general",
+        "cost_speed",
+        "api",
+        "practical"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "intelligence_index",
+        "price",
+        "latency",
+        "speed",
+        "context"
+      ],
+      "name": "Artificial Analysis LLM Leaderboard / Intelligence Index",
+      "notes": "Reality Value Index 的 Practicality Multiplier 核心来源。",
+      "organization": "Artificial Analysis",
+      "priority": "P0",
+      "source_id": "artificial_analysis_llm",
+      "source_trust": "high",
+      "source_url": "https://artificialanalysis.ai/leaderboards/models",
+      "status": "active",
+      "urls": {
+        "primary": "https://artificialanalysis.ai/leaderboards/models"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "reasoning",
+        "math",
+        "coding",
+        "anti_contamination"
+      ],
+      "contamination_risk": "low",
+      "dimensions": [
+        "general",
+        "reasoning",
+        "math",
+        "coding",
+        "anti_contamination"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "benchmark_score",
+        "task_accuracy"
+      ],
+      "name": "LiveBench",
+      "notes": "动态更新有助于降低 benchmark contamination。",
+      "organization": "LiveBench team",
+      "priority": "P0",
+      "source_id": "livebench",
+      "source_trust": "high",
+      "source_url": "https://livebench.ai/",
+      "status": "active",
+      "urls": {
+        "primary": "https://livebench.ai/"
+      }
+    },
+    {
+      "categories": [
+        "coding",
+        "agentic_coding",
+        "software_engineering"
+      ],
+      "contamination_risk": "medium",
+      "dimensions": [
+        "coding",
+        "agentic_coding",
+        "software_engineering"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "resolved_issue_rate",
+        "pass_rate"
+      ],
+      "name": "SWE-bench Verified",
+      "notes": "优先使用 Verified，不要和普通 SWE-bench 混合计分。",
+      "organization": "SWE-bench",
+      "priority": "P0",
+      "source_id": "swe_bench_verified",
+      "source_trust": "high",
+      "source_url": "https://www.swebench.com/",
+      "status": "active",
+      "urls": {
+        "primary": "https://www.swebench.com/"
+      }
+    }
+  ]
+}

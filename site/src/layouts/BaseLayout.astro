@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+import { defaultDescription } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+}
+
+const { title, description = defaultDescription, canonicalPath = Astro.url.pathname } = Astro.props;
+const canonicalUrl = new URL(canonicalPath, Astro.site ?? 'https://llm-reality-rank.pages.dev');
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl.toString()} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl.toString()} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">跳到主要内容</a>
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="主导航">
+        <a class="brand" href="/">LLM Reality Rank</a>
+        <div class="nav-links">
+          <a href="/leaderboard/">榜单</a>
+          <a href="/selector/">选择器</a>
+          <a href="/methodology/">方法论</a>
+          <a href="/sources/">来源</a>
+          <a href="/snapshots/">快照</a>
+        </div>
+      </nav>
+    </header>
+    <main id="content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>静态站点基线：Cloudflare Pages build output <code>site/dist</code>，API JSON 由 reviewed snapshot 复制到 <code>/api/v1</code>。</p>
+      <p>Alpha 数据不代表最终官方结论；请结合置信度、缺失维度和来源证据阅读。</p>
+    </footer>
+  </body>
+</html>

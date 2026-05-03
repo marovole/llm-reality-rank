@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../components/SnapshotNotice.astro';
+import { formatScore, getModelPath, modelById, pageTitle, rankedScores, scenarioLabel, sourceById } from '../../lib/data';
+
+export function getStaticPaths() {
+  return rankedScores.map((score) => ({ params: { id: score.canonical_id } }));
+}
+
+const canonicalId = Astro.params.id ?? '';
+const model = modelById.get(canonicalId);
+const score = rankedScores.find((entry) => entry.canonical_id === canonicalId);
+---
+<BaseLayout title={pageTitle(model ? `${model.display_name} 模型详情` : '模型详情')} description={`${model?.display_name ?? canonicalId} 的 LLM Reality Rank 静态模型详情页，包含场景分数、置信度、缺失维度和来源证据。`} canonicalPath={getModelPath(canonicalId)}>
+  {model && score ? (
+    <>
+      <p class="eyebrow">Model evidence</p>
+      <h1>{model.display_name}</h1>
+      <p>{model.provider} · {model.model_type ?? 'unknown type'} · version: {model.version ?? 'unknown'}</p>
+      <SnapshotNotice />
+      <section class="grid two">
+        <article class="panel">
+          <h2>分数与置信度</h2>
+          <p>综合分：<strong>{formatScore(score.overall_score)}</strong> · Rank #{score.rank}</p>
+          <p><span class="badge">Confidence {score.confidence.label} · {formatScore(score.confidence.score)}</span></p>
+          <p><span class="warning-badge">{score.eligibility.status}</span> {score.eligibility.reason}</p>
+        </article>
+        <article class="panel">
+          <h2>缺失维度</h2>
+          {score.missing_dimensions.length ? (
+            <p>{score.missing_dimensions.map(scenarioLabel).join('、')}</p>
+          ) : (
+            <p>当前快照未标记缺失维度。</p>
+          )}
+          <p>覆盖：{score.source_coverage.source_count} sources / {score.source_coverage.evidence_count} evidence refs。</p>
+        </article>
+      </section>
+      <section class="panel">
+        <h2>场景分数</h2>
+        <ul class="weights">
+          {Object.entries(score.dimension_scores).map(([dimension, value]) => (
+            <li>{scenarioLabel(dimension)}: {formatScore(value as number)}</li>
+          ))}
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>来源证据</h2>
+        <div class="evidence-list">
+          {score.source_refs.map((ref) => {
+            const source = sourceById.get(ref.source_id);
+            return (
+              <article>
+                <h3>{source?.name ?? ref.source_id}</h3>
+                <p>{ref.metric_name} · {ref.dimension} · observed {ref.date_observed}</p>
+                <p>{ref.notes}</p>
+                <a href={ref.url} target="_blank" rel="noopener noreferrer">外部来源：{ref.url}</a>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </>
+  ) : (
+    <section class="panel"><h1>模型未找到</h1><p>该静态构建没有对应 reviewed snapshot 记录。</p></section>
+  )}
+</BaseLayout>

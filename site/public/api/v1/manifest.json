@@ -1,0 +1,15 @@
+{
+  "api_version": "v1",
+  "current_snapshot_id": "2026-05-alpha",
+  "disclaimer": "Reviewed snapshot data is traceable and client-ready, but it is not official truth; confidence, missing dimensions, and limitations must be shown with rankings.",
+  "endpoints": {
+    "manifest": "/api/v1/manifest.json",
+    "models": "/api/v1/models.json",
+    "scenarios": "/api/v1/scenarios.json",
+    "scores": "/api/v1/scores.json",
+    "selector_data": "/api/v1/selector-data.json",
+    "snapshots": "/api/v1/snapshots.json",
+    "sources": "/api/v1/sources.json"
+  },
+  "generated_at": "2026-05-03T12:56:54Z"
+}

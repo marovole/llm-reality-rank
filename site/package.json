@@ -1,0 +1,22 @@
+{
+  "name": "llm-reality-rank-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.3.0 <21 || >=22"
+  },
+  "scripts": {
+    "prebuild": "node scripts/copy-api-assets.mjs",
+    "build": "astro build",
+    "dev": "astro dev --host 127.0.0.1 --port 3101",
+    "preview": "astro preview --host 127.0.0.1 --port 3101",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.4",
+    "astro": "5.18.1",
+    "typescript": "5.9.3"
+  },
+  "devDependencies": {}
+}
