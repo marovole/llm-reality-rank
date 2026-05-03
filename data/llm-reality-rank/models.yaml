@@ -2,573 +2,722 @@ metadata:
   project: LLM Reality Rank
   display_name: 大模型真实使用价值榜
   updated_at: '2026-05-03'
-  description: Seed canonical model registry for first-pass manual ingestion. Dates and capabilities must be verified before publication.
+  description: Seed canonical model registry for first-pass manual ingestion. Dates
+    and capabilities must be verified before publication.
   normalization_doc: docs/llm-reality-rank-model-normalization.md
-
 schema:
   required_fields:
-    - canonical_id
-    - display_name
-    - provider
-    - provider_slug
-    - model_family
-    - model_variant
-    - version
-    - model_type
-    - access_type
-  model_type_values: [closed, open_weight, open_source, local_only, hosted_open_weight]
-  access_type_values: [api, web_app, local, api_and_local, unavailable]
-  match_confidence_values: [high, medium, low]
-
+  - canonical_id
+  - display_name
+  - provider
+  - provider_slug
+  - model_family
+  - model_variant
+  - version
+  - model_type
+  - access_type
+  model_type_values:
+  - closed
+  - open_weight
+  - open_source
+  - local_only
+  - hosted_open_weight
+  access_type_values:
+  - api
+  - web_app
+  - local
+  - api_and_local
+  - unavailable
+  match_confidence_values:
+  - high
+  - medium
+  - low
 models:
-  - canonical_id: openai/gpt-4o@2024-08-06
-    display_name: GPT-4o (2024-08-06)
-    provider: OpenAI
-    provider_slug: openai
-    model_family: gpt-4o
-    model_variant: full
-    version: '2024-08-06'
-    release_date: '2024-08-06'
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 128000
-    modality: text_vision_audio
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: true
-    supports_video: false
-    api_model_ids: [gpt-4o, gpt-4o-2024-08-06]
-    aliases: [GPT-4o, GPT 4o, GPT-4 Omni]
-    match_confidence: medium
-    notes: Verify whether benchmark source refers to 2024-05-13 or 2024-08-06 snapshot.
-
-  - canonical_id: openai/gpt-4o-mini@2024-07-18
-    display_name: GPT-4o mini (2024-07-18)
-    provider: OpenAI
-    provider_slug: openai
-    model_family: gpt-4o
-    model_variant: mini
-    version: '2024-07-18'
-    release_date: '2024-07-18'
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 128000
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [gpt-4o-mini, gpt-4o-mini-2024-07-18]
-    aliases: [GPT-4o mini, GPT 4o mini]
-    match_confidence: medium
-    notes: Mini variant must not be merged with GPT-4o full.
-
-  - canonical_id: openai/gpt-4.1@unknown
-    display_name: GPT-4.1
-    provider: OpenAI
-    provider_slug: openai
-    model_family: gpt-4.1
-    model_variant: full
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [gpt-4.1]
-    aliases: [GPT-4.1, GPT 4.1]
-    match_confidence: low
-    notes: Placeholder seed; verify release date, context, and exact API ids before scoring.
-
-  - canonical_id: openai/o3@unknown
-    display_name: o3
-    provider: OpenAI
-    provider_slug: openai
-    model_family: o3
-    model_variant: reasoning
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [o3]
-    aliases: [OpenAI o3, o3]
-    match_confidence: low
-    notes: Reasoning model; verify exact API version and benchmark label.
-
-  - canonical_id: openai/o4-mini@unknown
-    display_name: o4-mini
-    provider: OpenAI
-    provider_slug: openai
-    model_family: o4
-    model_variant: mini_reasoning
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [o4-mini]
-    aliases: [OpenAI o4-mini, o4 mini]
-    match_confidence: low
-    notes: Reasoning mini variant; do not merge with o3 or GPT series.
-
-  - canonical_id: anthropic/claude-3.5-sonnet@2024-10-22
-    display_name: Claude 3.5 Sonnet (2024-10-22)
-    provider: Anthropic
-    provider_slug: anthropic
-    model_family: claude-3.5
-    model_variant: sonnet
-    version: '2024-10-22'
-    release_date: '2024-10-22'
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 200000
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [claude-3-5-sonnet-20241022]
-    aliases: [Claude 3.5 Sonnet, Claude 3.5 Sonnet New, Claude Sonnet 3.5 New]
-    match_confidence: medium
-    notes: Do not merge with 2024-06 Sonnet unless benchmark explicitly uses generic label and date confirms.
-
-  - canonical_id: anthropic/claude-3.7-sonnet@unknown
-    display_name: Claude 3.7 Sonnet
-    provider: Anthropic
-    provider_slug: anthropic
-    model_family: claude-3.7
-    model_variant: sonnet
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 200000
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [claude-3-7-sonnet-latest]
-    aliases: [Claude 3.7 Sonnet]
-    match_confidence: low
-    notes: Verify exact API id/version before scoring.
-
-  - canonical_id: anthropic/claude-sonnet-4@unknown
-    display_name: Claude Sonnet 4
-    provider: Anthropic
-    provider_slug: anthropic
-    model_family: claude-4
-    model_variant: sonnet
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 200000
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [claude-sonnet-4-latest]
-    aliases: [Claude Sonnet 4, Claude 4 Sonnet]
-    match_confidence: low
-    notes: Placeholder for current/near-current benchmark labels; verify before publication.
-
-  - canonical_id: anthropic/claude-opus-4@unknown
-    display_name: Claude Opus 4
-    provider: Anthropic
-    provider_slug: anthropic
-    model_family: claude-4
-    model_variant: opus
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 200000
-    modality: text_vision
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [claude-opus-4-latest]
-    aliases: [Claude Opus 4, Claude 4 Opus]
-    match_confidence: low
-    notes: Opus and Sonnet must remain separate.
-
-  - canonical_id: google/gemini-2.5-pro@unknown
-    display_name: Gemini 2.5 Pro
-    provider: Google
-    provider_slug: google
-    model_family: gemini-2.5
-    model_variant: pro
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 1000000
-    modality: text_vision_audio_video
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: true
-    supports_video: true
-    api_model_ids: [gemini-2.5-pro]
-    aliases: [Gemini 2.5 Pro, Gemini Pro 2.5]
-    match_confidence: low
-    notes: Preview/stable labels must be checked per source.
-
-  - canonical_id: google/gemini-2.5-flash@unknown
-    display_name: Gemini 2.5 Flash
-    provider: Google
-    provider_slug: google
-    model_family: gemini-2.5
-    model_variant: flash
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: 1000000
-    modality: text_vision_audio_video
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: true
-    supports_audio: true
-    supports_video: true
-    api_model_ids: [gemini-2.5-flash]
-    aliases: [Gemini 2.5 Flash, Gemini Flash 2.5]
-    match_confidence: low
-    notes: Flash must not be merged with Pro.
-
-  - canonical_id: xai/grok-3@unknown
-    display_name: Grok 3
-    provider: xAI
-    provider_slug: xai
-    model_family: grok-3
-    model_variant: full
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [grok-3]
-    aliases: [Grok 3, Grok-3]
-    match_confidence: low
-    notes: Verify modality and API support per source.
-
-  - canonical_id: xai/grok-3-mini@unknown
-    display_name: Grok 3 Mini
-    provider: xAI
-    provider_slug: xai
-    model_family: grok-3
-    model_variant: mini
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [grok-3-mini]
-    aliases: [Grok 3 Mini, Grok-3 Mini]
-    match_confidence: low
-    notes: Mini variant separate from Grok 3 full.
-
-  - canonical_id: deepseek/deepseek-v3@2025-03-24
-    display_name: DeepSeek V3 (2025-03-24)
-    provider: DeepSeek
-    provider_slug: deepseek
-    model_family: deepseek-v3
-    model_variant: chat
-    version: '2025-03-24'
-    release_date: '2025-03-24'
-    model_type: open_weight
-    access_type: api_and_local
-    license_type: open_weight_custom
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [deepseek-chat]
-    aliases: [DeepSeek V3, DeepSeek-V3-0324, DeepSeek Chat]
-    match_confidence: medium
-    notes: deepseek-chat may silently map to changing backend; verify date observed.
-
-  - canonical_id: deepseek/deepseek-r1@2025-01-20
-    display_name: DeepSeek R1
-    provider: DeepSeek
-    provider_slug: deepseek
-    model_family: deepseek-r1
-    model_variant: reasoning
-    version: '2025-01-20'
-    release_date: '2025-01-20'
-    model_type: open_weight
-    access_type: api_and_local
-    license_type: open_weight_custom
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [deepseek-reasoner]
-    aliases: [DeepSeek R1, DeepSeek-R1, DeepSeek Reasoner]
-    match_confidence: medium
-    notes: Reasoning model; keep separate from V3 chat.
-
-  - canonical_id: qwen/qwen3-max@unknown
-    display_name: Qwen3-Max
-    provider: Alibaba Qwen
-    provider_slug: qwen
-    model_family: qwen3
-    model_variant: max
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [qwen3-max]
-    aliases: [Qwen3-Max, Qwen Max, 通义千问 Max]
-    match_confidence: low
-    notes: Verify current commercial model id and release date.
-
-  - canonical_id: qwen/qwen3-coder@unknown
-    display_name: Qwen3-Coder
-    provider: Alibaba Qwen
-    provider_slug: qwen
-    model_family: qwen3
-    model_variant: coder
-    version: unknown
-    release_date: null
-    model_type: open_weight
-    access_type: api_and_local
-    license_type: open_weight_custom
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [qwen3-coder]
-    aliases: [Qwen3-Coder, Qwen Coder]
-    match_confidence: low
-    notes: Parameter size must be added if source reports a specific open-weight checkpoint.
-
-  - canonical_id: meta/llama-3.1-405b-instruct@2024-07-23
-    display_name: Llama 3.1 405B Instruct
-    provider: Meta
-    provider_slug: meta
-    model_family: llama-3.1
-    model_variant: 405b_instruct
-    version: '2024-07-23'
-    release_date: '2024-07-23'
-    model_type: open_weight
-    access_type: api_and_local
-    license_type: llama_license
-    parameter_count: 405000000000
-    context_window: 128000
-    modality: text
-    supports_tools: true
-    supports_structured_output: false
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: []
-    aliases: [Llama 3.1 405B Instruct, Meta Llama 3.1 405B]
-    match_confidence: medium
-    notes: Hosted provider behavior may vary; record platform if benchmark uses hosted variant.
-
-  - canonical_id: mistral/mistral-large@unknown
-    display_name: Mistral Large
-    provider: Mistral AI
-    provider_slug: mistral
-    model_family: mistral-large
-    model_variant: full
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [mistral-large-latest]
-    aliases: [Mistral Large, Mistral Large 2]
-    match_confidence: low
-    notes: Need exact version/date for scoring.
-
-  - canonical_id: mistral/codestral@unknown
-    display_name: Codestral
-    provider: Mistral AI
-    provider_slug: mistral
-    model_family: codestral
-    model_variant: coding
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [codestral-latest]
-    aliases: [Codestral, Mistral Codestral]
-    match_confidence: low
-    notes: Coding-specific model; keep separate from Mistral Large.
-
-  - canonical_id: moonshot/kimi-k2@unknown
-    display_name: Kimi K2
-    provider: Moonshot AI
-    provider_slug: moonshot
-    model_family: kimi-k2
-    model_variant: chat
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [kimi-k2]
-    aliases: [Kimi K2, Moonshot K2]
-    match_confidence: low
-    notes: Verify API id and whether source refers to thinking/non-thinking mode.
-
-  - canonical_id: zhipu/glm-4.5@unknown
-    display_name: GLM-4.5
-    provider: Zhipu AI
-    provider_slug: zhipu
-    model_family: glm-4.5
-    model_variant: full
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [glm-4.5]
-    aliases: [GLM-4.5, 智谱 GLM-4.5]
-    match_confidence: low
-    notes: Verify exact current API model and modalities.
-
-  - canonical_id: minimax/minimax-m1@unknown
-    display_name: MiniMax M1
-    provider: MiniMax
-    provider_slug: minimax
-    model_family: minimax-m1
-    model_variant: full
-    version: unknown
-    release_date: null
-    model_type: closed
-    access_type: api
-    license_type: proprietary
-    parameter_count: null
-    context_window: null
-    modality: text
-    supports_tools: true
-    supports_structured_output: true
-    supports_vision: false
-    supports_audio: false
-    supports_video: false
-    api_model_ids: [minimax-m1]
-    aliases: [MiniMax M1, Minimax-M1]
-    match_confidence: low
-    notes: Verify exact release/version before scoring.
+- canonical_id: openai/gpt-4o@2024-08-06
+  display_name: GPT-4o (2024-08-06)
+  provider: OpenAI
+  provider_slug: openai
+  model_family: gpt-4o
+  model_variant: full
+  version: '2024-08-06'
+  release_date: '2024-08-06'
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 128000
+  modality: text_vision_audio
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: true
+  supports_video: false
+  api_model_ids:
+  - gpt-4o
+  - gpt-4o-2024-08-06
+  aliases:
+  - GPT-4o
+  - GPT 4o
+  - GPT-4 Omni
+  match_confidence: medium
+  notes: Verify whether benchmark source refers to 2024-05-13 or 2024-08-06 snapshot.
+- canonical_id: openai/gpt-4o-mini@2024-07-18
+  display_name: GPT-4o mini (2024-07-18)
+  provider: OpenAI
+  provider_slug: openai
+  model_family: gpt-4o
+  model_variant: mini
+  version: '2024-07-18'
+  release_date: '2024-07-18'
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 128000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - gpt-4o-mini
+  - gpt-4o-mini-2024-07-18
+  aliases:
+  - GPT-4o mini
+  - GPT 4o mini
+  match_confidence: medium
+  notes: Mini variant must not be merged with GPT-4o full.
+- canonical_id: openai/gpt-4.1@unknown
+  display_name: GPT-4.1
+  provider: OpenAI
+  provider_slug: openai
+  model_family: gpt-4.1
+  model_variant: full
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - gpt-4.1
+  aliases:
+  - GPT-4.1
+  - GPT 4.1
+  match_confidence: low
+  notes: Placeholder seed; verify release date, context, and exact API ids before
+    scoring.
+- canonical_id: openai/o3@unknown
+  display_name: o3
+  provider: OpenAI
+  provider_slug: openai
+  model_family: o3
+  model_variant: reasoning
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - o3
+  aliases:
+  - OpenAI o3
+  - o3
+  match_confidence: low
+  notes: Reasoning model; verify exact API version and benchmark label.
+- canonical_id: openai/o4-mini@unknown
+  display_name: o4-mini
+  provider: OpenAI
+  provider_slug: openai
+  model_family: o4
+  model_variant: mini_reasoning
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - o4-mini
+  aliases:
+  - OpenAI o4-mini
+  - o4 mini
+  match_confidence: low
+  notes: Reasoning mini variant; do not merge with o3 or GPT series.
+- canonical_id: anthropic/claude-3.5-sonnet@2024-10-22
+  display_name: Claude 3.5 Sonnet (2024-10-22)
+  provider: Anthropic
+  provider_slug: anthropic
+  model_family: claude-3.5
+  model_variant: sonnet
+  version: '2024-10-22'
+  release_date: '2024-10-22'
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 200000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - claude-3-5-sonnet-20241022
+  aliases:
+  - Claude 3.5 Sonnet
+  - Claude 3.5 Sonnet New
+  - Claude Sonnet 3.5 New
+  match_confidence: medium
+  notes: Do not merge with 2024-06 Sonnet unless benchmark explicitly uses generic
+    label and date confirms.
+- canonical_id: anthropic/claude-3.7-sonnet@unknown
+  display_name: Claude 3.7 Sonnet
+  provider: Anthropic
+  provider_slug: anthropic
+  model_family: claude-3.7
+  model_variant: sonnet
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 200000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - claude-3-7-sonnet-latest
+  aliases:
+  - Claude 3.7 Sonnet
+  match_confidence: low
+  notes: Verify exact API id/version before scoring.
+- canonical_id: anthropic/claude-sonnet-4@unknown
+  display_name: Claude Sonnet 4
+  provider: Anthropic
+  provider_slug: anthropic
+  model_family: claude-4
+  model_variant: sonnet
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 200000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - claude-sonnet-4-latest
+  aliases:
+  - Claude Sonnet 4
+  - Claude 4 Sonnet
+  match_confidence: low
+  notes: Placeholder for current/near-current benchmark labels; verify before publication.
+- canonical_id: anthropic/claude-opus-4@unknown
+  display_name: Claude Opus 4
+  provider: Anthropic
+  provider_slug: anthropic
+  model_family: claude-4
+  model_variant: opus
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 200000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - claude-opus-4-latest
+  aliases:
+  - Claude Opus 4
+  - Claude 4 Opus
+  match_confidence: low
+  notes: Opus and Sonnet must remain separate.
+- canonical_id: google/gemini-2.5-pro@unknown
+  display_name: Gemini 2.5 Pro
+  provider: Google
+  provider_slug: google
+  model_family: gemini-2.5
+  model_variant: pro
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 1000000
+  modality: text_vision_audio_video
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: true
+  supports_video: true
+  api_model_ids:
+  - gemini-2.5-pro
+  aliases:
+  - Gemini 2.5 Pro
+  - Gemini Pro 2.5
+  match_confidence: low
+  notes: Preview/stable labels must be checked per source.
+- canonical_id: google/gemini-2.5-flash@unknown
+  display_name: Gemini 2.5 Flash
+  provider: Google
+  provider_slug: google
+  model_family: gemini-2.5
+  model_variant: flash
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 1000000
+  modality: text_vision_audio_video
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: true
+  supports_video: true
+  api_model_ids:
+  - gemini-2.5-flash
+  aliases:
+  - Gemini 2.5 Flash
+  - Gemini Flash 2.5
+  match_confidence: low
+  notes: Flash must not be merged with Pro.
+- canonical_id: xai/grok-3@unknown
+  display_name: Grok 3
+  provider: xAI
+  provider_slug: xai
+  model_family: grok-3
+  model_variant: full
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - grok-3
+  aliases:
+  - Grok 3
+  - Grok-3
+  match_confidence: low
+  notes: Verify modality and API support per source.
+- canonical_id: xai/grok-3-mini@unknown
+  display_name: Grok 3 Mini
+  provider: xAI
+  provider_slug: xai
+  model_family: grok-3
+  model_variant: mini
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - grok-3-mini
+  aliases:
+  - Grok 3 Mini
+  - Grok-3 Mini
+  match_confidence: low
+  notes: Mini variant separate from Grok 3 full.
+- canonical_id: deepseek/deepseek-v3@2025-03-24
+  display_name: DeepSeek V3 (2025-03-24)
+  provider: DeepSeek
+  provider_slug: deepseek
+  model_family: deepseek-v3
+  model_variant: chat
+  version: '2025-03-24'
+  release_date: '2025-03-24'
+  model_type: open_weight
+  access_type: api_and_local
+  license_type: open_weight_custom
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - deepseek-chat
+  aliases:
+  - DeepSeek V3
+  - DeepSeek-V3-0324
+  - DeepSeek Chat
+  match_confidence: medium
+  notes: deepseek-chat may silently map to changing backend; verify date observed.
+- canonical_id: deepseek/deepseek-r1@2025-01-20
+  display_name: DeepSeek R1
+  provider: DeepSeek
+  provider_slug: deepseek
+  model_family: deepseek-r1
+  model_variant: reasoning
+  version: '2025-01-20'
+  release_date: '2025-01-20'
+  model_type: open_weight
+  access_type: api_and_local
+  license_type: open_weight_custom
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - deepseek-reasoner
+  aliases:
+  - DeepSeek R1
+  - DeepSeek-R1
+  - DeepSeek Reasoner
+  match_confidence: medium
+  notes: Reasoning model; keep separate from V3 chat.
+- canonical_id: qwen/qwen3-max@unknown
+  display_name: Qwen3-Max
+  provider: Alibaba Qwen
+  provider_slug: qwen
+  model_family: qwen3
+  model_variant: max
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - qwen3-max
+  aliases:
+  - Qwen3-Max
+  - Qwen Max
+  - 通义千问 Max
+  match_confidence: low
+  notes: Verify current commercial model id and release date.
+- canonical_id: qwen/qwen3-coder@unknown
+  display_name: Qwen3-Coder
+  provider: Alibaba Qwen
+  provider_slug: qwen
+  model_family: qwen3
+  model_variant: coder
+  version: unknown
+  release_date: null
+  model_type: open_weight
+  access_type: api_and_local
+  license_type: open_weight_custom
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - qwen3-coder
+  aliases:
+  - Qwen3-Coder
+  - Qwen Coder
+  match_confidence: low
+  notes: Parameter size must be added if source reports a specific open-weight checkpoint.
+- canonical_id: meta/llama-3.1-405b-instruct@2024-07-23
+  display_name: Llama 3.1 405B Instruct
+  provider: Meta
+  provider_slug: meta
+  model_family: llama-3.1
+  model_variant: 405b_instruct
+  version: '2024-07-23'
+  release_date: '2024-07-23'
+  model_type: open_weight
+  access_type: api_and_local
+  license_type: llama_license
+  parameter_count: 405000000000
+  context_window: 128000
+  modality: text
+  supports_tools: true
+  supports_structured_output: false
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids: []
+  aliases:
+  - Llama 3.1 405B Instruct
+  - Meta Llama 3.1 405B
+  match_confidence: medium
+  notes: Hosted provider behavior may vary; record platform if benchmark uses hosted
+    variant.
+- canonical_id: mistral/mistral-large@unknown
+  display_name: Mistral Large
+  provider: Mistral AI
+  provider_slug: mistral
+  model_family: mistral-large
+  model_variant: full
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - mistral-large-latest
+  aliases:
+  - Mistral Large
+  - Mistral Large 2
+  match_confidence: low
+  notes: Need exact version/date for scoring.
+- canonical_id: mistral/codestral@unknown
+  display_name: Codestral
+  provider: Mistral AI
+  provider_slug: mistral
+  model_family: codestral
+  model_variant: coding
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - codestral-latest
+  aliases:
+  - Codestral
+  - Mistral Codestral
+  match_confidence: low
+  notes: Coding-specific model; keep separate from Mistral Large.
+- canonical_id: moonshot/kimi-k2@unknown
+  display_name: Kimi K2
+  provider: Moonshot AI
+  provider_slug: moonshot
+  model_family: kimi-k2
+  model_variant: chat
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - kimi-k2
+  aliases:
+  - Kimi K2
+  - Moonshot K2
+  match_confidence: low
+  notes: Verify API id and whether source refers to thinking/non-thinking mode.
+- canonical_id: zhipu/glm-4.5@unknown
+  display_name: GLM-4.5
+  provider: Zhipu AI
+  provider_slug: zhipu
+  model_family: glm-4.5
+  model_variant: full
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - glm-4.5
+  aliases:
+  - GLM-4.5
+  - 智谱 GLM-4.5
+  match_confidence: low
+  notes: Verify exact current API model and modalities.
+- canonical_id: minimax/minimax-m1@unknown
+  display_name: MiniMax M1
+  provider: MiniMax
+  provider_slug: minimax
+  model_family: minimax-m1
+  model_variant: full
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - minimax-m1
+  aliases:
+  - MiniMax M1
+  - Minimax-M1
+  match_confidence: low
+  notes: Verify exact release/version before scoring.
+- canonical_id: openai/gpt-5.5-high@unknown
+  display_name: GPT-5.5 (high)
+  provider: OpenAI
+  provider_slug: openai
+  model_family: gpt-5.5
+  model_variant: high
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 922000
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - gpt-5.5-high
+  aliases:
+  - GPT-5.5 (high)
+  - gpt-5.5-high
+  match_confidence: low
+  notes: Seeded from visible LMArena/Artificial Analysis current leaderboard labels;
+    verify exact API id before publication.
+- canonical_id: anthropic/claude-opus-4.7@unknown
+  display_name: Claude Opus 4.7
+  provider: Anthropic
+  provider_slug: anthropic
+  model_family: claude-4.7
+  model_variant: opus
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 1000000
+  modality: text_vision
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: false
+  supports_video: false
+  api_model_ids:
+  - claude-opus-4-7-latest
+  aliases:
+  - Claude Opus 4.7
+  - claude-opus-4-7
+  - Claude Opus 4.7 (max)
+  match_confidence: low
+  notes: Seeded from visible LMArena/Artificial Analysis current leaderboard labels;
+    verify exact API id before publication.
+- canonical_id: google/gemini-3.1-pro-preview@unknown
+  display_name: Gemini 3.1 Pro Preview
+  provider: Google
+  provider_slug: google
+  model_family: gemini-3.1
+  model_variant: pro_preview
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: 1000000
+  modality: text_vision_audio_video
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: true
+  supports_audio: true
+  supports_video: true
+  api_model_ids:
+  - gemini-3.1-pro-preview
+  aliases:
+  - Gemini 3.1 Pro Preview
+  - gemini-3.1-pro-preview
+  match_confidence: low
+  notes: Seeded from visible LMArena/Artificial Analysis current leaderboard labels;
+    verify exact API id before publication.
