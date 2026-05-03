@@ -484,6 +484,7 @@ def build_api_manifest(snapshot_id: str, generated_at: str) -> dict[str, Any]:
             "manifest": "/api/v1/manifest.json",
             "models": "/api/v1/models.json",
             "scores": "/api/v1/scores.json",
+            "source_evidence": "/api/v1/source-evidence.json",
             "sources": "/api/v1/sources.json",
             "scenarios": "/api/v1/scenarios.json",
             "snapshots": "/api/v1/snapshots.json",
@@ -559,6 +560,7 @@ def write_snapshot_and_api(
     write_json(api_root / "manifest.json", api_manifest)
     write_json(api_root / "models.json", models_api)
     write_json(api_root / "scores.json", scores_api)
+    write_json(api_root / "source-evidence.json", {"source_evidence": evidence})
     write_json(api_root / "sources.json", sources_api)
     write_json(api_root / "scenarios.json", scenarios_api)
     write_json(api_root / "snapshots.json", snapshots_api)

@@ -1,15 +1,35 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SnapshotNotice from '../../components/SnapshotNotice.astro';
-import { pageTitle, scenarios } from '../../lib/data';
+import { apiManifest, currentSnapshot, pageTitle, presets, scenarios } from '../../lib/data';
+
+function scenarioLabelSafe(id: string): string {
+  return scenarios.find((scenario) => scenario.id === id)?.label_zh ?? id;
+}
 ---
 <BaseLayout title={pageTitle('方法论')} description="LLM Reality Rank 方法论基础页，说明 Reality Value Index、场景权重、置信度、资格状态和 reviewed alpha 限制。" canonicalPath="/methodology/">
   <p class="eyebrow">Methodology</p>
   <h1>方法论</h1>
   <SnapshotNotice />
   <section class="panel">
-    <h2>Reality Value Index</h2>
-    <p>LLM Reality Rank 聚合能力、专项、实用性、生态和置信度信号。当前静态站点只消费 reviewed snapshot JSON，不在前端重新定义评分公式。</p>
+    <h2>分数构造</h2>
+    <p>LLM Reality Rank 将来源行先标准化到 0-100，再按来源可信度、污染风险、评测独立性和新鲜度得到 source_effective_weight。每个模型的维度分来自同一 reviewed snapshot 的 traceable evidence refs；综合分是当前已覆盖维度的聚合结果，同时保留 missing dimensions，不会为缺失维度虚构分数。</p>
+    <p>Reality Value Index 的长期目标是把 Capability、Specialty、Practicality、Ecosystem 与 Confidence 放在同一个解释框架内。当前静态站点只消费 reviewed snapshot JSON，不在前端重新定义或偷偷改写评分公式。</p>
+  </section>
+  <section class="panel">
+    <h2>场景权重</h2>
+    <p>综合榜用于概览；场景榜和选择器 preset 用不同权重表达真实工作流。所有 preset 权重来自 <code>/api/v1/scenarios.json</code>，用于说明哪些维度更重要，而不是把单项 benchmark 当作最终答案。</p>
+    <div class="card-list">
+      {presets.map((preset) => (
+        <article class="model-card">
+          <h3>{preset.display_name}</h3>
+          <p>{preset.description}</p>
+          <ul class="weights">
+            {Object.entries(preset.weights).map(([dimension, weight]) => <li>{scenarioLabelSafe(dimension)} {Math.round((weight as number) * 100)}%</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
   </section>
   <section class="panel">
     <h2>场景维度</h2>
@@ -18,7 +38,27 @@ import { pageTitle, scenarios } from '../../lib/data';
     </ul>
   </section>
   <section class="panel">
-    <h2>置信度和限制</h2>
-    <p>页面必须展示 confidence、source coverage、missing dimensions、eligibility status 和 limitation copy。低覆盖数据可以被查看，但不能被包装成最终官方排名。</p>
+    <h2>置信度与 eligibility</h2>
+    <p>置信度不是能力分，而是“这条分数有多可信”的提示。它受独立来源数量、场景覆盖、来源质量、新鲜度、模型版本清晰度和 missing dimensions 影响。资格状态用于防止 sparse model 被当成完整主榜结论：低覆盖记录可以被查看，但会显示 ineligible/provisional、source coverage、uncertainty flags 和原因。</p>
+    <p>当前快照 <code>{currentSnapshot?.snapshot_id ?? apiManifest.current_snapshot_id}</code> 的公开状态是 {currentSnapshot?.review_status ?? 'unknown'} / {currentSnapshot?.publication_status ?? 'unknown'}，仍然是 reviewed alpha，不代表最终官方排名。</p>
+  </section>
+  <section class="panel">
+    <h2>局限与不适用场景</h2>
+    <ul>
+      {(currentSnapshot?.limitations ?? []).map((limitation) => <li>{limitation}</li>)}
+      <li>中文、多模态、Agent、生态等维度在当前 alpha 中覆盖不足，必须结合 missing dimensions 阅读。</li>
+      <li>模型名带 <code>@unknown</code> 或 notes 中标记 preview/stable 不清时，不能与明确日期版本混读。</li>
+      <li>Benchmark 与真实产品体验并不等价；价格、速度、上下文和可用性会快速变化。</li>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>可追溯性要求</h2>
+    <p>每个可见模型分数都必须能追到 source name、source URL、observation date、metric、raw model name、canonical model ID、notes 和 canonicalization_status。模型详情页展示 evidence refs；来源页展示 source coverage/update dates；API JSON 保留机器可读字段。</p>
+    <p>
+      <a class="button-link" href="/leaderboard/">返回排行榜</a>
+      <a class="button-link" href="/sources/">查看来源登记表</a>
+      <a class="button-link" href="/snapshots/">查看 reviewed snapshot</a>
+      <a class="button-link" href="/methodology/article/2026-05-alpha/">阅读公开方法论文章</a>
+    </p>
   </section>
 </BaseLayout>

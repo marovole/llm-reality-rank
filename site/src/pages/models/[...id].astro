@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SnapshotNotice from '../../components/SnapshotNotice.astro';
-import { formatScore, getModelPath, modelById, pageTitle, rankedScores, scenarioLabel, sourceById } from '../../lib/data';
+import { evidenceById, formatScore, getModelPath, modelById, pageTitle, rankedScores, scenarioLabel, sourceById } from '../../lib/data';
 
 export function getStaticPaths() {
   return rankedScores.map((score) => ({ params: { id: score.canonical_id } }));
@@ -10,6 +10,7 @@ export function getStaticPaths() {
 const canonicalId = Astro.params.id ?? '';
 const model = modelById.get(canonicalId);
 const score = rankedScores.find((entry) => entry.canonical_id === canonicalId);
+const modelSourceNames = model?.source_names?.length ? model.source_names : model?.aliases ?? [];
 ---
 <BaseLayout title={pageTitle(model ? `${model.display_name} 模型详情` : '模型详情')} description={`${model?.display_name ?? canonicalId} 的 LLM Reality Rank 静态模型详情页，包含场景分数、置信度、缺失维度和来源证据。`} canonicalPath={getModelPath(canonicalId)}>
   {model && score ? (
@@ -20,19 +21,37 @@ const score = rankedScores.find((entry) => entry.canonical_id === canonicalId);
       <SnapshotNotice />
       <section class="grid two">
         <article class="panel">
+          <h2>模型身份</h2>
+          <dl class="metadata-list">
+            <div><dt>Canonical ID</dt><dd><code>{model.canonical_id}</code></dd></div>
+            <div><dt>Provider</dt><dd>{model.provider}</dd></div>
+            <div><dt>Family / Variant</dt><dd>{model.model_family ?? 'unknown'} / {model.model_variant ?? 'unknown'}</dd></div>
+            <div><dt>Access / Open weight</dt><dd>{model.access_type ?? 'unknown'} / {model.open_weight ? 'open_weight' : 'not open_weight'}</dd></div>
+            <div><dt>Version caveat</dt><dd>{model.version === 'unknown' ? 'version: unknown — 该 canonical_id 保留版本不确定性，不能与明确日期版本混读。' : `version: ${model.version}`}</dd></div>
+          </dl>
+          {modelSourceNames.length > 0 && (
+            <>
+              <h3>Source names / aliases</h3>
+              <ul class="weights">
+                {modelSourceNames.map((name) => <li>{name}</li>)}
+              </ul>
+            </>
+          )}
+          {model.notes && <p class="warning-text">Canonicalization/version caveat: {model.notes}</p>}
+        </article>
+        <article class="panel">
           <h2>分数与置信度</h2>
           <p>综合分：<strong>{formatScore(score.overall_score)}</strong> · Rank #{score.rank}</p>
           <p><span class="badge">Confidence {score.confidence.label} · {formatScore(score.confidence.score)}</span></p>
           <p><span class="warning-badge">{score.eligibility.status}</span> {score.eligibility.reason}</p>
-        </article>
-        <article class="panel">
-          <h2>缺失维度</h2>
+          <h3>缺失维度</h3>
           {score.missing_dimensions.length ? (
             <p>{score.missing_dimensions.map(scenarioLabel).join('、')}</p>
           ) : (
             <p>当前快照未标记缺失维度。</p>
           )}
           <p>覆盖：{score.source_coverage.source_count} sources / {score.source_coverage.evidence_count} evidence refs。</p>
+          {score.uncertainty_flags.length > 0 && <p>Uncertainty flags: {score.uncertainty_flags.join(' · ')}</p>}
         </article>
       </section>
       <section class="panel">
@@ -45,15 +64,37 @@ const score = rankedScores.find((entry) => entry.canonical_id === canonicalId);
       </section>
       <section class="panel">
         <h2>来源证据</h2>
+        <p>每条证据都显示来源名称、原始模型名、metric、原始/标准化分数、观察日期、notes、canonicalization_status 和可见目标 URL。外部链接使用 <code>target="_blank"</code> 与 <code>rel="noopener noreferrer external"</code>；URL unavailable 时保留证据而不隐藏。</p>
         <div class="evidence-list">
           {score.source_refs.map((ref) => {
             const source = sourceById.get(ref.source_id);
+            const evidence = evidenceById.get(ref.evidence_id);
+            const evidenceUrl = evidence?.source_url || ref.url;
+            const hasUrl = typeof evidenceUrl === 'string' && evidenceUrl.length > 0;
+            const canonicalizationStatus = evidence?.notes.match(/canonicalization_status=([^;]+)/)?.[1] ?? 'not specified';
             return (
               <article>
                 <h3>{source?.name ?? ref.source_id}</h3>
-                <p>{ref.metric_name} · {ref.dimension} · observed {ref.date_observed}</p>
-                <p>{ref.notes}</p>
-                <a href={ref.url} target="_blank" rel="noopener noreferrer">外部来源：{ref.url}</a>
+                <dl class="metadata-list evidence-metadata">
+                  <div><dt>Source ID</dt><dd><code>{ref.source_id}</code></dd></div>
+                  <div><dt>Evidence ID</dt><dd><code>{ref.evidence_id}</code></dd></div>
+                  <div><dt>Metric / Dimension</dt><dd>{ref.metric_name} / {scenarioLabel(ref.dimension)}</dd></div>
+                  <div><dt>Observation date</dt><dd>{ref.date_observed}</dd></div>
+                  <div><dt>Raw model name</dt><dd>{evidence?.model_name_raw ?? 'not recorded in evidence payload'}</dd></div>
+                  <div><dt>Raw rank / raw score</dt><dd>{evidence?.rank_raw ?? '—'} / {evidence?.score_raw ?? '—'}</dd></div>
+                  <div><dt>Normalized score</dt><dd>{formatScore(evidence?.score_normalized ?? undefined)}</dd></div>
+                  <div><dt>Effective source weight</dt><dd>{evidence?.source_effective_weight ?? '—'}</dd></div>
+                  <div><dt>canonicalization_status</dt><dd>{canonicalizationStatus}</dd></div>
+                </dl>
+                <p>{evidence?.notes ?? ref.notes}</p>
+                <p>
+                  <strong>目标 URL：</strong>
+                  {hasUrl ? (
+                    <a href={evidenceUrl} target="_blank" rel="noopener noreferrer external">外部来源：{evidenceUrl}</a>
+                  ) : (
+                    <span class="warning-badge">URL unavailable — evidence retained</span>
+                  )}
+                </p>
               </article>
             );
           })}

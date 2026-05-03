@@ -1,12 +1,21 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SnapshotNotice from '../../components/SnapshotNotice.astro';
-import { pageTitle, sources } from '../../lib/data';
+import { currentSnapshot, pageTitle, sourceEvidence, sources } from '../../lib/data';
 ---
 <BaseLayout title={pageTitle('来源登记表')} description="LLM Reality Rank 来源登记表静态页面，列出 reviewed alpha 使用的数据来源、URL、观察日期和限制说明。" canonicalPath="/sources/">
   <p class="eyebrow">Sources</p>
   <h1>来源登记表</h1>
   <SnapshotNotice />
+  <section class="panel">
+    <h2>覆盖范围与更新日期</h2>
+    <p>当前页面列出 reviewed alpha snapshot 中公开的来源 registry。快照 <code>{currentSnapshot?.snapshot_id ?? 'unknown'}</code> 的 source coverage/update dates 来自静态 JSON；来源观察日期会同时出现在模型详情 evidence table 中。</p>
+    <p>当前 registered sources: {sources.length}；当前 source evidence refs: {sourceEvidence.length}；观察日期范围：{currentSnapshot ? '见 snapshot freshness / manifest' : 'unknown'}。</p>
+  </section>
+  <section class="panel">
+    <h2>traceability expectations</h2>
+    <p>每个来源必须保留 source_id、名称、source URL、类别/维度、metric types、source trust、contamination risk、last observed、notes 和 status。模型页的每条 evidence link 必须展示目标 URL；若 URL unavailable，证据仍保留并明确标记。</p>
+  </section>
   <section class="panel source-list">
     <h2>Reviewed alpha sources</h2>
     <div class="card-list">
@@ -14,8 +23,47 @@ import { pageTitle, sources } from '../../lib/data';
         <article>
           <h3>{source.name}</h3>
           <p>{source.notes}</p>
-          <p>Last observed: {source.last_observed ?? 'unknown'} · status: {source.status ?? 'unknown'}</p>
-          <a href={source.source_url} target="_blank" rel="noopener noreferrer">外部来源：{source.source_url}</a>
+          <dl class="metadata-list">
+            <div><dt>source_id</dt><dd><code>{source.source_id}</code></dd></div>
+            <div><dt>Organization</dt><dd>{source.organization ?? 'unknown'}</dd></div>
+            <div><dt>Priority / status</dt><dd>{source.priority ?? 'unknown'} / {source.status ?? 'unknown'}</dd></div>
+            <div><dt>Last observed</dt><dd>{source.last_observed ?? 'unknown'}</dd></div>
+            <div><dt>Categories</dt><dd>{source.categories?.join(', ') ?? 'unknown'}</dd></div>
+            <div><dt>Dimensions</dt><dd>{source.dimensions?.join(', ') ?? 'unknown'}</dd></div>
+            <div><dt>Metric types</dt><dd>{source.metric_types?.join(', ') ?? 'unknown'}</dd></div>
+            <div><dt>Trust / contamination</dt><dd>{source.source_trust ?? 'unknown'} / {source.contamination_risk ?? 'unknown'}</dd></div>
+            <div><dt>Independence</dt><dd>{source.evaluation_independence || 'not specified'}</dd></div>
+          </dl>
+          <p>
+            <strong>目标 URL：</strong>
+            {source.source_url ? (
+              <a href={source.source_url} target="_blank" rel="noopener noreferrer external">外部来源：{source.source_url}</a>
+            ) : (
+              <span class="warning-badge">URL unavailable — source retained</span>
+            )}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Source evidence sample</h2>
+    <p>下方样例证明来源证据不会被隐藏：即使只显示前几条，也保留 source、metric、date、raw model name、score_raw、notes 和目标 URL。</p>
+    <div class="evidence-list">
+      {sourceEvidence.slice(0, 4).map((evidence) => (
+        <article>
+          <h3>{evidence.source_id} · {evidence.metric_name}</h3>
+          <p><code>{evidence.evidence_id}</code> · {evidence.date_observed} · {evidence.model_name_raw}</p>
+          <p>score_raw: {evidence.score_raw ?? '—'} · normalized: {evidence.score_normalized ?? '—'} · canonicalization_status: {evidence.notes.match(/canonicalization_status=([^;]+)/)?.[1] ?? 'not specified'}</p>
+          <p>{evidence.notes}</p>
+          <p>
+            <strong>目标 URL：</strong>
+            {evidence.source_url ? (
+              <a href={evidence.source_url} target="_blank" rel="noopener noreferrer external">外部来源：{evidence.source_url}</a>
+            ) : (
+              <span class="warning-badge">URL unavailable — evidence retained</span>
+            )}
+          </p>
         </article>
       ))}
     </div>

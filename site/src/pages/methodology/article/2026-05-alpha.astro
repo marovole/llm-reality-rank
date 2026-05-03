@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SnapshotNotice from '../../../components/SnapshotNotice.astro';
+import { currentSnapshot, pageTitle, sources } from '../../../lib/data';
+---
+<BaseLayout title={pageTitle('2026-05-alpha 公开方法论文章')} description="LLM Reality Rank reviewed alpha 公开方法论文章页，链接回快照、来源、方法论和排行榜。" canonicalPath="/methodology/article/2026-05-alpha/">
+  <p class="eyebrow">Public article</p>
+  <h1>先看真实使用价值，而不是只看考试分</h1>
+  <SnapshotNotice />
+  <section class="panel">
+    <h2>当前 reviewed snapshot</h2>
+    <p>本文对应 <code>{currentSnapshot?.snapshot_id ?? '2026-05-alpha'}</code>。它是 Alpha / 不完整覆盖：数据可追溯，但不能被引用为最终官方排名。</p>
+    <p>
+      <a class="button-link" href="/snapshots/">查看 reviewed snapshot</a>
+      <a class="button-link" href="/sources/">核对 sources</a>
+      <a class="button-link" href="/leaderboard/">返回 rankings</a>
+      <a class="button-link" href="/methodology/">阅读 methodology</a>
+    </p>
+  </section>
+  <section class="panel">
+    <h2>这份榜单想解决什么问题</h2>
+    <p>LLM Reality Rank 不是再做一个“谁智商最高”的单一 benchmark 榜。我们更关心当你今天要写作、编程、处理中文内容、做 Agent 工作流、控制 API 成本或选择可长期使用的模型时，哪些模型有可解释、可追溯的使用价值证据。</p>
+  </section>
+  <section class="panel">
+    <h2>如何阅读 Alpha 结果</h2>
+    <p>综合分和场景分必须和 confidence、eligibility、source coverage、missing dimensions、observation dates、notes 一起阅读。模型详情页会展示 evidence links；来源页展示 source registry；快照页记录当前 limitations。</p>
+  </section>
+  <section class="panel">
+    <h2>当前已复核来源</h2>
+    <ul>
+      {sources.map((source) => (
+        <li><a href={source.source_url} target="_blank" rel="noopener noreferrer external">{source.name}</a> — {source.last_observed ?? 'unknown date'}</li>
+      ))}
+    </ul>
+  </section>
+  <section class="notice">
+    <strong>推荐引用方式</strong>
+    <p>基于 LLM Reality Rank reviewed alpha snapshot 2026-05-alpha 的有限证据，某模型在已覆盖维度上显示出相对优势，但该快照不是完整或最终排名。</p>
+  </section>
+</BaseLayout>

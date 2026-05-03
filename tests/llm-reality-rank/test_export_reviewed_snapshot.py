@@ -108,6 +108,7 @@ def test_static_api_json_has_valid_schemas_and_cross_references(tmp_path):
     manifest = read_json(api_root / "manifest.json")
     models = read_json(api_root / "models.json")["models"]
     scores = read_json(api_root / "scores.json")["scores"]
+    source_evidence = read_json(api_root / "source-evidence.json")["source_evidence"]
     sources = read_json(api_root / "sources.json")["sources"]
     scenarios = read_json(api_root / "scenarios.json")
     snapshots = read_json(api_root / "snapshots.json")["snapshots"]
@@ -120,6 +121,7 @@ def test_static_api_json_has_valid_schemas_and_cross_references(tmp_path):
     assert manifest["api_version"] == "v1"
     assert manifest["current_snapshot_id"] in snapshot_ids
     assert manifest["endpoints"]["models"] == "/api/v1/models.json"
+    assert manifest["endpoints"]["source_evidence"] == "/api/v1/source-evidence.json"
     assert "not official truth" in manifest["disclaimer"]
     assert len(model_ids) == len(models)
     assert "alpha/unused@2026-05" not in model_ids
@@ -137,6 +139,14 @@ def test_static_api_json_has_valid_schemas_and_cross_references(tmp_path):
             assert source_ref["source_id"] in source_ids
             assert source_ref["url"].startswith("https://")
             assert source_ref["date_observed"] == "2026-05-03"
+            assert source_ref["evidence_id"] in {evidence["evidence_id"] for evidence in source_evidence}
+
+    assert source_evidence
+    for evidence in source_evidence:
+        assert evidence["source_id"] in source_ids
+        assert evidence["canonical_id"] in model_ids
+        assert evidence["source_url"].startswith("https://")
+        assert evidence["date_observed"] == "2026-05-03"
 
     for preset in scenarios["presets"]:
         assert set(preset["weights"]).issubset(dimension_ids)

@@ -9,7 +9,8 @@
     "scores": "/api/v1/scores.json",
     "selector_data": "/api/v1/selector-data.json",
     "snapshots": "/api/v1/snapshots.json",
+    "source_evidence": "/api/v1/source-evidence.json",
     "sources": "/api/v1/sources.json"
   },
-  "generated_at": "2026-05-03T12:56:54Z"
+  "generated_at": "2026-05-03T13:52:31Z"
 }

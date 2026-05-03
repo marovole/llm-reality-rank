@@ -77,6 +77,11 @@ td small { display: block; color: var(--muted); margin-top: 0.25rem; }
 .control-actions a { background: var(--paper-soft); color: var(--ink); }
 .card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
 .source-list article, .snapshot-list article, .model-card { border: 1.5px solid var(--line); background: var(--paper-soft); padding: 1rem; }
+.metadata-list { display: grid; gap: 0.55rem; margin: 1rem 0; }
+.metadata-list div { display: grid; grid-template-columns: minmax(130px, 0.4fr) minmax(0, 1fr); gap: 0.75rem; border-bottom: 1px solid rgba(35, 35, 29, 0.18); padding-bottom: 0.45rem; }
+.metadata-list dt { font-family: var(--mono); font-weight: 800; color: var(--muted); }
+.metadata-list dd { margin: 0; overflow-wrap: anywhere; }
+.evidence-metadata { font-size: 0.95rem; }
 .nav-card-list { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .nav-card { color: inherit; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease; }
 .nav-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--line); }
@@ -95,4 +100,5 @@ td small { display: block; color: var(--muted); margin-top: 0.25rem; }
   .hero, .grid.two { grid-template-columns: 1fr; }
   .hero h1 { max-width: none; }
   .leaderboard-controls { grid-template-columns: 1fr; }
+  .metadata-list div { grid-template-columns: 1fr; gap: 0.2rem; }
 }
