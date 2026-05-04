@@ -11,7 +11,7 @@ def read_workflow() -> str:
 
 def test_workflow_runs_site_tests_and_build():
     text = read_workflow()
-    assert "npm --prefix site install" in text or "npm ci --prefix site" in text or "working-directory: site" in text, (
+    assert "npm --prefix site install" in text or "npm --prefix site ci" in text or "working-directory: site" in text, (
         "CI must install site npm dependencies"
     )
     assert "npm --prefix site test" in text or re.search(r"working-directory: site\s+run: npm test", text), (
