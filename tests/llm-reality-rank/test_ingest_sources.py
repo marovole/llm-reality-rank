@@ -539,3 +539,31 @@ def test_cli_list_exposes_livecodebench_target(capsys):
     assert exit_code == 0
     assert "livecodebench" in captured
     assert "LiveCodeBench" in captured
+
+
+def test_livecodebench_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture_path = tmp_path / "livecodebench.json"
+    fixture_path.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "Claude Opus 4.7",
+                    "canonical_id": "anthropic/claude-opus-4.7@unknown",
+                    "provider": "Anthropic",
+                    "rank_raw": "1",
+                    "score_raw": "84.2",
+                    "date_published": "2026-04-25",
+                    "date_observed": "2026-05-04",
+                    "source_url": "https://livecodebench.github.io/leaderboard.html",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    result = module.ingest_target("livecodebench", mode="fixture", fixture_path=fixture_path)
+    assert result.status == "ok"
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "livecodebench"
+    assert row["score_raw"] == "84.2"
