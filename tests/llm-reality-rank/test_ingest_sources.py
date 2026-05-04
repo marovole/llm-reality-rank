@@ -622,3 +622,25 @@ def test_livebench_live_safe_parses_github_csv(monkeypatch):
         assert row["source_id"] == "livebench"
         assert row["metric_name"] == "global_average"
         assert row["score_higher_is_better"] == "true"
+
+
+def test_livebench_live_safe_handles_empty_csv(monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, "bounded_live_fetch", lambda url, *, timeout=10: b"model\n")
+    result = module.ingest_target("livebench", mode="live-safe")
+    assert result.status == "manual_required"
+    assert result.used_network is True
+    assert len(result.rows) == 0
+
+
+def test_livebench_live_safe_skips_rows_with_no_numeric_values(monkeypatch):
+    module = load_module()
+    csv_text = (
+        "model,col_a,col_b\n"
+        "good-model,80,75\n"
+        "bad-model,n/a,n/a\n"
+    ).encode("utf-8")
+    monkeypatch.setattr(module, "bounded_live_fetch", lambda url, *, timeout=10: csv_text)
+    result = module.ingest_target("livebench", mode="live-safe")
+    assert result.status == "ok"
+    assert {row["model_name_raw"] for row in result.rows} == {"good-model"}
