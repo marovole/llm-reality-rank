@@ -1,5 +1,5 @@
 {
-  "current_snapshot_id": "2026-05-beta",
+  "current_snapshot_id": "2026-05-gamma",
   "snapshots": [
     {
       "artifacts": {
@@ -45,7 +45,7 @@
         "source_evidence": "source-evidence.json",
         "sources": "sources.json"
       },
-      "current": true,
+      "current": false,
       "date": "2026-05-04",
       "freshness": {
         "date_observed_max": "2026-05-03",
@@ -55,7 +55,7 @@
         ]
       },
       "generated_at": "2026-05-04T03:21:38Z",
-      "latest": true,
+      "latest": false,
       "limitations": [
         "Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.",
         "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
@@ -64,6 +64,39 @@
       "publication_status": "published",
       "review_status": "reviewed",
       "snapshot_id": "2026-05-beta"
+    },
+    {
+      "artifacts": {
+        "leaderboard": "leaderboard.json",
+        "manifest": "manifest.json",
+        "models": "models.json",
+        "scenarios": "scenarios.json",
+        "scores": "scores.json",
+        "selector_data": "selector-data.json",
+        "snapshots": "snapshots.json",
+        "source_evidence": "source-evidence.json",
+        "sources": "sources.json"
+      },
+      "current": true,
+      "date": "2026-05-04",
+      "freshness": {
+        "date_observed_max": "2026-05-04",
+        "date_observed_min": "2026-05-03",
+        "observed_dates": [
+          "2026-05-03",
+          "2026-05-04"
+        ]
+      },
+      "generated_at": "2026-05-04T15:09:28Z",
+      "latest": true,
+      "limitations": [
+        "Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.",
+        "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
+        "Sparse or missing dimensions are exposed explicitly rather than imputed."
+      ],
+      "publication_status": "published",
+      "review_status": "reviewed",
+      "snapshot_id": "2026-05-gamma"
     }
   ]
 }

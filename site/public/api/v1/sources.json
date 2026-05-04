@@ -46,7 +46,7 @@
         "practical"
       ],
       "evaluation_independence": "",
-      "last_observed": "2026-05-03",
+      "last_observed": "2026-05-04",
       "metric_types": [
         "intelligence_index",
         "price",
@@ -98,6 +98,33 @@
     },
     {
       "categories": [
+        "open_models",
+        "general"
+      ],
+      "contamination_risk": "medium_high",
+      "dimensions": [
+        "open_models",
+        "general"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-04",
+      "metric_types": [
+        "benchmark_aggregate"
+      ],
+      "name": "Hugging Face Open LLM Leaderboard",
+      "notes": "适合作为开源模型来源之一，不应单独决定总分。",
+      "organization": "Hugging Face",
+      "priority": "P0",
+      "source_id": "hf_open_llm_leaderboard",
+      "source_trust": "high",
+      "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+      "status": "active",
+      "urls": {
+        "primary": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard"
+      }
+    },
+    {
+      "categories": [
         "general",
         "reasoning",
         "math",
@@ -128,6 +155,68 @@
       "status": "active",
       "urls": {
         "primary": "https://livebench.ai/"
+      }
+    },
+    {
+      "categories": [
+        "coding",
+        "algorithms",
+        "anti_contamination"
+      ],
+      "contamination_risk": "low_medium",
+      "dimensions": [
+        "coding",
+        "algorithms",
+        "anti_contamination"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-04",
+      "metric_types": [
+        "pass_rate",
+        "benchmark_score"
+      ],
+      "name": "LiveCodeBench",
+      "notes": "比 HumanEval/MBPP 更新、更难、更抗污染。",
+      "organization": "LiveCodeBench",
+      "priority": "P0",
+      "source_id": "livecodebench",
+      "source_trust": "high",
+      "source_url": "https://livecodebench.github.io/leaderboard.html",
+      "status": "active",
+      "urls": {
+        "primary": "https://livecodebench.github.io/leaderboard.html"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "preference",
+        "conversation"
+      ],
+      "contamination_risk": "low_medium",
+      "dimensions": [
+        "general",
+        "preference",
+        "conversation"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-04",
+      "metric_types": [
+        "elo",
+        "human_preference",
+        "win_rate"
+      ],
+      "name": "LMArena / Chatbot Arena Leaderboard",
+      "notes": "影响力极高，适合衡量真实用户偏好；偏主观，容易受回答风格影响。",
+      "organization": "LMSYS / LMArena",
+      "priority": "P0",
+      "source_id": "lmarena_chatbot_arena",
+      "source_trust": "high",
+      "source_url": "https://lmarena.ai/leaderboard/",
+      "status": "active",
+      "urls": {
+        "backup": "https://huggingface.co/spaces/lmarena-ai/arena-leaderboard",
+        "primary": "https://lmarena.ai/leaderboard/"
       }
     },
     {

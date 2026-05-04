@@ -1,19 +1,31 @@
 {
-  "sources": [
+  "artifacts": {
+    "leaderboard": "leaderboard.json",
+    "manifest": "manifest.json",
+    "models": "models.json",
+    "scenarios": "scenarios.json",
+    "scores": "scores.json",
+    "selector_data": "selector-data.json",
+    "snapshots": "snapshots.json",
+    "source_evidence": "source-evidence.json",
+    "sources": "sources.json"
+  },
+  "freshness": {
+    "date_observed_max": "2026-05-04",
+    "date_observed_min": "2026-05-03",
+    "observed_dates": [
+      "2026-05-03",
+      "2026-05-04"
+    ]
+  },
+  "generated_at": "2026-05-04T15:09:28Z",
+  "included_sources": [
     {
       "categories": [
         "coding",
         "code_editing",
         "cost"
       ],
-      "contamination_risk": "low_medium",
-      "dimensions": [
-        "coding",
-        "code_editing",
-        "cost"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "pass_rate",
         "cost",
@@ -21,12 +33,9 @@
       ],
       "name": "Aider LLM Leaderboards",
       "notes": "与 AI Coding 真实使用高度相关。",
-      "organization": "Aider",
       "priority": "P0",
       "source_id": "aider_leaderboards",
-      "source_trust": "high",
       "source_url": "https://aider.chat/docs/leaderboards/",
-      "status": "active",
       "urls": {
         "primary": "https://aider.chat/docs/leaderboards/"
       }
@@ -38,15 +47,6 @@
         "api",
         "practical"
       ],
-      "contamination_risk": "low_medium",
-      "dimensions": [
-        "general",
-        "cost_speed",
-        "api",
-        "practical"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-04",
       "metric_types": [
         "intelligence_index",
         "price",
@@ -56,12 +56,9 @@
       ],
       "name": "Artificial Analysis LLM Leaderboard / Intelligence Index",
       "notes": "Reality Value Index 的 Practicality Multiplier 核心来源。",
-      "organization": "Artificial Analysis",
       "priority": "P0",
       "source_id": "artificial_analysis_llm",
-      "source_trust": "high",
       "source_url": "https://artificialanalysis.ai/leaderboards/models",
-      "status": "active",
       "urls": {
         "primary": "https://artificialanalysis.ai/leaderboards/models"
       }
@@ -72,26 +69,15 @@
         "exams",
         "knowledge"
       ],
-      "contamination_risk": "medium_high",
-      "dimensions": [
-        "chinese",
-        "exams",
-        "knowledge"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "accuracy",
         "exam_benchmark_score"
       ],
       "name": "C-Eval",
       "notes": "当前站点可能有证书问题，抓取时可能需要使用镜像/GitHub/忽略 SSL。",
-      "organization": "C-Eval team",
       "priority": "P0",
       "source_id": "ceval",
-      "source_trust": "high",
       "source_url": "https://cevalbenchmark.com/static/leaderboard.html",
-      "status": "active",
       "urls": {
         "primary": "https://cevalbenchmark.com/static/leaderboard.html"
       }
@@ -101,24 +87,14 @@
         "open_models",
         "general"
       ],
-      "contamination_risk": "medium_high",
-      "dimensions": [
-        "open_models",
-        "general"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-04",
       "metric_types": [
         "benchmark_aggregate"
       ],
       "name": "Hugging Face Open LLM Leaderboard",
       "notes": "适合作为开源模型来源之一，不应单独决定总分。",
-      "organization": "Hugging Face",
       "priority": "P0",
       "source_id": "hf_open_llm_leaderboard",
-      "source_trust": "high",
       "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
-      "status": "active",
       "urls": {
         "primary": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard"
       }
@@ -131,28 +107,15 @@
         "coding",
         "anti_contamination"
       ],
-      "contamination_risk": "low",
-      "dimensions": [
-        "general",
-        "reasoning",
-        "math",
-        "coding",
-        "anti_contamination"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "benchmark_score",
         "task_accuracy"
       ],
       "name": "LiveBench",
       "notes": "动态更新有助于降低 benchmark contamination。",
-      "organization": "LiveBench team",
       "priority": "P0",
       "source_id": "livebench",
-      "source_trust": "high",
       "source_url": "https://livebench.ai/",
-      "status": "active",
       "urls": {
         "primary": "https://livebench.ai/"
       }
@@ -163,26 +126,15 @@
         "algorithms",
         "anti_contamination"
       ],
-      "contamination_risk": "low_medium",
-      "dimensions": [
-        "coding",
-        "algorithms",
-        "anti_contamination"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-04",
       "metric_types": [
         "pass_rate",
         "benchmark_score"
       ],
       "name": "LiveCodeBench",
       "notes": "比 HumanEval/MBPP 更新、更难、更抗污染。",
-      "organization": "LiveCodeBench",
       "priority": "P0",
       "source_id": "livecodebench",
-      "source_trust": "high",
       "source_url": "https://livecodebench.github.io/leaderboard.html",
-      "status": "active",
       "urls": {
         "primary": "https://livecodebench.github.io/leaderboard.html"
       }
@@ -193,14 +145,6 @@
         "preference",
         "conversation"
       ],
-      "contamination_risk": "low_medium",
-      "dimensions": [
-        "general",
-        "preference",
-        "conversation"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-04",
       "metric_types": [
         "elo",
         "human_preference",
@@ -208,12 +152,9 @@
       ],
       "name": "LMArena / Chatbot Arena Leaderboard",
       "notes": "影响力极高，适合衡量真实用户偏好；偏主观，容易受回答风格影响。",
-      "organization": "LMSYS / LMArena",
       "priority": "P0",
       "source_id": "lmarena_chatbot_arena",
-      "source_trust": "high",
       "source_url": "https://lmarena.ai/leaderboard/",
-      "status": "active",
       "urls": {
         "backup": "https://huggingface.co/spaces/lmarena-ai/arena-leaderboard",
         "primary": "https://lmarena.ai/leaderboard/"
@@ -227,28 +168,15 @@
         "coding",
         "open_models"
       ],
-      "contamination_risk": "medium",
-      "dimensions": [
-        "general",
-        "chinese",
-        "reasoning",
-        "coding",
-        "open_models"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "benchmark_aggregate",
         "task_score"
       ],
       "name": "OpenCompass LLM Leaderboard",
       "notes": "对中文和中国模型覆盖优于许多英文榜单。",
-      "organization": "OpenCompass / Shanghai AI Lab ecosystem",
       "priority": "P0",
       "source_id": "opencompass_llm",
-      "source_trust": "high",
       "source_url": "https://rank.opencompass.org.cn/leaderboard-llm-v2",
-      "status": "active",
       "urls": {
         "backup": "https://opencompass.org.cn/leaderboard-llm",
         "primary": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
@@ -260,26 +188,15 @@
         "general",
         "reasoning"
       ],
-      "contamination_risk": "medium",
-      "dimensions": [
-        "chinese",
-        "general",
-        "reasoning"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "benchmark_aggregate",
         "task_score"
       ],
       "name": "SuperCLUE",
       "notes": "中文榜单核心来源之一。",
-      "organization": "CLUEbenchmark / SuperCLUE",
       "priority": "P0",
       "source_id": "superclue",
-      "source_trust": "high",
       "source_url": "https://superclueai.com/",
-      "status": "active",
       "urls": {
         "github": "https://github.com/CLUEbenchmark/SuperCLUE",
         "primary": "https://superclueai.com/"
@@ -291,29 +208,37 @@
         "agentic_coding",
         "software_engineering"
       ],
-      "contamination_risk": "medium",
-      "dimensions": [
-        "coding",
-        "agentic_coding",
-        "software_engineering"
-      ],
-      "evaluation_independence": "",
-      "last_observed": "2026-05-03",
       "metric_types": [
         "resolved_issue_rate",
         "pass_rate"
       ],
       "name": "SWE-bench Verified",
       "notes": "优先使用 Verified，不要和普通 SWE-bench 混合计分。",
-      "organization": "SWE-bench",
       "priority": "P0",
       "source_id": "swe_bench_verified",
-      "source_trust": "high",
       "source_url": "https://www.swebench.com/",
-      "status": "active",
       "urls": {
         "primary": "https://www.swebench.com/"
       }
     }
-  ]
+  ],
+  "limitations": [
+    "Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.",
+    "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
+    "Sparse or missing dimensions are exposed explicitly rather than imputed."
+  ],
+  "methodology_version": "docs/llm-reality-rank-scoring-methodology.md",
+  "official_status": "reviewed_snapshot_not_absolute_truth",
+  "publication_status": "published",
+  "release_stage": "snapshot",
+  "review_status": "reviewed",
+  "reviewed_at": "2026-05-04T15:09:28Z",
+  "row_counts": {
+    "model_scores": 11,
+    "models": 28,
+    "normalized_scores": 45,
+    "raw_rankings": 45,
+    "sources": 40
+  },
+  "snapshot_id": "2026-05-gamma"
 }

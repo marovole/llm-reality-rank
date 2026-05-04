@@ -147,6 +147,56 @@
       "version": "unknown"
     },
     {
+      "access_type": "api_and_local",
+      "aliases": [
+        "Llama 4 Maverick",
+        "Meta Llama 4 Maverick"
+      ],
+      "availability": {
+        "access_type": "api_and_local",
+        "api_model_ids": []
+      },
+      "canonical_id": "meta/llama-4-maverick@unknown",
+      "display_name": "Llama 4 Maverick",
+      "model_family": "llama-4",
+      "model_type": "open_weight",
+      "model_variant": "maverick",
+      "notes": "New Llama 4 series model; details pending.",
+      "open_weight": true,
+      "provider": "Meta",
+      "provider_slug": "meta",
+      "source_names": [
+        "Llama 4 Maverick",
+        "Meta Llama 4 Maverick"
+      ],
+      "status": "active",
+      "version": "unknown"
+    },
+    {
+      "access_type": "api",
+      "aliases": [
+        "Mistral Large 3"
+      ],
+      "availability": {
+        "access_type": "api",
+        "api_model_ids": []
+      },
+      "canonical_id": "mistral/mistral-large-3@unknown",
+      "display_name": "Mistral Large 3",
+      "model_family": "mistral-large",
+      "model_type": "closed",
+      "model_variant": "3",
+      "notes": "Third generation Mistral Large model.",
+      "open_weight": false,
+      "provider": "Mistral AI",
+      "provider_slug": "mistral",
+      "source_names": [
+        "Mistral Large 3"
+      ],
+      "status": "active",
+      "version": "unknown"
+    },
+    {
       "access_type": "api",
       "aliases": [
         "GPT-4o",
