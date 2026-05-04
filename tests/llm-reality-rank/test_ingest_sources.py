@@ -530,3 +530,12 @@ def test_hf_open_llm_fixture_parser_outputs_traceable_rows_without_network(tmp_p
     assert_required_traceability(row)
     assert row["source_id"] == "hf_open_llm_leaderboard"
     assert row["score_raw"] == "78.4"
+
+
+def test_cli_list_exposes_livecodebench_target(capsys):
+    module = load_module()
+    exit_code = module.main(["list"])
+    captured = capsys.readouterr().out
+    assert exit_code == 0
+    assert "livecodebench" in captured
+    assert "LiveCodeBench" in captured
