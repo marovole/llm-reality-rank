@@ -492,3 +492,12 @@ def test_lmarena_json_fixture_parser_outputs_traceable_rows_without_network(tmp_
     assert_required_traceability(row)
     assert row["source_id"] == "lmarena_chatbot_arena"
     assert row["score_raw"] == "1502"
+
+
+def test_cli_list_exposes_hf_open_llm_target(capsys):
+    module = load_module()
+    exit_code = module.main(["list"])
+    captured = capsys.readouterr().out
+    assert exit_code == 0
+    assert "hf_open_llm" in captured
+    assert "Hugging Face" in captured
