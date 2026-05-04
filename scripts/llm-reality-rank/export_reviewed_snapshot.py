@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Promote reviewed LLM Reality Rank data to immutable snapshot and static API JSON.
+"""
 from __future__ import annotations
 
 import argparse
@@ -12,6 +15,9 @@ from typing import Any
 
 import yaml
 
+# ============================================================================
+# CONSTANTS
+# ============================================================================
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "llm-reality-rank"
@@ -72,13 +78,21 @@ PRESETS = [
 
 BLOCKING_NOTE_MARKERS = ("todo", "placeholder", "smoke-test", "smoke test", "unresolved", "unsupported")
 
+DIMENSION_IDS = [dimension[0] for dimension in SCENARIO_DIMENSIONS]
+
+
+# ============================================================================
+# FILE OPERATIONS
+# ============================================================================
 
 def load_yaml(path: Path) -> dict[str, Any]:
+    """Load YAML file."""
     with path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
 def load_csv(path: Path) -> list[dict[str, str]]:
+    """Load CSV file."""
     if not path.exists():
         return []
     with path.open("r", encoding="utf-8", newline="") as f:
@@ -86,6 +100,7 @@ def load_csv(path: Path) -> list[dict[str, str]]:
 
 
 def write_json(path: Path, data: Any) -> None:
+    """Write JSON file with formatting."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
@@ -93,7 +108,12 @@ def write_json(path: Path, data: Any) -> None:
     )
 
 
+# ============================================================================
+# PARSING UTILITIES
+# ============================================================================
+
 def parse_float(value: str | None) -> float | None:
+    """Parse string value to float."""
     if value is None:
         return None
     value = value.strip()
@@ -106,12 +126,14 @@ def parse_float(value: str | None) -> float | None:
 
 
 def split_semicolon(value: str | None) -> list[str]:
+    """Split semicolon-separated string."""
     if not value:
         return []
     return [part.strip() for part in value.split(";") if part.strip()]
 
 
 def note_has_blocker(note: str) -> str | None:
+    """Check if note contains blocking marker."""
     lowered = (note or "").lower()
     for marker in BLOCKING_NOTE_MARKERS:
         if marker in lowered:
@@ -120,12 +142,144 @@ def note_has_blocker(note: str) -> str | None:
 
 
 def source_primary_url(source: dict[str, Any]) -> str:
+    """Get primary URL from source."""
     urls = source.get("urls") or {}
     if isinstance(urls, dict):
         for value in urls.values():
             if value:
                 return str(value)
     return ""
+
+
+def generate_evidence_id(snapshot_id: str, row: dict[str, str], index: int) -> str:
+    """Generate unique evidence ID."""
+    content = "|".join([
+        snapshot_id,
+        str(index),
+        row.get("source_id", ""),
+        row.get("metric_name", ""),
+        row.get("canonical_id", ""),
+        row.get("score_raw", ""),
+        row.get("rank_raw", ""),
+        row.get("date_observed", ""),
+    ])
+    return "ev_" + hashlib.sha1(content.encode("utf-8")).hexdigest()[:16]
+
+
+# ============================================================================
+# VALIDATION
+# ============================================================================
+
+def validate_non_empty_rows(context: dict[str, Any]) -> list[str]:
+    """Validate that input files have rows."""
+    errors: list[str] = []
+    
+    if not context["raw_rows"]:
+        errors.append("raw_rankings has no rows to promote")
+    if not context["normalized_rows"]:
+        errors.append("normalized_scores has no rows to promote")
+    if not context["score_rows"]:
+        errors.append("model_scores has no rows to promote")
+    
+    return errors
+
+
+def validate_raw_row(row: dict[str, str], row_num: int, context: dict[str, Any]) -> list[str]:
+    """Validate a single raw ranking row."""
+    errors: list[str] = []
+    
+    source_id = row.get("source_id", "").strip()
+    canonical_id = row.get("canonical_id", "").strip()
+    note = row.get("notes", "")
+    
+    # Check for blocking markers
+    blocker = note_has_blocker(note)
+    if blocker:
+        errors.append(f"raw row {row_num}: blocking marker '{blocker}' in notes: {note}")
+    
+    # Check source_id
+    if not source_id or source_id not in context["source_ids"]:
+        errors.append(f"raw row {row_num}: source_id does not resolve: {source_id or '<missing>'}")
+    
+    # Check canonical_id
+    if not canonical_id or canonical_id not in context["model_ids"]:
+        errors.append(f"raw row {row_num}: canonical_id does not resolve: {canonical_id or '<missing>'}")
+    
+    # Check numeric values
+    if parse_float(row.get("score_raw")) is None and parse_float(row.get("rank_raw")) is None:
+        errors.append(f"raw row {row_num}: missing numeric score_raw or rank_raw")
+    
+    # Check source_url
+    source_url = row.get("source_url", "").strip()
+    if not source_url or source_url.upper() == "TBD":
+        errors.append(f"raw row {row_num}: missing supported source_url")
+    
+    # Check date_observed
+    if not row.get("date_observed", "").strip():
+        errors.append(f"raw row {row_num}: missing date_observed")
+    
+    return errors
+
+
+def validate_normalized_row(row: dict[str, str], row_num: int, context: dict[str, Any]) -> list[str]:
+    """Validate a single normalized row."""
+    errors: list[str] = []
+    
+    # Check for blocking markers
+    blocker = note_has_blocker(row.get("notes", ""))
+    if blocker:
+        errors.append(f"normalized row {row_num}: blocking marker '{blocker}' in notes")
+    
+    # Check score_normalized
+    if parse_float(row.get("score_normalized")) is None:
+        errors.append(f"normalized row {row_num}: missing score_normalized")
+    
+    # Check source_id
+    if row.get("source_id") not in context["source_ids"]:
+        errors.append(f"normalized row {row_num}: source_id does not resolve: {row.get('source_id')}")
+    
+    # Check canonical_id
+    if row.get("canonical_id") not in context["model_ids"]:
+        errors.append(f"normalized row {row_num}: canonical_id does not resolve: {row.get('canonical_id')}")
+    
+    return errors
+
+
+def validate_score_row(row: dict[str, str], row_num: int, context: dict[str, Any]) -> list[str]:
+    """Validate a single score row."""
+    errors: list[str] = []
+    
+    # Check canonical_id
+    if row.get("canonical_id") not in context["model_ids"]:
+        errors.append(f"score row {row_num}: canonical_id does not resolve: {row.get('canonical_id')}")
+    
+    # Check overall_score
+    if parse_float(row.get("overall_score")) is None:
+        errors.append(f"score row {row_num}: missing overall_score")
+    
+    return errors
+
+
+def validate_sources_used(sources: list[dict[str, Any]], raw_rows: list[dict[str, str]]) -> list[str]:
+    """Validate sources that are actually used."""
+    errors: list[str] = []
+    used_source_ids = {row.get("source_id", "").strip() for row in raw_rows}
+    
+    for source in sources:
+        source_id = source.get("source_id", "<missing>")
+        
+        if source_id in used_source_ids:
+            # Check URL
+            primary_url = source_primary_url(source)
+            if not primary_url or primary_url.upper() == "TBD":
+                errors.append(f"source {source_id}: missing supported registered URL")
+            
+            # Check for blocking markers
+            blocker = note_has_blocker(str(source.get("notes", "")))
+            if blocker:
+                errors.append(f"source {source_id}: blocking marker '{blocker}' in source notes")
+    
+    return errors
 
 
 def validate_promotion_inputs(
@@ -135,125 +289,103 @@ def validate_promotion_inputs(
     sources: list[dict[str, Any]],
     models: list[dict[str, Any]],
 ) -> list[str]:
-    errors: list[str] = []
+    """Validate all inputs for snapshot promotion."""
     source_ids = {source.get("source_id") for source in sources if source.get("source_id")}
     model_ids = {model.get("canonical_id") for model in models if model.get("canonical_id")}
 
-    if not raw_rows:
-        errors.append("raw_rankings has no rows to promote")
-    if not normalized_rows:
-        errors.append("normalized_scores has no rows to promote")
-    if not score_rows:
-        errors.append("model_scores has no rows to promote")
+    context = {
+        "source_ids": source_ids,
+        "model_ids": model_ids,
+        "raw_rows": raw_rows,
+        "normalized_rows": normalized_rows,
+        "score_rows": score_rows,
+        "sources": sources,
+    }
 
+    errors: list[str] = []
+
+    # Validate non-empty rows
+    errors.extend(validate_non_empty_rows(context))
+
+    # Validate raw rows
     for row_num, row in enumerate(raw_rows, 2):
-        source_id = row.get("source_id", "").strip()
-        canonical_id = row.get("canonical_id", "").strip()
-        note = row.get("notes", "")
-        blocker = note_has_blocker(note)
-        if blocker:
-            errors.append(f"raw row {row_num}: blocking marker '{blocker}' in notes: {note}")
-        if not source_id or source_id not in source_ids:
-            errors.append(f"raw row {row_num}: source_id does not resolve: {source_id or '<missing>'}")
-        if not canonical_id or canonical_id not in model_ids:
-            errors.append(f"raw row {row_num}: canonical_id does not resolve: {canonical_id or '<missing>'}")
-        if parse_float(row.get("score_raw")) is None and parse_float(row.get("rank_raw")) is None:
-            errors.append(f"raw row {row_num}: missing numeric score_raw or rank_raw")
-        if not row.get("source_url", "").strip() or row.get("source_url", "").strip().upper() == "TBD":
-            errors.append(f"raw row {row_num}: missing supported source_url")
-        if not row.get("date_observed", "").strip():
-            errors.append(f"raw row {row_num}: missing date_observed")
+        errors.extend(validate_raw_row(row, row_num, context))
 
+    # Validate normalized rows
     for row_num, row in enumerate(normalized_rows, 2):
-        blocker = note_has_blocker(row.get("notes", ""))
-        if blocker:
-            errors.append(f"normalized row {row_num}: blocking marker '{blocker}' in notes")
-        if parse_float(row.get("score_normalized")) is None:
-            errors.append(f"normalized row {row_num}: missing score_normalized")
-        if row.get("source_id") not in source_ids:
-            errors.append(f"normalized row {row_num}: source_id does not resolve: {row.get('source_id')}")
-        if row.get("canonical_id") not in model_ids:
-            errors.append(f"normalized row {row_num}: canonical_id does not resolve: {row.get('canonical_id')}")
+        errors.extend(validate_normalized_row(row, row_num, context))
 
+    # Validate score rows
     for row_num, row in enumerate(score_rows, 2):
-        if row.get("canonical_id") not in model_ids:
-            errors.append(f"score row {row_num}: canonical_id does not resolve: {row.get('canonical_id')}")
-        if parse_float(row.get("overall_score")) is None:
-            errors.append(f"score row {row_num}: missing overall_score")
+        errors.extend(validate_score_row(row, row_num, context))
 
-    for source in sources:
-        source_id = source.get("source_id", "<missing>")
-        primary_url = source_primary_url(source)
-        if source_id in {row.get("source_id") for row in raw_rows}:
-            if not primary_url or primary_url.upper() == "TBD":
-                errors.append(f"source {source_id}: missing supported registered URL")
-            blocker = note_has_blocker(str(source.get("notes", "")))
-            if blocker:
-                errors.append(f"source {source_id}: blocking marker '{blocker}' in source notes")
+    # Validate sources
+    errors.extend(validate_sources_used(sources, raw_rows))
 
     return errors
 
 
-def evidence_id(snapshot_id: str, row: dict[str, str], index: int) -> str:
-    content = "|".join(
-        [
-            snapshot_id,
-            str(index),
-            row.get("source_id", ""),
-            row.get("metric_name", ""),
-            row.get("canonical_id", ""),
-            row.get("score_raw", ""),
-            row.get("rank_raw", ""),
-            row.get("date_observed", ""),
-        ]
-    )
-    return "ev_" + hashlib.sha1(content.encode("utf-8")).hexdigest()[:16]
+# ============================================================================
+# BUILDERS - Source Evidence
+# ============================================================================
 
-
-def build_source_evidence(snapshot_id: str, normalized_rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+def build_source_evidence(
+    snapshot_id: str,
+    normalized_rows: list[dict[str, str]],
+) -> list[dict[str, Any]]:
+    """Build source evidence records."""
     evidence: list[dict[str, Any]] = []
+    
     for index, row in enumerate(normalized_rows, 1):
-        evidence.append(
-            {
-                "evidence_id": evidence_id(snapshot_id, row, index),
-                "snapshot_id": snapshot_id,
-                "source_id": row.get("source_id", ""),
-                "canonical_id": row.get("canonical_id", ""),
-                "metric_name": row.get("metric_name", ""),
-                "category_primary": row.get("category_primary", ""),
-                "model_name_raw": row.get("model_name_raw", ""),
-                "rank_raw": parse_float(row.get("rank_raw")),
-                "score_raw": parse_float(row.get("score_raw")),
-                "score_normalized": parse_float(row.get("score_normalized")),
-                "source_effective_weight": parse_float(row.get("source_effective_weight")),
-                "date_observed": row.get("date_observed", ""),
-                "source_url": row.get("source_url", ""),
-                "notes": row.get("notes", ""),
-            }
-        )
+        evidence.append({
+            "evidence_id": generate_evidence_id(snapshot_id, row, index),
+            "snapshot_id": snapshot_id,
+            "source_id": row.get("source_id", ""),
+            "canonical_id": row.get("canonical_id", ""),
+            "metric_name": row.get("metric_name", ""),
+            "category_primary": row.get("category_primary", ""),
+            "model_name_raw": row.get("model_name_raw", ""),
+            "rank_raw": parse_float(row.get("rank_raw")),
+            "score_raw": parse_float(row.get("score_raw")),
+            "score_normalized": parse_float(row.get("score_normalized")),
+            "source_effective_weight": parse_float(row.get("source_effective_weight")),
+            "date_observed": row.get("date_observed", ""),
+            "source_url": row.get("source_url", ""),
+            "notes": row.get("notes", ""),
+        })
+    
     return evidence
 
 
-def included_sources(raw_rows: list[dict[str, str]], sources_by_id: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def build_included_sources(
+    raw_rows: list[dict[str, str]],
+    sources_by_id: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build list of included sources."""
     source_ids = sorted({row.get("source_id", "") for row in raw_rows if row.get("source_id", "")})
+    
     included: list[dict[str, Any]] = []
     for source_id in source_ids:
         source = sources_by_id.get(source_id, {})
         urls = source.get("urls") or {}
-        included.append(
-            {
-                "source_id": source_id,
-                "name": source.get("name", source_id),
-                "priority": source.get("priority", ""),
-                "categories": source.get("categories", []),
-                "metric_types": source.get("metric_types", []),
-                "urls": urls,
-                "source_url": source_primary_url(source),
-                "notes": source.get("notes", ""),
-            }
-        )
+        
+        included.append({
+            "source_id": source_id,
+            "name": source.get("name", source_id),
+            "priority": source.get("priority", ""),
+            "categories": source.get("categories", []),
+            "metric_types": source.get("metric_types", []),
+            "urls": urls,
+            "source_url": source_primary_url(source),
+            "notes": source.get("notes", ""),
+        })
+    
     return included
 
+
+# ============================================================================
+# BUILDERS - Manifest
+# ============================================================================
 
 def build_snapshot_manifest(
     *,
@@ -265,10 +397,13 @@ def build_snapshot_manifest(
     sources_doc: dict[str, Any],
     models_doc: dict[str, Any],
 ) -> dict[str, Any]:
+    """Build snapshot manifest."""
     sources = sources_doc.get("sources", [])
     models = models_doc.get("models", [])
     sources_by_id = {source.get("source_id"): source for source in sources}
+    
     observed_dates = sorted({row.get("date_observed", "") for row in raw_rows if row.get("date_observed", "")})
+    
     return {
         "snapshot_id": snapshot_id,
         "generated_at": generated_at,
@@ -285,7 +420,7 @@ def build_snapshot_manifest(
             "Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.",
             "Sparse or missing dimensions are exposed explicitly rather than imputed.",
         ],
-        "included_sources": included_sources(raw_rows, sources_by_id),
+        "included_sources": build_included_sources(raw_rows, sources_by_id),
         "row_counts": {
             "raw_rankings": len(raw_rows),
             "normalized_scores": len(normalized_rows),
@@ -312,75 +447,88 @@ def build_snapshot_manifest(
     }
 
 
+# ============================================================================
+# BUILDERS - API Data
+# ============================================================================
+
 def build_models_api(models: list[dict[str, Any]], scored_model_ids: set[str]) -> dict[str, Any]:
+    """Build models API data."""
     records = []
+    
     for model in models:
         canonical_id = model.get("canonical_id", "")
         if canonical_id not in scored_model_ids:
             continue
-        records.append(
-            {
-                "canonical_id": canonical_id,
-                "display_name": model.get("display_name", canonical_id),
-                "provider": model.get("provider", ""),
-                "provider_slug": model.get("provider_slug", ""),
-                "model_family": model.get("model_family", ""),
-                "model_variant": model.get("model_variant", ""),
-                "version": model.get("version", ""),
-                "model_type": model.get("model_type", ""),
+        
+        records.append({
+            "canonical_id": canonical_id,
+            "display_name": model.get("display_name", canonical_id),
+            "provider": model.get("provider", ""),
+            "provider_slug": model.get("provider_slug", ""),
+            "model_family": model.get("model_family", ""),
+            "model_variant": model.get("model_variant", ""),
+            "version": model.get("version", ""),
+            "model_type": model.get("model_type", ""),
+            "access_type": model.get("access_type", ""),
+            "open_weight": model.get("model_type") in {"open_weight", "open_source", "hosted_open_weight"},
+            "availability": {
                 "access_type": model.get("access_type", ""),
-                "open_weight": model.get("model_type") in {"open_weight", "open_source", "hosted_open_weight"},
-                "availability": {
-                    "access_type": model.get("access_type", ""),
-                    "api_model_ids": model.get("api_model_ids", []),
-                },
-                "aliases": model.get("aliases", []),
-                "source_names": model.get("aliases", []),
-                "notes": model.get("notes", ""),
-                "status": "active",
-            }
-        )
+                "api_model_ids": model.get("api_model_ids", []),
+            },
+            "aliases": model.get("aliases", []),
+            "source_names": model.get("aliases", []),
+            "notes": model.get("notes", ""),
+            "status": "active",
+        })
+    
     records.sort(key=lambda record: record["canonical_id"])
     return {"models": records}
 
 
-def build_sources_api(sources: list[dict[str, Any]], used_source_ids: set[str], raw_rows: list[dict[str, str]]) -> dict[str, Any]:
+def build_sources_api(
+    sources: list[dict[str, Any]],
+    used_source_ids: set[str],
+    raw_rows: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Build sources API data."""
+    # Build last observed dates
     last_observed: dict[str, str] = {}
     for row in raw_rows:
         source_id = row.get("source_id", "")
         observed = row.get("date_observed", "")
         if observed and observed > last_observed.get(source_id, ""):
             last_observed[source_id] = observed
-
+    
     records = []
     for source in sources:
         source_id = source.get("source_id", "")
         if source_id not in used_source_ids:
             continue
-        records.append(
-            {
-                "source_id": source_id,
-                "name": source.get("name", source_id),
-                "priority": source.get("priority", ""),
-                "categories": source.get("categories", []),
-                "dimensions": source.get("categories", []),
-                "metric_types": source.get("metric_types", []),
-                "urls": source.get("urls", {}),
-                "source_url": source_primary_url(source),
-                "organization": source.get("organization", ""),
-                "source_trust": source.get("source_trust", ""),
-                "contamination_risk": source.get("contamination_risk", ""),
-                "evaluation_independence": source.get("evaluation_independence", ""),
-                "last_observed": last_observed.get(source_id, ""),
-                "notes": source.get("notes", ""),
-                "status": "active",
-            }
-        )
+        
+        records.append({
+            "source_id": source_id,
+            "name": source.get("name", source_id),
+            "priority": source.get("priority", ""),
+            "categories": source.get("categories", []),
+            "dimensions": source.get("categories", []),
+            "metric_types": source.get("metric_types", []),
+            "urls": source.get("urls", {}),
+            "source_url": source_primary_url(source),
+            "organization": source.get("organization", ""),
+            "source_trust": source.get("source_trust", ""),
+            "contamination_risk": source.get("contamination_risk", ""),
+            "evaluation_independence": source.get("evaluation_independence", ""),
+            "last_observed": last_observed.get(source_id, ""),
+            "notes": source.get("notes", ""),
+            "status": "active",
+        })
+    
     records.sort(key=lambda record: record["source_id"])
     return {"sources": records}
 
 
 def build_scenarios_api() -> dict[str, Any]:
+    """Build scenarios API data."""
     return {
         "dimensions": [
             {"id": key, "display_name": display, "label_zh": label_zh}
@@ -390,72 +538,135 @@ def build_scenarios_api() -> dict[str, Any]:
     }
 
 
+def build_source_refs(
+    model_evidence: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build source references for a model."""
+    return [
+        {
+            "evidence_id": item["evidence_id"],
+            "source_id": item["source_id"],
+            "metric_name": item["metric_name"],
+            "dimension": item["category_primary"],
+            "date_observed": item["date_observed"],
+            "url": item["source_url"],
+            "notes": item["notes"],
+        }
+        for item in model_evidence
+    ]
+
+
+def build_score_record(
+    row: dict[str, str],
+    snapshot_id: str,
+    dimension_scores: dict[str, float | None],
+    model_evidence: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build a single score record."""
+    source_refs = build_source_refs(model_evidence)
+    
+    return {
+        "score_id": f"{snapshot_id}:{row.get('canonical_id', '')}",
+        "snapshot_id": snapshot_id,
+        "canonical_id": row.get("canonical_id", ""),
+        "rank": int(row.get("rank") or 0),
+        "overall_score": parse_float(row.get("overall_score")),
+        "dimension_scores": {k: v for k, v in dimension_scores.items() if v is not None},
+        "missing_dimensions": split_semicolon(row.get("missing_dimensions")),
+        "confidence": {
+            "score": parse_float(row.get("confidence_score")),
+            "label": row.get("confidence_label", ""),
+            "proxy": row.get("confidence_proxy", ""),
+        },
+        "eligibility": {
+            "status": row.get("eligibility_status", ""),
+            "reason": row.get("eligibility_reason", ""),
+        },
+        "publication_status": "published",
+        "review_status": "reviewed",
+        "official_status": "reviewed_snapshot_not_absolute_truth",
+        "uncertainty_flags": split_semicolon(row.get("uncertainty_flags")),
+        "source_coverage": {
+            "source_count": int(row.get("source_count") or len({item["source_id"] for item in model_evidence})),
+            "scenario_count": int(row.get("scenario_count") or len([v for v in dimension_scores.values() if v is not None])),
+            "evidence_count": len(model_evidence),
+        },
+        "source_refs": source_refs,
+    }
+
+
 def build_scores_api(
     snapshot_id: str,
     score_rows: list[dict[str, str]],
     evidence: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    """Build scores API data."""
+    # Group evidence by model
     evidence_by_model: dict[str, list[dict[str, Any]]] = {}
     for item in evidence:
         evidence_by_model.setdefault(item["canonical_id"], []).append(item)
-
+    
     scores = []
-    dimension_ids = [dimension[0] for dimension in SCENARIO_DIMENSIONS]
     for row in score_rows:
         canonical_id = row.get("canonical_id", "")
+        
+        # Build dimension scores
         dimension_scores = {
             dimension: parse_float(row.get(dimension))
-            for dimension in dimension_ids
-            if parse_float(row.get(dimension)) is not None
+            for dimension in DIMENSION_IDS
         }
+        
         model_evidence = evidence_by_model.get(canonical_id, [])
-        source_refs = [
-            {
-                "evidence_id": item["evidence_id"],
-                "source_id": item["source_id"],
-                "metric_name": item["metric_name"],
-                "dimension": item["category_primary"],
-                "date_observed": item["date_observed"],
-                "url": item["source_url"],
-                "notes": item["notes"],
-            }
-            for item in model_evidence
-        ]
-        scores.append(
-            {
-                "score_id": f"{snapshot_id}:{canonical_id}",
-                "snapshot_id": snapshot_id,
-                "canonical_id": canonical_id,
-                "rank": int(row.get("rank") or 0),
-                "overall_score": parse_float(row.get("overall_score")),
-                "dimension_scores": dimension_scores,
-                "missing_dimensions": split_semicolon(row.get("missing_dimensions")),
-                "confidence": {
-                    "score": parse_float(row.get("confidence_score")),
-                    "label": row.get("confidence_label", ""),
-                    "proxy": row.get("confidence_proxy", ""),
-                },
-                "eligibility": {
-                    "status": row.get("eligibility_status", ""),
-                    "reason": row.get("eligibility_reason", ""),
-                },
-                "publication_status": "published",
-                "review_status": "reviewed",
-                "official_status": "reviewed_snapshot_not_absolute_truth",
-                "uncertainty_flags": split_semicolon(row.get("uncertainty_flags")),
-                "source_coverage": {
-                    "source_count": int(row.get("source_count") or len({item["source_id"] for item in model_evidence})),
-                    "scenario_count": int(row.get("scenario_count") or len(dimension_scores)),
-                    "evidence_count": len(model_evidence),
-                },
-                "source_refs": source_refs,
-            }
-        )
+        scores.append(build_score_record(row, snapshot_id, dimension_scores, model_evidence))
+    
     scores.sort(key=lambda score: (score["rank"], score["canonical_id"]))
     return {"scores": scores}
 
 
-def snapshot_record(manifest: dict[str, Any], *, is_current: bool) -> dict[str, Any]:
+def build_selector_data(
+    snapshot_id: str,
+    models_api: dict[str, Any],
+    scores_api: dict[str, Any],
+    scenarios_api: dict[str, Any],
+) -> dict[str, Any]:
+    """Build selector data."""
+    models_by_id = {model["canonical_id"]: model for model in models_api["models"]}
+    
+    selector_models = []
+    for score in scores_api["scores"]:
+        model = models_by_id.get(score["canonical_id"], {})
+        
+        selector_models.append({
+            "canonical_id": score["canonical_id"],
+            "display_name": model.get("display_name", score["canonical_id"]),
+            "provider": model.get("provider", ""),
+            "model_type": model.get("model_type", ""),
+            "access_type": model.get("access_type", ""),
+            "snapshot_id": snapshot_id,
+            "scores": {
+                "overall_score": score["overall_score"],
+                "dimensions": score["dimension_scores"],
+            },
+            "confidence": score["confidence"],
+            "missing_dimensions": score["missing_dimensions"],
+            "source_ids": sorted({source_ref["source_id"] for source_ref in score["source_refs"]}),
+            "source_refs": score["source_refs"],
+        })
+    
+    return {
+        "snapshot_id": snapshot_id,
+        "dimensions": scenarios_api["dimensions"],
+        "presets": scenarios_api["presets"],
+        "models": selector_models,
+    }
+
+
+# ============================================================================
+# BUILDERS - Snapshots
+# ============================================================================
+
+def build_snapshot_record(manifest: dict[str, Any], *, is_current: bool) -> dict[str, Any]:
+    """Build a snapshot record."""
     return {
         "snapshot_id": manifest["snapshot_id"],
         "date": manifest["generated_at"][:10],
@@ -470,28 +681,39 @@ def snapshot_record(manifest: dict[str, Any], *, is_current: bool) -> dict[str, 
     }
 
 
-def load_existing_snapshot_manifests(snapshot_root: Path, current_snapshot_id: str) -> list[dict[str, Any]]:
+def load_existing_manifests(snapshot_root: Path, current_snapshot_id: str) -> list[dict[str, Any]]:
+    """Load existing snapshot manifests."""
     manifests: list[dict[str, Any]] = []
+    
     if not snapshot_root.exists():
         return manifests
+    
     for child in sorted(snapshot_root.iterdir()):
         manifest_path = child / "manifest.json"
         if not child.is_dir() or not manifest_path.exists() or child.name == current_snapshot_id:
             continue
+        
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get("snapshot_id"):
             manifests.append(manifest)
+    
     return manifests
 
 
-def build_snapshots_api(manifest: dict[str, Any], historical_manifests: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def build_snapshots_api(
+    manifest: dict[str, Any],
+    historical_manifests: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build snapshots API data."""
     records = [
-        snapshot_record(existing_manifest, is_current=False)
+        build_snapshot_record(existing_manifest, is_current=False)
         for existing_manifest in historical_manifests or []
         if existing_manifest.get("snapshot_id") != manifest["snapshot_id"]
     ]
-    records.append(snapshot_record(manifest, is_current=True))
+    
+    records.append(build_snapshot_record(manifest, is_current=True))
     records.sort(key=lambda record: (record["generated_at"], record["snapshot_id"]))
+    
     return {
         "current_snapshot_id": manifest["snapshot_id"],
         "snapshots": records,
@@ -499,6 +721,7 @@ def build_snapshots_api(manifest: dict[str, Any], historical_manifests: list[dic
 
 
 def build_api_manifest(snapshot_id: str, generated_at: str) -> dict[str, Any]:
+    """Build API manifest."""
     return {
         "api_version": "v1",
         "generated_at": generated_at,
@@ -517,45 +740,12 @@ def build_api_manifest(snapshot_id: str, generated_at: str) -> dict[str, Any]:
     }
 
 
-def build_selector_data(
-    snapshot_id: str,
-    models_api: dict[str, Any],
-    scores_api: dict[str, Any],
-    scenarios_api: dict[str, Any],
-) -> dict[str, Any]:
-    models_by_id = {model["canonical_id"]: model for model in models_api["models"]}
-    selector_models = []
-    for score in scores_api["scores"]:
-        model = models_by_id.get(score["canonical_id"], {})
-        selector_models.append(
-            {
-                "canonical_id": score["canonical_id"],
-                "display_name": model.get("display_name", score["canonical_id"]),
-                "provider": model.get("provider", ""),
-                "model_type": model.get("model_type", ""),
-                "access_type": model.get("access_type", ""),
-                "snapshot_id": snapshot_id,
-                "scores": {
-                    "overall_score": score["overall_score"],
-                    "dimensions": score["dimension_scores"],
-                },
-                "confidence": score["confidence"],
-                "missing_dimensions": score["missing_dimensions"],
-                "source_ids": sorted({source_ref["source_id"] for source_ref in score["source_refs"]}),
-                "source_refs": score["source_refs"],
-            }
-        )
-    return {
-        "snapshot_id": snapshot_id,
-        "dimensions": scenarios_api["dimensions"],
-        "presets": scenarios_api["presets"],
-        "models": selector_models,
-    }
+# ============================================================================
+# WRITE OPERATIONS
+# ============================================================================
 
-
-def write_snapshot_and_api(
+def write_snapshot_files(
     snapshot_dir: Path,
-    api_root: Path,
     manifest: dict[str, Any],
     leaderboard: dict[str, Any],
     evidence: list[dict[str, Any]],
@@ -564,12 +754,14 @@ def write_snapshot_and_api(
     sources_api: dict[str, Any],
     scenarios_api: dict[str, Any],
     snapshots_api: dict[str, Any],
-    api_manifest: dict[str, Any],
     selector_data: dict[str, Any],
 ) -> None:
+    """Write all snapshot files."""
     if snapshot_dir.exists() and any(snapshot_dir.iterdir()):
         raise FileExistsError(f"snapshot directory already exists and is immutable: {snapshot_dir}")
+    
     snapshot_dir.mkdir(parents=True, exist_ok=True)
+    
     write_json(snapshot_dir / "manifest.json", manifest)
     write_json(snapshot_dir / "leaderboard.json", leaderboard)
     write_json(snapshot_dir / "source-evidence.json", {"source_evidence": evidence})
@@ -580,6 +772,19 @@ def write_snapshot_and_api(
     write_json(snapshot_dir / "snapshots.json", snapshots_api)
     write_json(snapshot_dir / "selector-data.json", selector_data)
 
+
+def write_api_files(
+    api_root: Path,
+    api_manifest: dict[str, Any],
+    models_api: dict[str, Any],
+    scores_api: dict[str, Any],
+    evidence: list[dict[str, Any]],
+    sources_api: dict[str, Any],
+    scenarios_api: dict[str, Any],
+    snapshots_api: dict[str, Any],
+    selector_data: dict[str, Any],
+) -> None:
+    """Write all API files."""
     write_json(api_root / "manifest.json", api_manifest)
     write_json(api_root / "models.json", models_api)
     write_json(api_root / "scores.json", scores_api)
@@ -589,6 +794,10 @@ def write_snapshot_and_api(
     write_json(api_root / "snapshots.json", snapshots_api)
     write_json(api_root / "selector-data.json", selector_data)
 
+
+# ============================================================================
+# MAIN PROMOTION FUNCTION
+# ============================================================================
 
 def promote_reviewed_snapshot(
     *,
@@ -602,19 +811,25 @@ def promote_reviewed_snapshot(
     api_root: Path = API,
     generated_at: str | None = None,
 ) -> dict[str, Any]:
+    """Promote reviewed data to snapshot and API."""
     generated_at = generated_at or datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    
+    # Load data
     sources_doc = load_yaml(sources_path)
     models_doc = load_yaml(models_path)
     raw_rows = load_csv(raw_rankings_path)
     normalized_rows = load_csv(normalized_scores_path)
     score_rows = load_csv(model_scores_path)
+    
     sources = sources_doc.get("sources", [])
     models = models_doc.get("models", [])
-
+    
+    # Validate
     errors = validate_promotion_inputs(raw_rows, normalized_rows, score_rows, sources, models)
     if errors:
         return {"ok": False, "errors": errors, "snapshot_dir": None, "api_root": None}
-
+    
+    # Build data
     snapshot_dir = snapshot_root / snapshot_id
     manifest = build_snapshot_manifest(
         snapshot_id=snapshot_id,
@@ -625,47 +840,53 @@ def promote_reviewed_snapshot(
         sources_doc=sources_doc,
         models_doc=models_doc,
     )
+    
     evidence = build_source_evidence(snapshot_id, normalized_rows)
     scored_model_ids = {row.get("canonical_id", "") for row in score_rows if row.get("canonical_id", "")}
     used_source_ids = {row.get("source_id", "") for row in normalized_rows if row.get("source_id", "")}
+    
     models_api = build_models_api(models, scored_model_ids)
     sources_api = build_sources_api(sources, used_source_ids, raw_rows)
     scenarios_api = build_scenarios_api()
     scores_api = build_scores_api(snapshot_id, score_rows, evidence)
-    historical_manifests = load_existing_snapshot_manifests(snapshot_root, snapshot_id)
+    
+    historical_manifests = load_existing_manifests(snapshot_root, snapshot_id)
     snapshots_api = build_snapshots_api(manifest, historical_manifests)
     api_manifest = build_api_manifest(snapshot_id, generated_at)
     selector_data = build_selector_data(snapshot_id, models_api, scores_api, scenarios_api)
+    
     leaderboard = {
         "snapshot_id": snapshot_id,
         "generated_at": generated_at,
         "review_status": "reviewed",
         "scores": scores_api["scores"],
     }
-
+    
+    # Write files
     try:
-        write_snapshot_and_api(
-            snapshot_dir,
-            api_root,
-            manifest,
-            leaderboard,
-            evidence,
-            models_api,
-            scores_api,
-            sources_api,
-            scenarios_api,
-            snapshots_api,
-            api_manifest,
-            selector_data,
+        write_snapshot_files(
+            snapshot_dir, manifest, leaderboard, evidence,
+            models_api, scores_api, sources_api, scenarios_api, snapshots_api, selector_data,
+        )
+        write_api_files(
+            api_root, api_manifest, models_api, scores_api, evidence,
+            sources_api, scenarios_api, snapshots_api, selector_data,
         )
     except FileExistsError as exc:
         return {"ok": False, "errors": [str(exc)], "snapshot_dir": None, "api_root": None}
-
+    
     return {"ok": True, "errors": [], "snapshot_dir": snapshot_dir, "api_root": api_root}
 
 
+# ============================================================================
+# CLI
+# ============================================================================
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Promote reviewed LLM Reality Rank data to immutable snapshot and static API JSON.")
+    """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description="Promote reviewed LLM Reality Rank data to immutable snapshot and static API JSON."
+    )
     parser.add_argument("--snapshot-id", required=True)
     parser.add_argument("--raw-rankings", type=Path, default=DATA / "raw_rankings.csv")
     parser.add_argument("--normalized-scores", type=Path, default=OUTPUTS / "normalized_scores.csv")
@@ -675,7 +896,7 @@ def main() -> int:
     parser.add_argument("--snapshot-root", type=Path, default=SNAPSHOTS)
     parser.add_argument("--api-root", type=Path, default=API)
     args = parser.parse_args()
-
+    
     result = promote_reviewed_snapshot(
         snapshot_id=args.snapshot_id,
         raw_rankings_path=args.raw_rankings,
@@ -686,12 +907,13 @@ def main() -> int:
         snapshot_root=args.snapshot_root,
         api_root=args.api_root,
     )
+    
     if not result["ok"]:
         print("SNAPSHOT PROMOTION FAILED")
         for error in result["errors"]:
             print(f"- {error}")
         return 1
-
+    
     print(f"SNAPSHOT PROMOTION PASSED: {result['snapshot_dir']}")
     print(f"STATIC API WRITTEN: {result['api_root']}")
     return 0
