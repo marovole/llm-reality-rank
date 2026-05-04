@@ -67,6 +67,7 @@ TARGETS = {
         "score_unit": "score",
         "score_higher_is_better": "true",
         "source_url": "https://livebench.ai/",
+        "live_csv_url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv",
         "evaluation_independence": "independent_third_party",
         "source_trust": "high",
         "contamination_risk": "low",
@@ -418,17 +419,63 @@ def ingest_target(target: str, *, mode: str = "fixture", fixture_path: Path | No
 
 
 def ingest_live_safe(target: str) -> IngestionResult:
-    url = TARGETS[target]["source_url"]
+    meta = TARGETS[target]
+    csv_url = meta.get("live_csv_url")
+    fetch_url = csv_url or meta["source_url"]
     try:
-        content = bounded_live_fetch(url)
+        content = bounded_live_fetch(fetch_url)
     except (HTTPError, URLError, TimeoutError, ValueError) as exc:
         return manual_required(target, f"bounded public request failed safely: {exc}", used_network=True)
     if looks_like_pickle(content):
         return manual_required(target, "live response appears to be pickle data; unsafe deserialization refused.", used_network=True)
+    if csv_url and target == "livebench":
+        return parse_livebench_csv(content, source_url=csv_url)
     return manual_required(
         target,
         "bounded public request completed, but no committed safe structured parser is configured for this live response.",
         used_network=True,
+    )
+
+
+def parse_livebench_csv(content: bytes, *, source_url: str) -> IngestionResult:
+    text = content.decode("utf-8", errors="replace")
+    reader = csv.DictReader(text.splitlines())
+    rows: list[dict[str, str]] = []
+    today = date.today().isoformat()
+    for raw in reader:
+        model_name = (raw.get("model") or "").strip()
+        if not model_name:
+            continue
+        task_values: list[float] = []
+        for key, value in raw.items():
+            if key == "model" or value is None:
+                continue
+            try:
+                task_values.append(float(str(value).strip()))
+            except ValueError:
+                continue
+        if not task_values:
+            continue
+        score = round(sum(task_values) / len(task_values), 6)
+        fixture_row = {
+            "model_name_raw": model_name,
+            "canonical_id": "",
+            "provider": "",
+            "rank_raw": "",
+            "score_raw": str(score),
+            "date_published": "",
+            "date_observed": today,
+            "source_url": source_url,
+            "notes": "Live-safe LiveBench CSV ingestion; canonical_id requires human review before promotion.",
+        }
+        rows.append(proposed_row("livebench", fixture_row, source_url=source_url))
+    return IngestionResult(
+        target="livebench",
+        status="ok" if rows else "manual_required",
+        message=f"Parsed {len(rows)} LiveBench rows from live-safe CSV.",
+        rows=rows,
+        used_network=True,
+        source_url=source_url,
     )
 
 
