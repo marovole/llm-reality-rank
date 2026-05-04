@@ -147,6 +147,21 @@ TARGETS = {
         "contamination_risk": "medium",
         "freshness_weight": "0.8",
     },
+    "opencompass": {
+        "source_id": "opencompass_llm",
+        "source_name": "OpenCompass LLM Leaderboard",
+        "source_priority": "P0",
+        "category_primary": "chinese",
+        "metric_name": "opencompass_overall",
+        "metric_type": "aggregate_score",
+        "score_unit": "score",
+        "score_higher_is_better": "true",
+        "source_url": "https://rank.opencompass.org.cn/leaderboard-llm-v2",
+        "evaluation_independence": "platform_or_community",
+        "source_trust": "high",
+        "contamination_risk": "medium",
+        "freshness_weight": "0.9",
+    },
 }
 
 FIELD_ALIASES = {
