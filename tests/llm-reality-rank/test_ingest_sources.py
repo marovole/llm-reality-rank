@@ -595,3 +595,30 @@ def test_fixture_per_row_metric_name_overrides_target_default(tmp_path):
     assert row["metric_name"] == "aa_price_per_million_tokens_blended"
     assert row["metric_type"] == "price"
     assert row["score_higher_is_better"] == "false"
+
+
+def test_livebench_live_safe_parses_github_csv(monkeypatch):
+    module = load_module()
+    fake_csv = (
+        "model,reasoning_average,coding_average,math_average,language_average\n"
+        "gpt-5.5-high,82.0,80.0,79.0,76.0\n"
+        "claude-opus-4-7,84.0,78.0,80.0,82.0\n"
+    ).encode("utf-8")
+
+    def fake_fetch(url, *, timeout=10):
+        assert "LiveBench" in url or "livebench" in url.lower()
+        return fake_csv
+
+    monkeypatch.setattr(module, "bounded_live_fetch", fake_fetch)
+
+    result = module.ingest_target("livebench", mode="live-safe")
+    assert result.status == "ok"
+    assert result.used_network is True
+    assert len(result.rows) == 2
+    scores = {row["model_name_raw"]: float(row["score_raw"]) for row in result.rows}
+    assert scores["gpt-5.5-high"] == 79.25
+    assert scores["claude-opus-4-7"] == 81.0
+    for row in result.rows:
+        assert row["source_id"] == "livebench"
+        assert row["metric_name"] == "global_average"
+        assert row["score_higher_is_better"] == "true"
