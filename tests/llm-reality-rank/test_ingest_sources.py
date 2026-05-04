@@ -35,6 +35,45 @@ def test_cli_list_exposes_superclue_target(capsys):
     assert "SuperCLUE" in captured
 
 
+def test_cli_list_exposes_ceval_target(capsys):
+    module = load_module()
+    module.main(["list"])
+    captured = capsys.readouterr().out
+    assert "ceval" in captured
+    assert "C-Eval" in captured
+
+
+def test_ceval_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "ceval.json"
+    fixture.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "Qwen3-Max",
+                    "canonical_id": "qwen/qwen3-max@unknown",
+                    "provider": "Alibaba",
+                    "rank_raw": "1",
+                    "score_raw": "89.7",
+                    "date_published": "2026-03-20",
+                    "date_observed": "2026-05-03",
+                    "source_url": "https://cevalbenchmark.com/static/leaderboard.html",
+                    "notes": "canonicalization_status=canonicalized",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    result = module.ingest_target("ceval", mode="fixture", fixture_path=fixture)
+    assert result.status == "ok"
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "ceval"
+    assert row["category_primary"] == "chinese"
+    assert row["metric_name"] == "ceval_overall"
+    assert row["score_raw"] == "89.7"
+
+
 def test_superclue_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
     module = load_module()
     fixture = tmp_path / "superclue.json"

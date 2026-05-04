@@ -132,6 +132,21 @@ TARGETS = {
         "contamination_risk": "medium",
         "freshness_weight": "1.0",
     },
+    "ceval": {
+        "source_id": "ceval",
+        "source_name": "C-Eval",
+        "source_priority": "P0",
+        "category_primary": "chinese",
+        "metric_name": "ceval_overall",
+        "metric_type": "benchmark_score",
+        "score_unit": "percent_correct",
+        "score_higher_is_better": "true",
+        "source_url": "https://cevalbenchmark.com/static/leaderboard.html",
+        "evaluation_independence": "independent_third_party",
+        "source_trust": "high",
+        "contamination_risk": "medium",
+        "freshness_weight": "0.8",
+    },
 }
 
 FIELD_ALIASES = {
