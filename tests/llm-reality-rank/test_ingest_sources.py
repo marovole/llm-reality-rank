@@ -296,22 +296,18 @@ def test_artificial_analysis_unresolved_fixture_row_keeps_explicit_status(tmp_pa
     assert "canonicalization_status=unresolved" in row["notes"]
 
 
-def test_lmarena_fixture_fails_closed_to_manual_required_status(tmp_path):
+def test_lmarena_csv_fixture_still_requires_manual_review(tmp_path):
+    """LMArena CSV fixtures stay manual_required because Elo provenance must be hand-verified.
+
+    JSON fixtures are allowed (see test_lmarena_json_fixture_parser_*) because they require
+    explicit per-field curation, but CSV passthrough remains gated.
+    """
     module = load_module()
-    fixture = tmp_path / "lmarena.csv"
-    fixture.write_text(
-        "model_name_raw,canonical_id,provider,rank_raw,score_raw\n"
-        "Gemini 3.1 Pro Preview,google/gemini-3.1-pro-preview@unknown,Google,4,1493\n",
-        encoding="utf-8",
-    )
-
-    result = module.ingest_target("lmarena", mode="fixture", fixture_path=fixture)
-
+    fixture_path = tmp_path / "lmarena.csv"
+    fixture_path.write_text("model_name_raw,canonical_id,score_raw\nGPT-5.5,openai/gpt-5.5-high@unknown,1502\n", encoding="utf-8")
+    result = module.ingest_target("lmarena", mode="fixture", fixture_path=fixture_path)
     assert result.status == "manual_required"
     assert result.used_network is False
-    assert result.rows == []
-    assert "manual" in result.message.lower()
-    assert "unsafe" in result.message.lower()
 
 
 def test_lmarena_pickle_fixture_fails_closed_without_execution(tmp_path):
@@ -466,3 +462,33 @@ models:
 """.lstrip(),
         encoding="utf-8",
     )
+
+
+def test_lmarena_json_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture_path = tmp_path / "lmarena.json"
+    fixture_path.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "GPT-5.5",
+                    "canonical_id": "openai/gpt-5.5-high@unknown",
+                    "provider": "OpenAI",
+                    "rank_raw": "1",
+                    "score_raw": "1502",
+                    "date_published": "2026-05-01",
+                    "date_observed": "2026-05-04",
+                    "source_url": "https://lmarena.ai/leaderboard/",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    result = module.ingest_target("lmarena", mode="fixture", fixture_path=fixture_path)
+    assert result.status == "ok"
+    assert result.used_network is False
+    assert len(result.rows) == 1
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "lmarena_chatbot_arena"
+    assert row["score_raw"] == "1502"

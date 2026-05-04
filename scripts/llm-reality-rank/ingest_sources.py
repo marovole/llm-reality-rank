@@ -322,10 +322,10 @@ def proposed_row(target: str, fixture_row: dict[str, str], *, source_url: str) -
 
 
 def parse_structured_fixture(target: str, fixture_path: Path) -> IngestionResult:
-    if target == "lmarena":
+    if target == "lmarena" and fixture_path.suffix.lower() != ".json":
         return manual_required(
             target,
-            "LMArena fixture ingestion is manual_required: safe structured parser is not configured and unsafe pickle/anti-bot paths are prohibited.",
+            "LMArena fixture ingestion accepts only hand-curated JSON fixtures; CSV/pickle paths require manual review.",
             used_network=False,
         )
     try:
