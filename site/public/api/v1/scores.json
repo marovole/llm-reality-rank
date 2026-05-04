@@ -3,47 +3,200 @@
     {
       "canonical_id": "google/gemini-3.1-pro-preview@unknown",
       "confidence": {
-        "label": "Low",
-        "proxy": "Low",
-        "score": 41.375
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 47.3125
       },
       "dimension_scores": {
+        "Chinese": 78.9,
         "General": 80.706957
       },
       "eligibility": {
         "reason": "insufficient_sources_for_review;insufficient_scenarios_for_review",
-        "status": "ineligible"
+        "status": "provisional"
       },
       "missing_dimensions": [
         "Reasoning_Math",
         "Coding",
-        "Chinese",
         "Multimodal_Doc",
         "Agent_ToolUse",
         "Practicality",
         "Ecosystem"
       ],
       "official_status": "reviewed_snapshot_not_absolute_truth",
-      "overall_score": 80.706957,
+      "overall_score": 79.932547,
       "publication_status": "published",
       "rank": 1,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:google/gemini-3.1-pro-preview@unknown",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:google/gemini-3.1-pro-preview@unknown",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
-        "evidence_count": 1,
-        "scenario_count": 1,
-        "source_count": 1
+        "evidence_count": 2,
+        "scenario_count": 2,
+        "source_count": 2
       },
       "source_refs": [
         {
           "date_observed": "2026-05-03",
           "dimension": "general",
-          "evidence_id": "ev_cec4fc67b71088d4",
+          "evidence_id": "ev_5b600ae67da022bf",
           "metric_name": "global_average",
           "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "livebench",
           "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_46f9829e4069a766",
+          "metric_name": "superclue_total",
+          "notes": "canonicalization_status=canonicalized; canonical_id=google/gemini-3.1-pro-preview@unknown; Reviewed alpha seed observed from SuperCLUE public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "superclue",
+          "url": "https://superclueai.com/"
+        }
+      ],
+      "uncertainty_flags": [
+        "draft_unreviewed",
+        "not_official",
+        "insufficient_sources",
+        "insufficient_scenarios",
+        "missing_dimensions"
+      ]
+    },
+    {
+      "canonical_id": "deepseek/deepseek-v3@2025-03-24",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 43.4875
+      },
+      "dimension_scores": {
+        "Chinese": 79.686957
+      },
+      "eligibility": {
+        "reason": "insufficient_sources_for_review;insufficient_scenarios_for_review",
+        "status": "ineligible"
+      },
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Coding",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Practicality",
+        "Ecosystem"
+      ],
+      "official_status": "reviewed_snapshot_not_absolute_truth",
+      "overall_score": 79.686957,
+      "publication_status": "published",
+      "rank": 2,
+      "review_status": "reviewed",
+      "score_id": "2026-05-beta:deepseek/deepseek-v3@2025-03-24",
+      "snapshot_id": "2026-05-beta",
+      "source_coverage": {
+        "evidence_count": 3,
+        "scenario_count": 1,
+        "source_count": 3
+      },
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_722ed3da8b5d8d03",
+          "metric_name": "superclue_total",
+          "notes": "canonicalization_status=canonicalized; canonical_id=deepseek/deepseek-v3@2025-03-24; Reviewed alpha seed observed from SuperCLUE public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "superclue",
+          "url": "https://superclueai.com/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_09c585f52bbff98a",
+          "metric_name": "ceval_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=deepseek/deepseek-v3@2025-03-24; Reviewed alpha seed observed from C-Eval public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "ceval",
+          "url": "https://cevalbenchmark.com/static/leaderboard.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_9eb03e2a3bfebf38",
+          "metric_name": "opencompass_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=deepseek/deepseek-v3@2025-03-24; Reviewed alpha seed observed from OpenCompass public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "opencompass_llm",
+          "url": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
+        }
+      ],
+      "uncertainty_flags": [
+        "draft_unreviewed",
+        "not_official",
+        "insufficient_sources",
+        "insufficient_scenarios",
+        "missing_dimensions"
+      ]
+    },
+    {
+      "canonical_id": "qwen/qwen3-max@unknown",
+      "confidence": {
+        "label": "Low",
+        "proxy": "Low",
+        "score": 43.4875
+      },
+      "dimension_scores": {
+        "Chinese": 79.545756
+      },
+      "eligibility": {
+        "reason": "insufficient_sources_for_review;insufficient_scenarios_for_review",
+        "status": "ineligible"
+      },
+      "missing_dimensions": [
+        "General",
+        "Reasoning_Math",
+        "Coding",
+        "Multimodal_Doc",
+        "Agent_ToolUse",
+        "Practicality",
+        "Ecosystem"
+      ],
+      "official_status": "reviewed_snapshot_not_absolute_truth",
+      "overall_score": 79.545756,
+      "publication_status": "published",
+      "rank": 3,
+      "review_status": "reviewed",
+      "score_id": "2026-05-beta:qwen/qwen3-max@unknown",
+      "snapshot_id": "2026-05-beta",
+      "source_coverage": {
+        "evidence_count": 3,
+        "scenario_count": 1,
+        "source_count": 3
+      },
+      "source_refs": [
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_18819883fbdffb4b",
+          "metric_name": "superclue_total",
+          "notes": "canonicalization_status=canonicalized; canonical_id=qwen/qwen3-max@unknown; Reviewed alpha seed observed from SuperCLUE public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "superclue",
+          "url": "https://superclueai.com/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_589a20e94da46473",
+          "metric_name": "ceval_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=qwen/qwen3-max@unknown; Reviewed alpha seed observed from C-Eval public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "ceval",
+          "url": "https://cevalbenchmark.com/static/leaderboard.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_ba29a094d982da2d",
+          "metric_name": "opencompass_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=qwen/qwen3-max@unknown; Reviewed alpha seed observed from OpenCompass public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "opencompass_llm",
+          "url": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
         }
       ],
       "uncertainty_flags": [
@@ -57,47 +210,74 @@
     {
       "canonical_id": "openai/gpt-5.5-high@unknown",
       "confidence": {
-        "label": "Low",
-        "proxy": "Low",
-        "score": 41.375
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 57.834375
       },
       "dimension_scores": {
+        "Chinese": 81.733954,
         "General": 77.072739
       },
       "eligibility": {
         "reason": "insufficient_sources_for_review;insufficient_scenarios_for_review",
-        "status": "ineligible"
+        "status": "provisional"
       },
       "missing_dimensions": [
         "Reasoning_Math",
         "Coding",
-        "Chinese",
         "Multimodal_Doc",
         "Agent_ToolUse",
         "Practicality",
         "Ecosystem"
       ],
       "official_status": "reviewed_snapshot_not_absolute_truth",
-      "overall_score": 77.072739,
+      "overall_score": 79.070403,
       "publication_status": "published",
-      "rank": 2,
+      "rank": 4,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:openai/gpt-5.5-high@unknown",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:openai/gpt-5.5-high@unknown",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
-        "evidence_count": 1,
-        "scenario_count": 1,
-        "source_count": 1
+        "evidence_count": 4,
+        "scenario_count": 2,
+        "source_count": 4
       },
       "source_refs": [
         {
           "date_observed": "2026-05-03",
           "dimension": "general",
-          "evidence_id": "ev_02e4d92c0fdb4cf5",
+          "evidence_id": "ev_9e02ac54b2b559a2",
           "metric_name": "global_average",
           "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "livebench",
           "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_f22129e538b52e73",
+          "metric_name": "superclue_total",
+          "notes": "canonicalization_status=canonicalized; canonical_id=openai/gpt-5.5-high@unknown; Reviewed alpha seed observed from SuperCLUE public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "superclue",
+          "url": "https://superclueai.com/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_0218a6052a941335",
+          "metric_name": "ceval_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=openai/gpt-5.5-high@unknown; Reviewed alpha seed observed from C-Eval public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "ceval",
+          "url": "https://cevalbenchmark.com/static/leaderboard.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_f93626cbf3176480",
+          "metric_name": "opencompass_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=openai/gpt-5.5-high@unknown; Reviewed alpha seed observed from OpenCompass public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "opencompass_llm",
+          "url": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
         }
       ],
       "uncertainty_flags": [
@@ -111,47 +291,74 @@
     {
       "canonical_id": "anthropic/claude-opus-4.7@unknown",
       "confidence": {
-        "label": "Low",
-        "proxy": "Low",
-        "score": 41.375
+        "label": "Medium",
+        "proxy": "Medium",
+        "score": 57.834375
       },
       "dimension_scores": {
+        "Chinese": 79.387785,
         "General": 74.655304
       },
       "eligibility": {
         "reason": "insufficient_sources_for_review;insufficient_scenarios_for_review",
-        "status": "ineligible"
+        "status": "provisional"
       },
       "missing_dimensions": [
         "Reasoning_Math",
         "Coding",
-        "Chinese",
         "Multimodal_Doc",
         "Agent_ToolUse",
         "Practicality",
         "Ecosystem"
       ],
       "official_status": "reviewed_snapshot_not_absolute_truth",
-      "overall_score": 74.655304,
+      "overall_score": 76.68351,
       "publication_status": "published",
-      "rank": 3,
+      "rank": 5,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:anthropic/claude-opus-4.7@unknown",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:anthropic/claude-opus-4.7@unknown",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
-        "evidence_count": 1,
-        "scenario_count": 1,
-        "source_count": 1
+        "evidence_count": 4,
+        "scenario_count": 2,
+        "source_count": 4
       },
       "source_refs": [
         {
           "date_observed": "2026-05-03",
           "dimension": "general",
-          "evidence_id": "ev_008e28ad94003432",
+          "evidence_id": "ev_b4550040721864e8",
           "metric_name": "global_average",
           "notes": "Reviewed alpha seed computed as mean of task columns from LiveBench public GitHub table_2026_01_08.csv on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "livebench",
           "url": "https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_1c85ad2e56436445",
+          "metric_name": "superclue_total",
+          "notes": "canonicalization_status=canonicalized; canonical_id=anthropic/claude-opus-4.7@unknown; Reviewed alpha seed observed from SuperCLUE public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "superclue",
+          "url": "https://superclueai.com/"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_2afe15e04dc1496e",
+          "metric_name": "ceval_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=anthropic/claude-opus-4.7@unknown; Reviewed alpha seed observed from C-Eval public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "ceval",
+          "url": "https://cevalbenchmark.com/static/leaderboard.html"
+        },
+        {
+          "date_observed": "2026-05-03",
+          "dimension": "chinese",
+          "evidence_id": "ev_622229f51fbe8bae",
+          "metric_name": "opencompass_overall",
+          "notes": "canonicalization_status=canonicalized; canonical_id=anthropic/claude-opus-4.7@unknown; Reviewed alpha seed observed from OpenCompass public leaderboard on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
+          "source_id": "opencompass_llm",
+          "url": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
         }
       ],
       "uncertainty_flags": [
@@ -188,10 +395,10 @@
       "official_status": "reviewed_snapshot_not_absolute_truth",
       "overall_score": 63.86,
       "publication_status": "published",
-      "rank": 4,
+      "rank": 6,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:google/gemini-2.5-pro@unknown",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:google/gemini-2.5-pro@unknown",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
         "evidence_count": 2,
         "scenario_count": 2,
@@ -201,7 +408,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "coding",
-          "evidence_id": "ev_97b06fe3b660a434",
+          "evidence_id": "ev_bce0749a841e0abe",
           "metric_name": "polyglot_score",
           "notes": "Reviewed alpha seed parsed from public Aider leaderboard HTML on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "aider_leaderboards",
@@ -210,7 +417,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "practical",
-          "evidence_id": "ev_ef12058aed6956c7",
+          "evidence_id": "ev_49a4c6eb92d774ee",
           "metric_name": "intelligence_index",
           "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "artificial_analysis_llm",
@@ -251,10 +458,10 @@
       "official_status": "reviewed_snapshot_not_absolute_truth",
       "overall_score": 57.17802,
       "publication_status": "published",
-      "rank": 5,
+      "rank": 7,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:openai/o3@unknown",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:openai/o3@unknown",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
         "evidence_count": 3,
         "scenario_count": 2,
@@ -264,7 +471,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "coding",
-          "evidence_id": "ev_325313d3fcfb61f7",
+          "evidence_id": "ev_9243072a75b0c6c1",
           "metric_name": "polyglot_score",
           "notes": "Reviewed alpha seed parsed from public Aider leaderboard HTML on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "aider_leaderboards",
@@ -273,7 +480,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "coding",
-          "evidence_id": "ev_cf291e36a8a00bc1",
+          "evidence_id": "ev_8c50cdb777ab0f66",
           "metric_name": "resolved_rate",
           "notes": "Reviewed alpha seed parsed from SWE-bench public embedded leaderboard JSON, Verified board, on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "swe_bench_verified",
@@ -282,7 +489,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "practical",
-          "evidence_id": "ev_996de48925dacdd4",
+          "evidence_id": "ev_5deffdc9bac73f93",
           "metric_name": "intelligence_index",
           "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "artificial_analysis_llm",
@@ -323,10 +530,10 @@
       "official_status": "reviewed_snapshot_not_absolute_truth",
       "overall_score": 35.8,
       "publication_status": "published",
-      "rank": 6,
+      "rank": 8,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:anthropic/claude-3.5-sonnet@2024-10-22",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:anthropic/claude-3.5-sonnet@2024-10-22",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
         "evidence_count": 2,
         "scenario_count": 2,
@@ -336,7 +543,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "coding",
-          "evidence_id": "ev_470333a4be93a865",
+          "evidence_id": "ev_8538ec0d0be88f21",
           "metric_name": "resolved_rate",
           "notes": "Reviewed alpha seed parsed from SWE-bench public embedded leaderboard JSON, Verified board, on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "swe_bench_verified",
@@ -345,7 +552,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "practical",
-          "evidence_id": "ev_93a312b952d7e636",
+          "evidence_id": "ev_7cfe891e5ae71fc5",
           "metric_name": "intelligence_index",
           "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "artificial_analysis_llm",
@@ -386,10 +593,10 @@
       "official_status": "reviewed_snapshot_not_absolute_truth",
       "overall_score": 17.0,
       "publication_status": "published",
-      "rank": 7,
+      "rank": 9,
       "review_status": "reviewed",
-      "score_id": "2026-05-alpha:openai/gpt-4o@2024-08-06",
-      "snapshot_id": "2026-05-alpha",
+      "score_id": "2026-05-beta:openai/gpt-4o@2024-08-06",
+      "snapshot_id": "2026-05-beta",
       "source_coverage": {
         "evidence_count": 1,
         "scenario_count": 1,
@@ -399,7 +606,7 @@
         {
           "date_observed": "2026-05-03",
           "dimension": "practical",
-          "evidence_id": "ev_2e0ae782d596c89c",
+          "evidence_id": "ev_1eda13a722585b7a",
           "metric_name": "intelligence_index",
           "notes": "Reviewed alpha seed parsed from public Artificial Analysis model page text on 2026-05-03; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive.",
           "source_id": "artificial_analysis_llm",

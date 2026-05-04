@@ -1,6 +1,6 @@
 {
   "api_version": "v1",
-  "current_snapshot_id": "2026-05-alpha",
+  "current_snapshot_id": "2026-05-beta",
   "disclaimer": "Reviewed snapshot data is traceable and client-ready, but it is not official truth; confidence, missing dimensions, and limitations must be shown with rankings.",
   "endpoints": {
     "manifest": "/api/v1/manifest.json",
@@ -12,5 +12,5 @@
     "source_evidence": "/api/v1/source-evidence.json",
     "sources": "/api/v1/sources.json"
   },
-  "generated_at": "2026-05-03T13:52:31Z"
+  "generated_at": "2026-05-04T03:21:38Z"
 }

@@ -68,6 +68,36 @@
     },
     {
       "categories": [
+        "chinese",
+        "exams",
+        "knowledge"
+      ],
+      "contamination_risk": "medium_high",
+      "dimensions": [
+        "chinese",
+        "exams",
+        "knowledge"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "accuracy",
+        "exam_benchmark_score"
+      ],
+      "name": "C-Eval",
+      "notes": "当前站点可能有证书问题，抓取时可能需要使用镜像/GitHub/忽略 SSL。",
+      "organization": "C-Eval team",
+      "priority": "P0",
+      "source_id": "ceval",
+      "source_trust": "high",
+      "source_url": "https://cevalbenchmark.com/static/leaderboard.html",
+      "status": "active",
+      "urls": {
+        "primary": "https://cevalbenchmark.com/static/leaderboard.html"
+      }
+    },
+    {
+      "categories": [
         "general",
         "reasoning",
         "math",
@@ -98,6 +128,72 @@
       "status": "active",
       "urls": {
         "primary": "https://livebench.ai/"
+      }
+    },
+    {
+      "categories": [
+        "general",
+        "chinese",
+        "reasoning",
+        "coding",
+        "open_models"
+      ],
+      "contamination_risk": "medium",
+      "dimensions": [
+        "general",
+        "chinese",
+        "reasoning",
+        "coding",
+        "open_models"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "benchmark_aggregate",
+        "task_score"
+      ],
+      "name": "OpenCompass LLM Leaderboard",
+      "notes": "对中文和中国模型覆盖优于许多英文榜单。",
+      "organization": "OpenCompass / Shanghai AI Lab ecosystem",
+      "priority": "P0",
+      "source_id": "opencompass_llm",
+      "source_trust": "high",
+      "source_url": "https://rank.opencompass.org.cn/leaderboard-llm-v2",
+      "status": "active",
+      "urls": {
+        "backup": "https://opencompass.org.cn/leaderboard-llm",
+        "primary": "https://rank.opencompass.org.cn/leaderboard-llm-v2"
+      }
+    },
+    {
+      "categories": [
+        "chinese",
+        "general",
+        "reasoning"
+      ],
+      "contamination_risk": "medium",
+      "dimensions": [
+        "chinese",
+        "general",
+        "reasoning"
+      ],
+      "evaluation_independence": "",
+      "last_observed": "2026-05-03",
+      "metric_types": [
+        "benchmark_aggregate",
+        "task_score"
+      ],
+      "name": "SuperCLUE",
+      "notes": "中文榜单核心来源之一。",
+      "organization": "CLUEbenchmark / SuperCLUE",
+      "priority": "P0",
+      "source_id": "superclue",
+      "source_trust": "high",
+      "source_url": "https://superclueai.com/",
+      "status": "active",
+      "urls": {
+        "github": "https://github.com/CLUEbenchmark/SuperCLUE",
+        "primary": "https://superclueai.com/"
       }
     },
     {

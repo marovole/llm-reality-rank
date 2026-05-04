@@ -1,0 +1,28 @@
+# Overall reviewed alpha table / 综合 Alpha 表
+
+Snapshot: `2026-05-beta`
+
+> Alpha / 不完整覆盖：本表只使用 reviewed snapshot `2026-05-beta` 中已复核的数据。它不是正式综合排名，不代表全面、最终或官方结论。
+
+Description: Uses reviewed snapshot overall_score. Alpha coverage is sparse; this is not a final official ranking.
+
+Generated from: `snapshots/llm-reality-rank/2026-05-beta/scores.json` and `manifest.json`
+
+| Rank | Model | Provider | Overall | Confidence | Eligibility | Coverage | Missing dimensions | Sources |
+|---:|---|---|---:|---|---|---|---|---|
+| 1 | `Gemini 3.1 Pro Preview` | Google | 79.93 | Medium (47.31) | provisional | 2 sources / 2 scenarios | Reasoning_Math, Coding, Multimodal_Doc, Agent_ToolUse, Practicality, Ecosystem | [livebench](https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv), [superclue](https://superclueai.com/) |
+| 2 | `DeepSeek V3 (2025-03-24)` | DeepSeek | 79.69 | Low (43.49) | ineligible | 3 sources / 1 scenarios | General, Reasoning_Math, Coding, Multimodal_Doc, Agent_ToolUse, Practicality, Ecosystem | [superclue](https://superclueai.com/), [ceval](https://cevalbenchmark.com/static/leaderboard.html), [opencompass_llm](https://rank.opencompass.org.cn/leaderboard-llm-v2) |
+| 3 | `Qwen3-Max` | Alibaba Qwen | 79.55 | Low (43.49) | ineligible | 3 sources / 1 scenarios | General, Reasoning_Math, Coding, Multimodal_Doc, Agent_ToolUse, Practicality, Ecosystem | [superclue](https://superclueai.com/), [ceval](https://cevalbenchmark.com/static/leaderboard.html), [opencompass_llm](https://rank.opencompass.org.cn/leaderboard-llm-v2) |
+| 4 | `GPT-5.5 (high)` | OpenAI | 79.07 | Medium (57.83) | provisional | 4 sources / 2 scenarios | Reasoning_Math, Coding, Multimodal_Doc, Agent_ToolUse, Practicality, Ecosystem | [livebench](https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv), [superclue](https://superclueai.com/), [ceval](https://cevalbenchmark.com/static/leaderboard.html), [opencompass_llm](https://rank.opencompass.org.cn/leaderboard-llm-v2) |
+| 5 | `Claude Opus 4.7` | Anthropic | 76.68 | Medium (57.83) | provisional | 4 sources / 2 scenarios | Reasoning_Math, Coding, Multimodal_Doc, Agent_ToolUse, Practicality, Ecosystem | [livebench](https://raw.githubusercontent.com/LiveBench/LiveBench.github.io/main/public/table_2026_01_08.csv), [superclue](https://superclueai.com/), [ceval](https://cevalbenchmark.com/static/leaderboard.html), [opencompass_llm](https://rank.opencompass.org.cn/leaderboard-llm-v2) |
+| 6 | `Gemini 2.5 Pro` | Google | 63.86 | Medium (45.70) | provisional | 2 sources / 2 scenarios | General, Reasoning_Math, Chinese, Multimodal_Doc, Agent_ToolUse, Ecosystem | [aider_leaderboards](https://aider.chat/docs/leaderboards/), [artificial_analysis_llm](https://artificialanalysis.ai/models/gemini-2-5-pro) |
+| 7 | `o3` | OpenAI | 57.18 | Medium (52.55) | provisional | 3 sources / 2 scenarios | General, Reasoning_Math, Chinese, Multimodal_Doc, Agent_ToolUse, Ecosystem | [aider_leaderboards](https://aider.chat/docs/leaderboards/), [swe_bench_verified](https://www.swebench.com/index.html), [artificial_analysis_llm](https://artificialanalysis.ai/models/o3) |
+| 8 | `Claude 3.5 Sonnet (2024-10-22)` | Anthropic | 35.80 | Medium (45.48) | provisional | 2 sources / 2 scenarios | General, Reasoning_Math, Chinese, Multimodal_Doc, Agent_ToolUse, Ecosystem | [swe_bench_verified](https://www.swebench.com/index.html), [artificial_analysis_llm](https://artificialanalysis.ai/models/claude-35-sonnet) |
+| 9 | `GPT-4o (2024-08-06)` | OpenAI | 17.00 | Low (34.33) | ineligible | 1 sources / 1 scenarios | General, Reasoning_Math, Coding, Chinese, Multimodal_Doc, Agent_ToolUse, Ecosystem | [artificial_analysis_llm](https://artificialanalysis.ai/models/gpt-4o) |
+
+Caveat: rows with Low confidence, ineligible status, or many missing dimensions should be treated as evidence excerpts, not settled recommendations.
+
+Included snapshot limitations:
+- Alpha snapshot: intentionally small reviewed seed dataset for downstream content and site integration; it is not comprehensive or final.
+- Reviewed snapshot data is traceable but remains benchmark-dependent and should not be treated as absolute truth.
+- Sparse or missing dimensions are exposed explicitly rather than imputed.

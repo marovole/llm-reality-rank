@@ -61,6 +61,36 @@
       "version": "unknown"
     },
     {
+      "access_type": "api_and_local",
+      "aliases": [
+        "DeepSeek V3",
+        "DeepSeek-V3-0324",
+        "DeepSeek Chat"
+      ],
+      "availability": {
+        "access_type": "api_and_local",
+        "api_model_ids": [
+          "deepseek-chat"
+        ]
+      },
+      "canonical_id": "deepseek/deepseek-v3@2025-03-24",
+      "display_name": "DeepSeek V3 (2025-03-24)",
+      "model_family": "deepseek-v3",
+      "model_type": "open_weight",
+      "model_variant": "chat",
+      "notes": "deepseek-chat may silently map to changing backend; verify date observed.",
+      "open_weight": true,
+      "provider": "DeepSeek",
+      "provider_slug": "deepseek",
+      "source_names": [
+        "DeepSeek V3",
+        "DeepSeek-V3-0324",
+        "DeepSeek Chat"
+      ],
+      "status": "active",
+      "version": "2025-03-24"
+    },
+    {
       "access_type": "api",
       "aliases": [
         "Gemini 2.5 Pro",
@@ -199,6 +229,36 @@
       "source_names": [
         "OpenAI o3",
         "o3"
+      ],
+      "status": "active",
+      "version": "unknown"
+    },
+    {
+      "access_type": "api",
+      "aliases": [
+        "Qwen3-Max",
+        "Qwen Max",
+        "通义千问 Max"
+      ],
+      "availability": {
+        "access_type": "api",
+        "api_model_ids": [
+          "qwen3-max"
+        ]
+      },
+      "canonical_id": "qwen/qwen3-max@unknown",
+      "display_name": "Qwen3-Max",
+      "model_family": "qwen3",
+      "model_type": "closed",
+      "model_variant": "max",
+      "notes": "Verify current commercial model id and release date.",
+      "open_weight": false,
+      "provider": "Alibaba Qwen",
+      "provider_slug": "qwen",
+      "source_names": [
+        "Qwen3-Max",
+        "Qwen Max",
+        "通义千问 Max"
       ],
       "status": "active",
       "version": "unknown"
