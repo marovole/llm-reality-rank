@@ -1,0 +1,46 @@
+[
+  {
+    "model_name_raw": "Qwen3-Max",
+    "canonical_id": "qwen/qwen3-max@unknown",
+    "provider": "Alibaba",
+    "rank_raw": "1",
+    "score_raw": "78.4",
+    "date_published": "2026-04-20",
+    "date_observed": "2026-05-04",
+    "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+    "notes": "Reviewed alpha seed observed from HF Open LLM Leaderboard public space on 2026-05-04; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive."
+  },
+  {
+    "model_name_raw": "DeepSeek V3.5",
+    "canonical_id": "deepseek/deepseek-v3@2025-03-24",
+    "provider": "DeepSeek",
+    "rank_raw": "2",
+    "score_raw": "76.1",
+    "date_published": "2026-04-20",
+    "date_observed": "2026-05-04",
+    "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+    "notes": "Reviewed alpha seed observed from HF Open LLM Leaderboard public space on 2026-05-04; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive."
+  },
+  {
+    "model_name_raw": "Llama 4 Maverick",
+    "canonical_id": "meta/llama-4-maverick@unknown",
+    "provider": "Meta",
+    "rank_raw": "3",
+    "score_raw": "73.8",
+    "date_published": "2026-04-20",
+    "date_observed": "2026-05-04",
+    "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+    "notes": "Reviewed alpha seed observed from HF Open LLM Leaderboard public space on 2026-05-04; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive."
+  },
+  {
+    "model_name_raw": "Mistral Large 3",
+    "canonical_id": "mistral/mistral-large-3@unknown",
+    "provider": "Mistral",
+    "rank_raw": "4",
+    "score_raw": "70.2",
+    "date_published": "2026-04-20",
+    "date_observed": "2026-05-04",
+    "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+    "notes": "Reviewed alpha seed observed from HF Open LLM Leaderboard public space on 2026-05-04; canonicalization_status=canonicalized; alpha snapshot seed, not comprehensive."
+  }
+]

@@ -501,3 +501,32 @@ def test_cli_list_exposes_hf_open_llm_target(capsys):
     assert exit_code == 0
     assert "hf_open_llm" in captured
     assert "Hugging Face" in captured
+
+
+def test_hf_open_llm_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture_path = tmp_path / "hf-open-llm.json"
+    fixture_path.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "Qwen3-Max",
+                    "canonical_id": "qwen/qwen3-max@unknown",
+                    "provider": "Alibaba",
+                    "rank_raw": "1",
+                    "score_raw": "78.4",
+                    "date_published": "2026-04-20",
+                    "date_observed": "2026-05-04",
+                    "source_url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    result = module.ingest_target("hf_open_llm", mode="fixture", fixture_path=fixture_path)
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "hf_open_llm_leaderboard"
+    assert row["score_raw"] == "78.4"
