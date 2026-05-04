@@ -1,0 +1,121 @@
+{
+  "dimensions": [
+    {
+      "display_name": "General capability",
+      "id": "General",
+      "label_zh": "通用能力"
+    },
+    {
+      "display_name": "Reasoning and math",
+      "id": "Reasoning_Math",
+      "label_zh": "推理/数学"
+    },
+    {
+      "display_name": "Coding",
+      "id": "Coding",
+      "label_zh": "编程能力"
+    },
+    {
+      "display_name": "Chinese capability",
+      "id": "Chinese",
+      "label_zh": "中文能力"
+    },
+    {
+      "display_name": "Multimodal and document understanding",
+      "id": "Multimodal_Doc",
+      "label_zh": "多模态/文档理解"
+    },
+    {
+      "display_name": "Agent and tool use",
+      "id": "Agent_ToolUse",
+      "label_zh": "Agent/工具调用"
+    },
+    {
+      "display_name": "Practicality",
+      "id": "Practicality",
+      "label_zh": "成本/速度/上下文"
+    },
+    {
+      "display_name": "Ecosystem",
+      "id": "Ecosystem",
+      "label_zh": "生态/可用性"
+    }
+  ],
+  "presets": [
+    {
+      "description": "Prioritizes coding benchmarks, reasoning, and practical API usability.",
+      "display_name": "Coding / AI 编程",
+      "id": "coding",
+      "weights": {
+        "Coding": 0.5,
+        "General": 0.1,
+        "Practicality": 0.2,
+        "Reasoning_Math": 0.2
+      }
+    },
+    {
+      "description": "Prioritizes Chinese capability, general quality, and ecosystem availability.",
+      "display_name": "Chinese writing / 中文写作",
+      "id": "chinese_writing",
+      "weights": {
+        "Chinese": 0.5,
+        "Ecosystem": 0.15,
+        "General": 0.25,
+        "Practicality": 0.1
+      }
+    },
+    {
+      "description": "Prioritizes tool use, coding, reasoning, and long-task practicality.",
+      "display_name": "Agent workflows / Agent 工作流",
+      "id": "agent_workflows",
+      "weights": {
+        "Agent_ToolUse": 0.4,
+        "Coding": 0.2,
+        "Practicality": 0.2,
+        "Reasoning_Math": 0.2
+      }
+    },
+    {
+      "description": "Prioritizes cost, latency, context, ecosystem, and adequate general capability.",
+      "display_name": "Budget/API value / 预算 API 选型",
+      "id": "budget_api",
+      "weights": {
+        "Coding": 0.15,
+        "Ecosystem": 0.2,
+        "General": 0.2,
+        "Practicality": 0.45
+      }
+    },
+    {
+      "description": "Prioritizes multimodal/document performance plus general and reasoning ability.",
+      "display_name": "Multimodal / 多模态",
+      "id": "multimodal",
+      "weights": {
+        "General": 0.2,
+        "Multimodal_Doc": 0.5,
+        "Practicality": 0.15,
+        "Reasoning_Math": 0.15
+      }
+    },
+    {
+      "description": "Prioritizes deployable/open-weight models with coding, Chinese, and practical strength.",
+      "display_name": "Open-weight usage / 开放权重",
+      "filters": {
+        "model_type": [
+          "open_weight",
+          "open_source",
+          "hosted_open_weight",
+          "local_only"
+        ]
+      },
+      "id": "open_weight",
+      "weights": {
+        "Chinese": 0.15,
+        "Coding": 0.2,
+        "Ecosystem": 0.25,
+        "General": 0.15,
+        "Practicality": 0.25
+      }
+    }
+  ]
+}
