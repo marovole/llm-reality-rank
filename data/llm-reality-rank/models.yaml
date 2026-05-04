@@ -509,6 +509,31 @@ models:
   match_confidence: medium
   notes: Hosted provider behavior may vary; record platform if benchmark uses hosted
     variant.
+- canonical_id: meta/llama-4-maverick@unknown
+  display_name: Llama 4 Maverick
+  provider: Meta
+  provider_slug: meta
+  model_family: llama-4
+  model_variant: maverick
+  version: unknown
+  release_date: null
+  model_type: open_weight
+  access_type: api_and_local
+  license_type: llama_license
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids: []
+  aliases:
+  - Llama 4 Maverick
+  - Meta Llama 4 Maverick
+  match_confidence: low
+  notes: New Llama 4 series model; details pending.
 - canonical_id: mistral/mistral-large@unknown
   display_name: Mistral Large
   provider: Mistral AI
@@ -535,6 +560,30 @@ models:
   - Mistral Large 2
   match_confidence: low
   notes: Need exact version/date for scoring.
+- canonical_id: mistral/mistral-large-3@unknown
+  display_name: Mistral Large 3
+  provider: Mistral AI
+  provider_slug: mistral
+  model_family: mistral-large
+  model_variant: '3'
+  version: unknown
+  release_date: null
+  model_type: closed
+  access_type: api
+  license_type: proprietary
+  parameter_count: null
+  context_window: null
+  modality: text
+  supports_tools: true
+  supports_structured_output: true
+  supports_vision: false
+  supports_audio: false
+  supports_video: false
+  api_model_ids: []
+  aliases:
+  - Mistral Large 3
+  match_confidence: low
+  notes: Third generation Mistral Large model.
 - canonical_id: mistral/codestral@unknown
   display_name: Codestral
   provider: Mistral AI
