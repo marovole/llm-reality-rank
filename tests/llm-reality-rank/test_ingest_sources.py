@@ -35,6 +35,42 @@ def test_cli_list_exposes_superclue_target(capsys):
     assert "SuperCLUE" in captured
 
 
+def test_superclue_fixture_parser_outputs_traceable_rows_without_network(tmp_path):
+    module = load_module()
+    fixture = tmp_path / "superclue.json"
+    fixture.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "GPT-5.5",
+                    "canonical_id": "openai/gpt-5.5-high@unknown",
+                    "provider": "OpenAI",
+                    "rank_raw": "1",
+                    "score_raw": "82.4",
+                    "date_published": "2026-04-15",
+                    "date_observed": "2026-05-03",
+                    "source_url": "https://superclueai.com/",
+                    "notes": "canonicalization_status=canonicalized",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = module.ingest_target("superclue", mode="fixture", fixture_path=fixture)
+
+    assert result.status == "ok"
+    assert result.used_network is False
+    [row] = result.rows
+    assert_required_traceability(row)
+    assert row["source_id"] == "superclue"
+    assert row["category_primary"] == "chinese"
+    assert row["metric_name"] == "superclue_total"
+    assert row["model_name_raw"] == "GPT-5.5"
+    assert row["canonical_id"] == "openai/gpt-5.5-high@unknown"
+    assert row["score_raw"] == "82.4"
+
+
 def test_fixture_mode_parses_rows_without_network(tmp_path):
     module = load_module()
     fixture = tmp_path / "aider.csv"
