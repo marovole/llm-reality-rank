@@ -117,6 +117,21 @@ TARGETS = {
         "contamination_risk": "low_medium",
         "freshness_weight": "1.0",
     },
+    "superclue": {
+        "source_id": "superclue",
+        "source_name": "SuperCLUE",
+        "source_priority": "P0",
+        "category_primary": "chinese",
+        "metric_name": "superclue_total",
+        "metric_type": "aggregate_score",
+        "score_unit": "score",
+        "score_higher_is_better": "true",
+        "source_url": "https://superclueai.com/",
+        "evaluation_independence": "platform_or_community",
+        "source_trust": "high",
+        "contamination_risk": "medium",
+        "freshness_weight": "1.0",
+    },
 }
 
 FIELD_ALIASES = {

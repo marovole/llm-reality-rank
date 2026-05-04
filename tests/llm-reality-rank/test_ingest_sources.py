@@ -26,6 +26,15 @@ def test_cli_list_exposes_first_batch_targets(capsys):
         assert target in output
 
 
+def test_cli_list_exposes_superclue_target(capsys):
+    module = load_module()
+    exit_code = module.main(["list"])
+    captured = capsys.readouterr().out
+    assert exit_code == 0
+    assert "superclue" in captured
+    assert "SuperCLUE" in captured
+
+
 def test_fixture_mode_parses_rows_without_network(tmp_path):
     module = load_module()
     fixture = tmp_path / "aider.csv"
