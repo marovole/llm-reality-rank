@@ -25,7 +25,8 @@ LLM Reality Rank 优先回答这些问题：
 - machine-readable `sources.yaml` / `models.yaml` / `raw_rankings.csv`
 - safe ingestion framework（fixture 默认、bounded live-safe 可选）
 - validate / normalize / aggregate scoring pipeline
-- reviewed alpha snapshot：`snapshots/llm-reality-rank/2026-05-alpha/`
+- reviewed alpha snapshots：`snapshots/llm-reality-rank/2026-05-alpha/` 与 `2026-05-beta/`
+  （beta 加入 SuperCLUE / C-Eval / OpenCompass 中文基准）
 - static API JSON：`site/public/api/v1/` 和 `outputs/llm-reality-rank/api/v1/`
 - article-ready Markdown exports 和公开方法论草稿
 - Astro + Cloudflare Pages 静态站点，包含首页、榜单、模型证据、方法论、快照页和模型选择器
@@ -33,7 +34,7 @@ LLM Reality Rank 优先回答这些问题：
 
 ## Alpha 数据 caveats
 
-`2026-05-alpha` 是 reviewed alpha seed snapshot，不是完整或最终排名：
+`2026-05-alpha` 与 `2026-05-beta` 是 reviewed alpha seed snapshots，不是完整或最终排名：
 
 - 当前只覆盖少量已人工复核、可追溯的种子数据。
 - 缺失维度会显式暴露，不会用未复核数据补齐或插值。
