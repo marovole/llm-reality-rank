@@ -567,3 +567,31 @@ def test_livecodebench_fixture_parser_outputs_traceable_rows_without_network(tmp
     assert_required_traceability(row)
     assert row["source_id"] == "livecodebench"
     assert row["score_raw"] == "84.2"
+
+
+def test_fixture_per_row_metric_name_overrides_target_default(tmp_path):
+    module = load_module()
+    fixture_path = tmp_path / "aa-multi.json"
+    fixture_path.write_text(
+        json.dumps(
+            [
+                {
+                    "model_name_raw": "GPT-5.5",
+                    "canonical_id": "openai/gpt-5.5-high@unknown",
+                    "provider": "OpenAI",
+                    "score_raw": "0.50",
+                    "metric_name": "aa_price_per_million_tokens_blended",
+                    "metric_type": "price",
+                    "score_higher_is_better": "false",
+                    "source_url": "https://artificialanalysis.ai/leaderboards/models",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    result = module.ingest_target("artificial_analysis", mode="fixture", fixture_path=fixture_path)
+    assert result.status == "ok"
+    [row] = result.rows
+    assert row["metric_name"] == "aa_price_per_million_tokens_blended"
+    assert row["metric_type"] == "price"
+    assert row["score_higher_is_better"] == "false"

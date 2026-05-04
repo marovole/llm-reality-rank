@@ -227,6 +227,11 @@ FIELD_ALIASES = {
     "date_observed": ["date_observed", "Date observed", "observed_at"],
     "source_url": ["source_url", "Source URL", "url"],
     "notes": ["notes", "Notes"],
+    "metric_name": ["metric_name", "Metric Name"],
+    "metric_type": ["metric_type", "Metric Type"],
+    "score_higher_is_better": ["score_higher_is_better"],
+    "score_unit": ["score_unit", "unit"],
+    "category_primary": ["category_primary"],
 }
 
 
@@ -348,6 +353,12 @@ def proposed_row(target: str, fixture_row: dict[str, str], *, source_url: str) -
             "notes": row_notes(fixture_row, canonical_id),
         }
     )
+    for override_field in ("metric_name", "metric_type", "score_higher_is_better", "score_unit", "category_primary"):
+        override_value = fixture_value(fixture_row, override_field)
+        if not override_value and isinstance(fixture_row.get(override_field), str):
+            override_value = str(fixture_row[override_field]).strip()
+        if override_value:
+            row[override_field] = override_value
     return row
 
 
